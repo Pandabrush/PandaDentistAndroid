@@ -8,6 +8,7 @@
     <string name="navPandaDentistStore">Panda mall</string>
     <string name="language">Language</string>
     <string name="bindWechat">Bind your account to Wechat</string>
+    <string name="helper">Help</string>
     <string name="logout">Exit</string>
     <string name="zhubaofangshilianji">packet capture connection</string>
     <string name="addDevice">Add device</string>

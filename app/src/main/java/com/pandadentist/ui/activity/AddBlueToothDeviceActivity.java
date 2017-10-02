@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -60,11 +61,19 @@ import static com.pandadentist.ui.activity.UrlDetailActivity.mService;
 
 /**
  * Created by fudaye on 2017/8/17.
+ *
  */
 
 public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
 
     private static final String TAG = AddBlueToothDeviceActivity.class.getSimpleName();
+
+    private static final String EXTRA_HAS_DEVICE = "extraHasDevice";
+    public static void start(Context context, boolean hasDevice) {
+        Intent intent = new Intent(context, AddBlueToothDeviceActivity.class);
+        intent.putExtra(EXTRA_HAS_DEVICE, hasDevice);
+        context.startActivity(intent);
+    }
 
     private static final int REQUEST_SELECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
@@ -107,6 +116,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
     private BlueToothDeviceAdapter mAdapter;
     private List<BluetoothDevice> devices = new ArrayList<>();
     //    private ScanListener mScanListener;
+    private boolean hasDevice;
     private boolean isBind = false;
     private BluetoothLeScanner bluetoothLeScanner;
     private String macAddress;
@@ -123,6 +133,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
             Toasts.showShort("Service 初始化失败");
             finish();
         }
+        hasDevice = getIntent().getBooleanExtra(EXTRA_HAS_DEVICE, false);
         mToolBarTtitle.setText("连接蓝牙");
         mToolbarFuncTv.setText("帮助");
         mToolbarFuncTv.setTextColor(Color.parseColor("#20CBE7"));
@@ -203,7 +214,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
                 if(data.size() == 0 ){
                     String deviceAddress = devices.get(position).getAddress();
                     bindDevice(deviceAddress);
-                }else{
+                } else {
                     Toasts.showShort("一个账户只能绑定一个设备，请先解除绑定！");
                 }
 
@@ -211,120 +222,14 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
             }
         });
         //扫描附近蓝牙设备
-//        mScanListener = new ScanListener();
         bluetoothLeScanner = mBtAdapter.getBluetoothLeScanner();
         bluetoothLeScanner.startScan(new ScanCallback() {
         });
         //扫描
         scanBlueDecvice();
-//        service_init();
     }
 
-//    //UART service connected/disconnected
-//    private ServiceConnection mServiceConnection = new ServiceConnection() {
-//        public void onServiceConnected(ComponentName className, IBinder rawBinder) {
-//            mService = ((UartService.LocalBinder) rawBinder).getService();
-//            Log.d(TAG, "onServiceConnected mService= " + mService);
-//            if (!mService.initialize()) {
-//                Log.e(TAG, "Unable to initialize Bluetooth");
-//                finish();
-//            }
-//
-//        }
-//
-//        public void onServiceDisconnected(ComponentName classname) {
-//            ////     mService.disconnect(mDevice);
-//            mService = null;
-//        }
-//    };
-
     Timer timer = null;
-//    private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
-//
-//        public void onReceive(Context context, Intent intent) {
-//            String action = intent.getAction();
-//            Log.d(TAG, "action-->" + action);
-//            if (action.equals(UartService.ACTION_GATT_CONNECTED)) {
-//                runOnUiThread(new Runnable() {
-//                    public void run() {
-//                        Toasts.showShort("蓝牙连接成功");
-//                        //TODO 通知首页刷新设备列表
-//                        Intent intent = new Intent(UartService.DEVICE_REFRESH_FALG);
-//                        LocalBroadcastManager.getInstance(AddBlueToothDeviceActivity.this).sendBroadcast(intent);
-//                        rv.postDelayed(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                dismiss();
-//                                Log.d("writeRXCharacteristic$$", "writeRXCharacteristic$$");
-//                                mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
-//                                bleProtoProcess.setIsreqenddatas(false);
-//                                bleProtoProcess.setHasrecieved(false);
-//                            }
-//                        }, 2000);
-//                    }
-//                });
-//            }
-//            if (action.equals(UartService.ACTION_GATT_DISCONNECTED)) {
-//                runOnUiThread(new Runnable() {
-//                    public void run() {
-//                        dismiss();
-//                        Toasts.showShort("断开蓝牙连接");
-////                        mState = UART_PROFILE_DISCONNECTED;
-//                        mService.close();
-//                    }
-//                });
-//            }
-//            if (action.equals(UartService.ACTION_GATT_SERVICES_DISCOVERED)) {
-//                mService.enableTXNotification();
-//            }
-//            if (action.equals(UartService.ACTION_DATA_AVAILABLE)) {
-//                timecount = 0;
-//                final byte[] txValue = intent.getByteArrayExtra(UartService.EXTRA_DATA);
-//                int status = bleProtoProcess.interp(txValue);
-//
-//                switch (status) {
-//                    case BLEProtoProcess.BLE_DATA_START:
-//                    case BLEProtoProcess.BLE_RESULT_START:
-//                        bleProtoProcess.setHasrecieved(true);
-//                        showUpload();
-//                        runtype = 1;
-//                        timer = new Timer();
-//                        timer.schedule(new DataProcessTimer(), 0, 200);
-//                        break;
-//                    case BLEProtoProcess.BLE_DATA_RECEIVER:
-//                        break;
-//                    case BLEProtoProcess.BLE_DATA_END:
-//                    case BLEProtoProcess.BLE_RESULT_END:
-//                        runtype = 2;
-//                        timecount = 100;
-//                        break;
-//                    case BLEProtoProcess.BLE_MISSED_RECEIVER:
-//                        break;
-//                    case BLEProtoProcess.BLE_MISSED_END:
-//                        Log.d(TAG, "丢失帧接受完毕");
-//                        timecount = 100;
-//                        break;
-//                    case BLEProtoProcess.BLE_NO_SYNC://没有同步数据
-//                        if (bleProtoProcess.isHasrecieved()) {
-//                            bleProtoProcess.setIsreqenddatas(true);
-//                            mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 0, (byte) 1));
-//                        } else {
-//                            showUpload();
-//                            ivUploadLoading.clearAnimation();
-//                            tvUploadTip.setText("设备暂无最新数据");
-//                            tvPercent.setText("100%");
-//                            colorProgressBar.setProgressColor();
-//                        }
-//                        break;
-//                }
-//            }
-//            //*********************//
-//            if (action.equals(UartService.DEVICE_DOES_NOT_SUPPORT_UART)) {
-//                showMessage("Device doesn't support UART. Disconnecting");
-//                mService.disconnect();
-//            }
-//        }
-//    };
 
     private boolean checkData() {
         try {
@@ -366,12 +271,6 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
         return true;
     }
 
-//    private void service_init() {
-//        Intent bindIntent = new Intent(this, UartService.class);
-//        isBind = bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-//        LocalBroadcastManager.getInstance(this).registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
-//    }
-
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(UartService.ACTION_GATT_CONNECTED);
@@ -393,6 +292,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     String deviceAddress = data.getStringExtra(BluetoothDevice.EXTRA_DEVICE);
                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress);
+
                     Log.d(TAG, "... onActivityResultdevice.address==" + mDevice + "mserviceValue" + mService);
                     ((TextView) findViewById(R.id.deviceName)).setText(mDevice.getName() + " - connecting");
                     mService.connect(deviceAddress);
@@ -419,7 +319,6 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
 
     private void showMessage(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-
     }
 
 
@@ -539,15 +438,6 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        LocalBroadcastManager.getInstance(this).unregisterReceiver(UARTStatusChangeReceiver);
-//        if (isBind) {
-//            unbindService(mServiceConnection);
-//        }
-//        if (mService != null) {
-//            mService.stopSelf();
-//            mService.disconnect();
-//            mService = null;
-//        }
         mHandler.removeCallbacks(scanRunnable);
         mBtAdapter.stopLeScan(mLeScanCallback);
 

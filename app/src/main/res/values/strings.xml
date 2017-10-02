@@ -8,6 +8,7 @@
     <string name="navPandaDentistStore">熊猫商城</string>
     <string name="language">语言</string>
     <string name="bindWechat">绑定我的微信</string>
+    <string name="helper">刷牙指导</string>
     <string name="logout">退出</string>
     <string name="zhubaofangshilianji">抓包方式连接</string>
     <string name="addDevice">添加设备</string>

@@ -61,8 +61,7 @@ public class EmailRegisterActivity extends SwipeRefreshBaseActivity {
         register(email,pwd);
     }
 
-
-    private void  register (String username,String pwd){
+    private void  register (final String username, String pwd){
         APIService api = new APIFactory().create(APIService.class);
         Subscription s = api.emailRegister(username,pwd,"",Constants.AAAA)
                 .subscribeOn(Schedulers.io())

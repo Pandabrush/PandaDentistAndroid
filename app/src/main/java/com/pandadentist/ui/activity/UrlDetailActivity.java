@@ -82,6 +82,7 @@ import static com.pandadentist.config.Constants.ACTIVITY_FOR_RESULT_REQUEST_CODE
 
 /**
  * Created by Ford on 2016/10/14.
+ *
  */
 public class UrlDetailActivity extends SwipeRefreshBaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -128,7 +129,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private LinearLayout llOutView;
     private BluetoothAdapter mBtAdapter = null;
     //    private int mState = UART_PROFILE_DISCONNECTED;
-    private BLEProtoProcess bleProtoProcess;
+    public static BLEProtoProcess bleProtoProcess;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private int timecount = 0;
     private int runtype = 0;//0-未运行， 1-接收数据过程， 2-核对丢失帧过程
@@ -152,9 +153,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         llSwitchDevice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Uri uri=Uri.parse("easylinkage://tooth?getReplayData");
-//                Intent intent=new Intent(Intent.ACTION_VIEW,uri);
-//                startActivity(intent);
                 if (data.size() != 0) {
                     initPopDeviceList(data, true);
                 }
@@ -494,7 +492,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     /**
      * 蓝牙设备选择菜单
      */
-    public void initPopDeviceList(List<DeviceListEntity.DevicesBean> data, boolean isShowView) {
+    public void initPopDeviceList(final List<DeviceListEntity.DevicesBean> data, boolean isShowView) {
         //获取状态栏高度
         Rect frame = new Rect();
         getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);

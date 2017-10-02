@@ -147,7 +147,7 @@ public class LoginActivity extends SwipeRefreshBaseActivity {
     }
 
 
-    private void loginForEmail(String username, String pwd) {
+    private void loginForEmail(final String username, String pwd) {
         APIService api = new APIFactory().create(APIService.class);
         Subscription s = api.loginForEmail(username, pwd, Constants.AAAA)
                 .subscribeOn(Schedulers.io())

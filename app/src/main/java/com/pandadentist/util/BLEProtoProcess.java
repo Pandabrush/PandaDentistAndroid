@@ -1,7 +1,9 @@
 package com.pandadentist.util;
 
 import android.content.Intent;
+import android.widget.Toast;
 
+import com.pandadentist.listener.OnStateListener;
 import com.pandadentist.listener.OnZhenListener;
 
 import java.nio.ByteBuffer;
@@ -31,11 +33,12 @@ public class BLEProtoProcess {
     public static final int BLE_MISSED_RECEIVER = 3;
     public static final int BLE_MISSED_END = 4;
     public static final int BLE_RUNTIME = 20;
+    public static final int BLE_RUNTIME_ACT = 21;
     public static final int BLE_NO_SYNC = -1;
 
 
-    private int datatype=-1;   //定义传输的数据类型        1=请求数据帧，2=请求结果帧，3 过程真   其他暂时无效
-                                //将此发给服务器，用来判断是什么类型的数据， 并相应解析
+    private int datatype = -1;   //定义传输的数据类型        1=请求数据帧，2=请求结果帧，3 过程真   其他暂时无效
+    //将此发给服务器，用来判断是什么类型的数据， 并相应解析
 
     private Map<Integer, byte[]> buffer = Collections.synchronizedMap(new TreeMap<Integer, byte[]>());
     private Vector<byte[]> result = new Vector<byte[]>();
@@ -52,17 +55,19 @@ public class BLEProtoProcess {
     private int time = 0;
 
     //定义实时过程数据
-    private float []    val_rt=new float[4];
-    private int         index_rt = -1;
-    private boolean     pressok_rt, range_rt, angle_rt;
+    private float[] val_rt = new float[4];
+    private float[] xyz_rt = new float[3];
+    private int index_rt = -1;
+    private boolean pressok_rt, range_rt, angle_rt;
 
 
     private StringBuffer mLog = new StringBuffer();
 
     private OnZhenListener onZhenListener;
+    private OnStateListener onStateListener;
 
     private boolean hasrecieved = false;
-    private boolean isreqenddatas= false;
+    private boolean isreqenddatas = false;
 
     public static void main(String[] args) throws Exception {
         BLEProtoProcess bleProtoProcess = new BLEProtoProcess();
@@ -80,7 +85,7 @@ public class BLEProtoProcess {
         mock.add(new byte[]{0x02, 0x00, 0x03, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f});
 
         //发情数据请求帧
-        byte[] request = bleProtoProcess.getRequests((byte)0,(byte)0);
+        byte[] request = bleProtoProcess.getRequests((byte) 0, (byte) 0);
         System.out.println(Bytes.bytes2hexString(request)); //debug
 
         /**
@@ -138,11 +143,11 @@ public class BLEProtoProcess {
         data.put((byte) date.getHours());
         data.put((byte) 0x0);
         data.put((byte) date.getDate());
-        data.put((byte) (date.getMonth()+1));                 //0 开始
-        data.putShort((short)(date.getYear()-100 + 2000));  //1900开始
+        data.put((byte) (date.getMonth() + 1));                 //0 开始
+        data.putShort((short) (date.getYear() - 100 + 2000));  //1900开始
 
         //时间换算为从 1970-1-1 00:00:00 到现在的秒数
-        data.putInt((int) (date.getTime()/1000));   //+时区 cn=8:00:00
+        data.putInt((int) (date.getTime() / 1000));   //+时区 cn=8:00:00
         return data.array();
     }
 
@@ -183,7 +188,7 @@ public class BLEProtoProcess {
         this.missedCheckLimit = 0;
 
         Iterator it = this.buffer.entrySet().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             Map.Entry<Intent, byte[]> entry = (Map.Entry<Intent, byte[]>) it.next();
             this.result.addElement(entry.getValue());
         }
@@ -194,7 +199,7 @@ public class BLEProtoProcess {
         System.out.println("total=" + this.result.size() * 20);
         ByteBuffer data = ByteBuffer.allocate(this.result.size() * 20).order(ByteOrder.LITTLE_ENDIAN);
 
-        for(byte[] frame : this.result) {
+        for (byte[] frame : this.result) {
             data.put(frame);
         }
 
@@ -218,10 +223,10 @@ public class BLEProtoProcess {
         return Bytes.bytes2base64(data.array());
     }*/
 
-    private int  pagesSize = 0;
+    private int pagesSize = 0;
 
     public int getPagesSize() {
-        return pagesSize-1;
+        return pagesSize - 1;
     }
     public void setPageSize(int i){
         this.pagesSize = i;
@@ -240,7 +245,7 @@ public class BLEProtoProcess {
             case BLE_DATA_START:    //0
             case BLE_RESULT_START:
                 pagesSize++;
-                datatype = (type == BLE_DATA_START )?1:2 ;
+                datatype = (type == BLE_DATA_START) ? 1 : 2;
                 software = data.getShort();//Bytes.bytes2short(Bytes.copyOf(response, 4, 2, ByteOrder.LITTLE_ENDIAN));
                 hardware = data.getShort();//Bytes.bytes2short(Bytes.copyOf(response, 6, 2, ByteOrder.LITTLE_ENDIAN));
                 factory = data.getShort();//Bytes.bytes2short(Bytes.copyOf(response, 8, 2, ByteOrder.LITTLE_ENDIAN));
@@ -275,8 +280,8 @@ public class BLEProtoProcess {
                 logBuilder.append(time);
 
                 this.result.addElement(response);
-//                this.buffer.put(index, Bytes.copyOf(response, 0, 20));
                 this.buffer.clear();
+//                this.buffer.put(index, Bytes.copyOf(response, 0, 20));
                 break;
             case BLE_DATA_RECEIVER:     //1
             case BLE_RESULT_RECEIVER:
@@ -285,8 +290,8 @@ public class BLEProtoProcess {
                 logBuilder.append(") :");
                 logBuilder.append(Bytes.bytes2hexString(Bytes.copyOf(response, 0, 20)));
                 this.buffer.put(index, Bytes.copyOf(response, 0, 20));
-                if(onZhenListener != null){
-                    onZhenListener.onZhen(index,totalnum);
+                if (onZhenListener != null) {
+                    onZhenListener.onZhen(index, totalnum);
                 }
                 /**
                  * 检查是否处于丢帧重传中
@@ -297,7 +302,7 @@ public class BLEProtoProcess {
                 if (missIndex != null) {
                     missIndex.remove(Integer.valueOf(index));
 
-                    if (missIndex.size()<=1) {      //==0,最后一帧往往接不到
+                    if (missIndex.size() <= 1) {      //==0,最后一帧往往接不到
                         type = BLE_MISSED_END;
                     } else {
                         type = BLE_MISSED_RECEIVER;
@@ -312,17 +317,34 @@ public class BLEProtoProcess {
                 logBuilder.append("no sync data");
                 break;
             case BLE_RUNTIME:   //实时数据
-
                 datatype = 3;
                 index_rt = index;                   //帧号    由此判断刷牙时间
-                angle_rt = (pagenum & (1<<0))==1;   //角度是否正确，0正确，1错误
-                range_rt = (pagenum & (1<<1))==1;   //幅度是否正确，0正确，1错误
-                pressok_rt = (pagenum & (1<<2))==1; //压力是否正确，0正确，1错误
+                angle_rt = (pagenum & (1 << 0)) == 1;   //角度是否正确，0正确，1错误
+                range_rt = (pagenum & (1 << 1)) == 1;   //幅度是否正确，0正确，1错误
+                pressok_rt = (pagenum & (1 << 2)) == 1; //压力是否正确，0正确，1错误
 
-                for(int i=0; i<4; i++) {            //四元数，发给动画
-                    val_rt[i] = data.getFloat();
+                for (int i = 0; i < 4; i++) {            //四元数，发给动画
+                    val_rt[i] = (float) ((float) data.getShort() / 10000.0);
+                }
+                for (int i = 0; i < 3; i++) {            //位置坐标，发给动画
+                    xyz_rt[i] = (float) ((float) data.getShort() / 10000.0);
                 }
 
+                if (this.onStateListener != null) {
+                    boolean[] state = {angle_rt, range_rt, pressok_rt};
+                    this.onStateListener.onRuntime(this.val_rt, this.xyz_rt, state);
+                }
+                break;
+            case BLE_RUNTIME_ACT:
+                if (this.onStateListener != null) {
+                    this.onStateListener.onRuntimeAct(index);
+                }
+
+                if (index == 0) {
+                    //成功
+                } else {
+                    //请求失败 提示关机再重新请求
+                }
                 break;
         }
         mLog.append("log-->" + logBuilder.toString());
@@ -365,10 +387,15 @@ public class BLEProtoProcess {
         mLog = new StringBuffer();
     }
 
-    public void setOnZhenListener (OnZhenListener onZhenListener){
+    public void setOnZhenListener(OnZhenListener onZhenListener) {
         this.onZhenListener = onZhenListener;
     }
-    public void removeZhenListener(){
+
+    public void setOnStateListener(OnStateListener listener) {
+        this.onStateListener = listener;
+    }
+
+    public void removeZhenListener() {
         onZhenListener = null;
     }
 
