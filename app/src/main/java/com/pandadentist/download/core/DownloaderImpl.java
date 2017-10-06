@@ -1,8 +1,5 @@
 package com.pandadentist.download.core;
 
-
-
-
 import com.pandadentist.download.DownloadConfiguration;
 import com.pandadentist.download.DownloadException;
 import com.pandadentist.download.DownloadInfo;

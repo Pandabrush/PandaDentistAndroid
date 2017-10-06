@@ -1,9 +1,7 @@
 package com.pandadentist.util;
 
-
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.pandadentist.configwifi.android.WifiConfigActivity;
 import com.pandadentist.ui.activity.AddDeviceActivity;
@@ -13,7 +11,6 @@ import com.pandadentist.ui.activity.LoadingActivity;
 import com.pandadentist.ui.activity.LoginActivity;
 import com.pandadentist.ui.activity.SmartLinkerWrapperActivity;
 import com.pandadentist.ui.activity.UrlDetailActivity;
-
 
 /**
  * Created by Ford on 2016/9/18.

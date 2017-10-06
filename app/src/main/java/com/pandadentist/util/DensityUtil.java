@@ -1,9 +1,7 @@
 package com.pandadentist.util;
 
-
 import android.content.Context;
 import android.util.TypedValue;
-
 
 /**
  * @author  Ford

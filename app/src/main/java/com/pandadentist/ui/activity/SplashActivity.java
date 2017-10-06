@@ -1,6 +1,5 @@
 package com.pandadentist.ui.activity;
 
-
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -20,9 +19,6 @@ import java.util.TimerTask;
 
 import butterknife.Bind;
 import butterknife.OnClick;
-
-
-
 
 /**
  * 欢迎界面

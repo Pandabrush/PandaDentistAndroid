@@ -1,6 +1,5 @@
 package com.pandadentist.ui.base;
 
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +19,6 @@ import com.pandadentist.R;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -42,9 +40,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Nullable
     @Bind(R.id.ll_toolbar_search)
     public LinearLayout mLLSearch;
-//    @Nullable
-//    @Bind(R.id.et_search)
-//    public CancelEditTextView mEtSearch;
 //    @Nullable
 //    @Bind(R.id.tv_search_Enable)
 //    public TextView mTvSearch;

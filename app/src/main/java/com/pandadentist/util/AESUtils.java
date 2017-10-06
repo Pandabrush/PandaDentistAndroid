@@ -8,7 +8,6 @@ import java.io.UnsupportedEncodingException;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-
 public class AESUtils {
 
     private static final String TAG = AESUtils.class.getSimpleName();

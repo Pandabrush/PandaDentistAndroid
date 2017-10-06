@@ -8,7 +8,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
-
 import com.pandadentist.R;
 import com.pandadentist.listener.OnRcvScrollListener;
 import com.pandadentist.widget.MultiSwipeRefreshLayout;
@@ -60,7 +59,6 @@ public abstract class SwipeRefreshBaseFragment extends BaseFragment
             });
         }
     }
-
 
     @Override public void requestDataRefresh() {
         mIsRequestDataRefresh = true;

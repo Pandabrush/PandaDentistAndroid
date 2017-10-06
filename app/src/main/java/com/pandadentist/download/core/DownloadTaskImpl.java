@@ -1,6 +1,5 @@
 package com.pandadentist.download.core;
 
-
 import android.os.Process;
 import android.text.TextUtils;
 

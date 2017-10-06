@@ -1,10 +1,5 @@
 package com.pandadentist.configwifi.android;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.util.Log;
@@ -17,7 +12,10 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.pandadentist.R;
-import com.pandadentist.configwifi.utils.Constants;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The adapter with AccessPoint

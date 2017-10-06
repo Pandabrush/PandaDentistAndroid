@@ -134,23 +134,6 @@ public class DownloadManager implements Downloader.OnDownloaderDestroyedListener
         }
     }
 
-//    public void delete(String tag) {
-//        String key = createKey(tag);
-//        if (mDownloaderMap.containsKey(key)) {
-//            Downloader downloader = mDownloaderMap.get(key);
-//            downloader.cancel();
-//        } else {
-//            List<DownloadInfo> infoList = mDBManager.getDownloadInfos(tag);
-//            for (DownloadInfo info : infoList) {
-//                FileUtils.delete(info.getD);
-//            }
-//        }
-//    }
-//
-//    public void deleteAll() {
-//
-//    }
-
     public DownloadInfo getDownloadProgress(String tag) {
         String key = createKey(tag);
         List<ThreadInfo> threadInfos = mDBManager.getThreadInfos(key);

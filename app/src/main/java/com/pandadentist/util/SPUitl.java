@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 import com.pandadentist.App;
 import com.pandadentist.entity.WXEntity;
 
-
 /**
  * SharedPreferences工具类
  * Created by ld on 16/1/18.
@@ -30,7 +29,6 @@ public class SPUitl {
         }
         sp.edit().putBoolean(key, value).commit();
     }
-
 
     /**
      * 在config文件中获取boolean类型的数据

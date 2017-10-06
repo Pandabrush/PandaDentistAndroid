@@ -52,7 +52,7 @@ public class PopDeviceAdapter extends RecyclerView.Adapter<PopDeviceAdapter.View
         TextView name;
         TextView isConnect;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(final View itemView) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.name);
             isConnect = (TextView) itemView.findViewById(R.id.tv_isConnect);

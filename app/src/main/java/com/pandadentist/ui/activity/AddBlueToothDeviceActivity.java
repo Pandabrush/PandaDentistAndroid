@@ -512,7 +512,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
         }
     };
 
-    private void bindDevice(String mac) {
+    private void bindDevice(final String mac) {
         APIService api = new APIFactory().create(APIService.class);
         Subscription s = api.bindDevice(mac.replaceAll(":", ""), SPUitl.getToken())
                 .subscribeOn(Schedulers.io())

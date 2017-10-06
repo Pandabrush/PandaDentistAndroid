@@ -1,6 +1,5 @@
 package com.pandadentist.download.core;
 
-
 import com.pandadentist.download.CallBack;
 import com.pandadentist.download.DownloadException;
 import com.pandadentist.download.architecture.DownloadResponse;

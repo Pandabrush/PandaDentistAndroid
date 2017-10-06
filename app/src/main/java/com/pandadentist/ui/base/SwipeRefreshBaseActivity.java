@@ -9,7 +9,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
-
 import com.pandadentist.R;
 import com.pandadentist.listener.OnRcvScrollListener;
 import com.pandadentist.widget.MultiSwipeRefreshLayout;
@@ -17,7 +16,6 @@ import com.pandadentist.widget.MultiSwipeRefreshLayout;
 import butterknife.Bind;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
-
 
 public abstract class SwipeRefreshBaseActivity extends BaseActivity
         implements SwipeRefreshLayer {
@@ -116,8 +114,11 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity
         }
         throwable.printStackTrace();
         Snackbar.make(view, R.string.snap_load_fail, Snackbar.LENGTH_LONG)
-                .setAction(R.string.retry, v -> {
-                    requestDataRefresh();
+                .setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        requestDataRefresh();
+                    }
                 })
                 .show();
     }
@@ -127,7 +128,12 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity
     }
 
     public void  showLoading(){
-        new Handler().postDelayed(() -> setRefresh(true), 358);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                setRefresh(true);
+            }
+        }, 358);
     }
 
     protected void showProgress(){

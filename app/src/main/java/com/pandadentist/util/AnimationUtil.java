@@ -7,7 +7,6 @@ import android.view.animation.AnimationUtils;
 
 import com.pandadentist.R;
 
-
 /**
  * Created by Ford on 2016/8/4.
  */

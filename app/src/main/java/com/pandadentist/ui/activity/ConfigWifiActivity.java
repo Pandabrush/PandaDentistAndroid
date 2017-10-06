@@ -17,12 +17,8 @@ import com.pandadentist.ui.adapter.DeviceAdapter;
 import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.widget.RecycleDecoration;
 
-
 import java.util.ArrayList;
 import java.util.List;
-
-
-
 
 /**
  * Created by Ford on 2017/5/15.

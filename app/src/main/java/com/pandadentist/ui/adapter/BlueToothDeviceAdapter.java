@@ -36,7 +36,7 @@ public class BlueToothDeviceAdapter extends RecyclerView.Adapter<BlueToothDevice
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         BluetoothDevice device = devices.get(position);
         holder.tv.setText(device.getName());
         holder.btn.setOnClickListener(new View.OnClickListener() {

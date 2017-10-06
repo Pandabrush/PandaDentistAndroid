@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-
 import com.pandadentist.R;
 import com.pandadentist.ui.base.SwipeRefreshBaseFragment;
 import com.pandadentist.util.DensityUtil;
@@ -48,7 +47,7 @@ public class TodayFragment extends SwipeRefreshBaseFragment {
 
     @OnClick(R.id.btn)
     public void onClick() {
-        BottomDialog bottomDialog = BottomDialog.create(getFragmentManager());
+        final BottomDialog bottomDialog = BottomDialog.create(getFragmentManager());
         bottomDialog.setViewListener(new BottomDialog.ViewListener() {
             @Override
             public void bindView(View v) {

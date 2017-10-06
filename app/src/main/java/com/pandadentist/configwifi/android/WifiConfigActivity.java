@@ -92,14 +92,11 @@ public class WifiConfigActivity extends BaseActivity implements View.OnClickList
     private WifiEnabler mWifiEnabler;
     private DetailedState mLastState;
     private WifiInfo mLastInfo;
-//    private Scanner mScanner;
-    //    private WifiAutomaticConnecter mWifiAutomaticConnecter;
     private boolean mResetNetworks = true;
 
     private List<AccessPoint> mLatestAccessPoints;
     private AccessPointAdapter mAccessPointAdapter;
     private List<Module> mModules;
-//    private WifiStatus mLastWifiStatus;
     private long mLastCMD;
     private boolean mIsCMDMode;
     private boolean mApPasswdEmptyWarning;
@@ -248,40 +245,6 @@ public class WifiConfigActivity extends BaseActivity implements View.OnClickList
         tempwifiList = new ArrayList<>();
         //扫描wifi
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-//        mWifiManager.startScan();
-//        List<ScanResult> scanResults = mWifiManager.getScanResults();
-//        检索上次连接的结果
-//        mConnect2ScanResult = Utils.getLastScanResult(this);
-        //检索当前WiFi连接是否存在
-//        mLastWifiStatus = new WifiStatus(this);
-//        mLastWifiStatus.load();
-//        String bssid = mLastWifiStatus.getBSSID();
-//        if (bssid != null) {//if the wifi is connected
-//            //如果wifi连接 这里直接连接 BJYDD
-//            if (scanResults != null) {
-//                ScanResult scanResult = null;
-//                for (int i = 0; i < scanResults.size(); i++) {
-//                    if (Utils.removeDoubleQuotes(scanResults.get(i).BSSID).equals(Utils.removeDoubleQuotes(bssid))) {
-//                        scanResult = scanResults.get(i);
-//                        break;
-//                    }
-//                }
-//                // 把上次连接wifi的结果赋值
-//                if (scanResult != null) {
-//                    mConnect2ScanResult = scanResult;
-//                }
-//            }
-//        } else if (mConnect2ScanResult != null) {//if wifi is not connected
-//
-//            if (scanResults != null) {
-//                for (int i = 0; i < scanResults.size(); i++) {
-//                    if (Utils.removeDoubleQuotes(scanResults.get(i).BSSID).equals(Utils.removeDoubleQuotes(mConnect2ScanResult.BSSID))) {
-//                        mConnect2ScanResult = scanResults.get(i);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
 
         //设置views的初始化和监听
         setupViews();
@@ -302,48 +265,6 @@ public class WifiConfigActivity extends BaseActivity implements View.OnClickList
         };
         //查看wifi是否可用并且通过textview 显示
         mWifiEnabler = new WifiEnabler(this, mToggleButton, mWiFiStateTextView);
-        //扫描wifi 每6秒一次
-//        mScanner = new Scanner(this);
-        // wifi 自动连接器
-//		mWifiAutomaticConnecter = new WifiAutomaticConnecter(this) {
-//
-//			@Override
-//			public void connectSecurity(AccessPoint accessPoint) {
-//
-//				String password = Utils.getSettingApPassword(WifiConfigActivity.this);
-//				if (password == null || password.length()==0) {
-//
-//					if (!mApPasswdEmptyWarning) {
-//						mApPasswdEmptyWarning = true;
-//						new AlertDialog.Builder(WifiConfigActivity.this)
-//								.setTitle(R.string.warning)
-//								.setMessage(getString(R.string.password_not_empty, getSsid()))
-//								.setCancelable(false)
-//								.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-//
-//									@Override
-//									public void onClick(DialogInterface dialog, int which) {
-//										startActivityForResult(new Intent(WifiConfigActivity.this, SettingActivity.class), 1);
-//									}
-//								}).create().show();
-//						return;
-//					}
-//				}
-//
-//				connectAP(accessPoint, password);
-//			}
-//
-//			@Override
-//			public void connectOpenNone(AccessPoint accessPoint, int networkId) {
-//				connect(networkId);
-//			}
-//
-//			@Override
-//			public void onSsidNotFind() {
-//				updateViews(false);
-//				showStatusText(R.color.red, getString(R.string.ap_not_find, Utils.getSettingApSSID(WifiConfigActivity.this)));
-//			}
-//		};
 
         mATCommandListener = new ATCommandListener() {
 

@@ -106,10 +106,13 @@ public class AppHelper {
 //    }
 
 
-    public static void clearGlideCache(Context context) {
+    public static void clearGlideCache(final Context context) {
         Glide.get(context).clearMemory();
-        new Thread(() -> {
-            Glide.get(context).clearDiskCache();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Glide.get(context).clearDiskCache();
+            }
         });
     }
 

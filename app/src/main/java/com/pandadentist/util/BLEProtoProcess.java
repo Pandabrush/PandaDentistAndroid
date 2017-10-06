@@ -1,7 +1,6 @@
 package com.pandadentist.util;
 
 import android.content.Intent;
-import android.widget.Toast;
 
 import com.pandadentist.listener.OnStateListener;
 import com.pandadentist.listener.OnZhenListener;

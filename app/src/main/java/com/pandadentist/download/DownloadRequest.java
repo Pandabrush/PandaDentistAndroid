@@ -1,6 +1,5 @@
 package com.pandadentist.download;
 
-
 import java.io.File;
 
 /**

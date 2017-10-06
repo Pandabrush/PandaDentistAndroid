@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-
 import com.pandadentist.R;
 import com.pandadentist.config.AppConfig;
 import com.jph.takephoto.app.TakePhoto;
@@ -29,7 +28,6 @@ import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
 public abstract class BaseFragment extends TakePhotoFragment {
-
 
     private CompositeSubscription mCompositeSubscription;
 
@@ -51,13 +49,11 @@ public abstract class BaseFragment extends TakePhotoFragment {
     @Bind(R.id.rl_toolbar_back)
     public RelativeLayout mToolBackRl;
 
-
     @Nullable
     @OnClick(R.id.rl_toolbar_back)
     public void onClickBack() {
         getActivity().onBackPressed();
     }
-
 
     public void addSubscription(Subscription s) {
         if (this.mCompositeSubscription == null) {

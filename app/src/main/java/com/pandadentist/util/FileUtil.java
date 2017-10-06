@@ -12,34 +12,40 @@ import java.util.List;
 
 /**
  * Created by zhangwy on 2017/9/23.
- * Upadted by zhangwy on 2017/9/23.
+ * Updated by zhangwy on 2017/9/23.
  * Description
  */
 public class FileUtil {
     public static List<Elements> readElementsFromAsset(Context context) {
-        return readLineFromAsset(context, "013.txt.qq", "    ", array -> {
-            if (array.length < 5)
-                return null;
-            Elements elements = new Elements();
-            elements.setTime(array[0]);
-            elements.setFirst(array[1]);
-            elements.setSecond(array[2]);
-            elements.setThird(array[3]);
-            elements.setFour(array[4]);
-            return elements;
+        return readLineFromAsset(context, "013.txt.qq", "    ", new Command<Elements>() {
+            @Override
+            public Elements execute(String[] array) {
+                if (array.length < 5)
+                    return null;
+                Elements elements = new Elements();
+                elements.setTime(array[0]);
+                elements.setFirst(array[1]);
+                elements.setSecond(array[2]);
+                elements.setThird(array[3]);
+                elements.setFour(array[4]);
+                return elements;
+            }
         });
     }
 
     public static List<CoordInate> readCoordInateFromAsset(Context context) {
-        return readLineFromAsset(context, "013.txt.xyz", "    ", array -> {
-            if (array.length < 4)
-                return null;
-            CoordInate coordInate = new CoordInate();
-            coordInate.setTime(array[0]);
-            coordInate.setX(array[1]);
-            coordInate.setY(array[2]);
-            coordInate.setZ(array[3]);
-            return coordInate;
+        return readLineFromAsset(context, "013.txt.xyz", "    ", new Command<CoordInate>() {
+            @Override
+            public CoordInate execute(String[] array) {
+                if (array.length < 4)
+                    return null;
+                CoordInate coordInate = new CoordInate();
+                coordInate.setTime(array[0]);
+                coordInate.setX(array[1]);
+                coordInate.setY(array[2]);
+                coordInate.setZ(array[3]);
+                return coordInate;
+            }
         });
     }
 

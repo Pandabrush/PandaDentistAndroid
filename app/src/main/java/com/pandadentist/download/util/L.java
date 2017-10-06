@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.pandadentist.download.Constants;
 
-
 /**
  * Created by Aspsine on 2015/4/30.
  */

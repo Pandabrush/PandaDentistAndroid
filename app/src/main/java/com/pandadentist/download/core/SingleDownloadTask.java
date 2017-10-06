@@ -1,10 +1,5 @@
 package com.pandadentist.download.core;
 
-
-
-
-
-
 import com.pandadentist.download.DownloadInfo;
 import com.pandadentist.download.db.ThreadInfo;
 import com.pandadentist.download.architecture.DownloadTask;
