@@ -36,7 +36,7 @@ public class LanguageSwitchActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTtitle.setText(getResources().getText(R.string.LanguageSwitch));
+        mToolBarTitle.setText(getResources().getText(R.string.LanguageSwitch));
         mToolbarFuncTv.setText(getResources().getText(R.string.save));
         mToolbarFuncTv.setTextColor(Color.BLACK);
         mToolbarFuncRl.setOnClickListener(new View.OnClickListener() {

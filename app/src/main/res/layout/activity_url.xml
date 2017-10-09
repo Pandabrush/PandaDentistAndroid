@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
@@ -13,12 +12,10 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-
         <RelativeLayout
             android:id="@+id/fl_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
 
             <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
@@ -30,7 +27,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:visibility="gone">
-
 
                     <ImageView
                         android:layout_width="match_parent"
@@ -48,18 +44,15 @@
                         android:background="@android:color/transparent" />
                 </RelativeLayout>
 
-
                 <RelativeLayout
                     android:id="@+id/rl_content"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:visibility="visible">
 
-
                     <include
                         android:id="@+id/title"
                         layout="@layout/layout_appbar" />
-
 
                     <ImageView
                         android:id="@+id/iv_hint"
@@ -78,8 +71,7 @@
                         android:background="#FD608C"
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
-                        android:visibility="gone"
-                        >
+                        android:visibility="gone">
 
                         <ImageView
                             android:id="@+id/iv"
@@ -120,7 +112,6 @@
                         android:layout_alignParentStart="true"
                         android:layout_below="@+id/rl_tips">
 
-
                         <com.pandadentist.widget.X5ObserWebView
                             android:id="@+id/wv"
                             android:layout_width="match_parent"
@@ -129,12 +120,8 @@
                             android:visibility="gone"
                             tools:context="com.bestfudaye.com.pandadentist.ui.activity.UrlDetailActivity" />
 
-
                     </com.pandadentist.widget.MultiSwipeRefreshLayout>
-
-
                 </RelativeLayout>
-
             </FrameLayout>
         </RelativeLayout>
     </LinearLayout>

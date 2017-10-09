@@ -16,7 +16,7 @@ public class BlueHelperActivity  extends SwipeRefreshBaseActivity{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTtitle.setText("帮助");
+        mToolBarTitle.setText("帮助");
     }
 
     @Override

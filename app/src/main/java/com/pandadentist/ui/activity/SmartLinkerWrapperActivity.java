@@ -31,7 +31,6 @@ import rx.subscriptions.CompositeSubscription;
 
 public class SmartLinkerWrapperActivity extends MulticastSmartLinkerActivity {
 
-
     private static final String TAG = SmartLinkerWrapperActivity.class.getSimpleName();
 
     private boolean isBind = false;

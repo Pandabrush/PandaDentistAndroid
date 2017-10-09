@@ -12,7 +12,6 @@ import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.widget.RoundProgressBarWidthNumber;
-import com.umeng.analytics.MobclickAgent;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -64,13 +63,11 @@ public class SplashActivity extends SwipeRefreshBaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        MobclickAgent.onResume(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        MobclickAgent.onPause(this);
     }
 
     @Override

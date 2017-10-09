@@ -41,7 +41,7 @@ public class ConfigWifiActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTtitle.setText(getResources().getString(R.string.addDevice));
+        mToolBarTitle.setText(getResources().getString(R.string.addDevice));
         mRv = (RecyclerView) findViewById(R.id.rv);
         mRv.setLayoutManager(new LinearLayoutManager(this));
         mRv.addItemDecoration(new RecycleDecoration(ConfigWifiActivity.this));

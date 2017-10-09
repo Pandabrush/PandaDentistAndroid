@@ -38,7 +38,7 @@ public class EmailRegisterActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTtitle.setText(getResources().getString(R.string.emailRegister));
+        mToolBarTitle.setText(getResources().getString(R.string.emailRegister));
     }
 
     @Override

@@ -180,7 +180,8 @@ public class HelperActivity extends Activity implements Handler.Callback{
             }
         };
         bleProtoProcess.setOnStateListener(onStateListener);
-        UrlDetailActivity.mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 20, (byte) 0));
+        startAnim();
+//        UrlDetailActivity.mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 20, (byte) 0));
     }
 
     private Handler handler = new Handler(this);
@@ -198,7 +199,7 @@ public class HelperActivity extends Activity implements Handler.Callback{
             if (element != null && coordInate != null) {
                 float[] val = {element.getFirst(), element.getSecond(), element.getThird(), element.getFour()};
                 float[] xyz = {coordInate.getX(), coordInate.getY(), coordInate.getZ()};
-                boolean[] state = {true, true, true};
+                boolean[] state = {true, false, false};
                 onStateListener.onRuntime(val, xyz, state);
             }
             position++;
@@ -223,5 +224,13 @@ public class HelperActivity extends Activity implements Handler.Callback{
             return;
         }
         handler.sendEmptyMessageDelayed(WHAT_ANIM, DELAYED_ANIM);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (handler != null) {
+            handler.removeMessages(WHAT_ANIM);
+        }
     }
 }

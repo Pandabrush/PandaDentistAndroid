@@ -55,7 +55,7 @@ public class FileUtil {
             InputStream inputStream = context.getAssets().open(fileName);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
-            while (TextUtils.isEmpty(line = bufferedReader.readLine())) {
+            while (!TextUtils.isEmpty(line = bufferedReader.readLine())) {
                 String[] array = line.split(regex);
                 T entity = command.execute(array);
                 if (entity == null)

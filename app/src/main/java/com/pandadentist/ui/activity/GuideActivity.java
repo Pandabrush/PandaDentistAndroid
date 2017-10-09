@@ -20,7 +20,7 @@ public class GuideActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTtitle.setText("如何设置指示灯");
+        mToolBarTitle.setText("如何设置指示灯");
     }
 
     @Override

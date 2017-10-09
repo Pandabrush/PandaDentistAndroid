@@ -17,6 +17,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
@@ -87,13 +88,13 @@ import static com.pandadentist.config.Constants.ACTIVITY_FOR_RESULT_REQUEST_CODE
 public class UrlDetailActivity extends SwipeRefreshBaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = UrlDetailActivity.class.getSimpleName();
-    private static final int REQUEST_SELECT_DEVICE = 1;
+//    private static final int REQUEST_SELECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
-    private static final int UART_PROFILE_READY = 10;
-    private static final int UART_PROFILE_CONNECTED = 20;
-    private static final int UART_PROFILE_DISCONNECTED = 21;
-    private static final int STATE_OFF = 10;
-    private static final long SCAN_PERIOD = 10000; //蓝牙扫描时长10秒
+//    private static final int UART_PROFILE_READY = 10;
+//    private static final int UART_PROFILE_CONNECTED = 20;
+//    private static final int UART_PROFILE_DISCONNECTED = 21;
+//    private static final int STATE_OFF = 10;
+//    private static final long SCAN_PERIOD = 10000; //蓝牙扫描时长10秒
 
 
     @Bind(R.id.iv_hint)
@@ -126,8 +127,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private PopupWindow mDevicePop;
 
     private List<DeviceListEntity.DevicesBean> data = new ArrayList<>();
-    private LinearLayout llOutView;
-    private BluetoothAdapter mBtAdapter = null;
     //    private int mState = UART_PROFILE_DISCONNECTED;
     public static BLEProtoProcess bleProtoProcess;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
@@ -135,7 +134,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private int runtype = 0;//0-未运行， 1-接收数据过程， 2-核对丢失帧过程
     private String currentMacAddress;
     private boolean isBltConnect = false;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -168,7 +166,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
 
         api = WXAPIFactory.createWXAPI(this, APP_ID);
         api.registerApp(APP_ID);
-        mToolBarTtitle.setText(getResources().getString(R.string.app_name));
+        mToolBarTitle.setText(getResources().getString(R.string.app_name));
         mToolBackRl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -203,7 +201,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             }
         }
 
-        mBtAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothAdapter mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBtAdapter == null) {
             Toast.makeText(this, "该设备不支持蓝牙", Toast.LENGTH_LONG).show();
             finish();
@@ -359,8 +357,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 break;
             case ACTIVITY_FOR_RESULT_REQUEST_CODE_SELECT_DEVICE:
                 if (resultCode == Activity.RESULT_OK && data != null) {
-                    String deviceAddress = data.getStringExtra(BluetoothDevice.EXTRA_DEVICE);
-
                     getDeviceList();
                 }
                 break;
@@ -378,7 +374,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
         switch (id) {
@@ -404,7 +400,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         return true;
     }
 
-    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss,R.id.ll_real_time})
+    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss,R.id.ll_helper})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.ll_member_point:
@@ -431,8 +427,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 rlContent.setVisibility(View.VISIBLE);
                 SPUitl.saveFirsRun(false);
                 break;
-            case R.id.ll_real_time:
-                startActivity(new Intent(this,RealTimeBrushToothActivity.class));
+            case R.id.ll_helper:
+                HelperActivity.start(this, this.data != null && !this.data.isEmpty(), this.isBltConnect);
                 break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -450,11 +446,9 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         int yOffset = frame.top + appbar.getHeight();
         if (null == mPopupWindow) {
             //初始化PopupWindow的布局
-            View popView = getLayoutInflater().inflate(R.layout.action_overflow_popwindow, null);
+            View popView = getLayoutInflater().inflate(R.layout.action_overflow_popwindow, null, false);
             //popView即popupWindow的布局，ture设置focusAble.
-            mPopupWindow = new PopupWindow(popView,
-                    (int) DensityUtil.dp(130),
-                    ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            mPopupWindow = new PopupWindow(popView, (int) DensityUtil.dp(130), ViewGroup.LayoutParams.WRAP_CONTENT, true);
             //必须设置BackgroundDrawable后setOutsideTouchable(true)才会有效
             mPopupWindow.setBackgroundDrawable(new ColorDrawable());
             //点击外部关闭。
@@ -474,10 +468,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             popView.findViewById(R.id.ll_item2).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // 蓝牙
-//                    if(mService!= null){
-//                        mService.disconnect();
-//                    }
                     Intent intent = new Intent(UrlDetailActivity.this, AddBlueToothDeviceActivity.class);
                     startActivityForResult(intent, ACTIVITY_FOR_RESULT_REQUEST_CODE_SELECT_DEVICE);
                     mPopupWindow.dismiss();
@@ -519,7 +509,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             }
             //设置点击事件
             RecyclerView rv = (RecyclerView) popView.findViewById(R.id.rv);
-            llOutView = (LinearLayout) popView.findViewById(R.id.ll_out_view);
+            LinearLayout llOutView = (LinearLayout) popView.findViewById(R.id.ll_out_view);
             llOutView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -596,7 +586,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                 }
                                 if (data.size() != 0) {
                                     llSwitchDevice.setVisibility(View.VISIBLE);
-                                    mToolBarTtitle.setVisibility(View.GONE);
+                                    mToolBarTitle.setVisibility(View.GONE);
                                     mTvDeviceName.setText(data.get(0).getUsername() + "-" + data.get(0).getDeviceid());
                                     //发现绑定设备  连接并尝试同步数据  第一次连接
                                     StringBuffer sb = new StringBuffer(data.get(0).getDeviceid());
@@ -621,7 +611,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                 }
                             } else {
                                 llSwitchDevice.setVisibility(View.GONE);
-                                mToolBarTtitle.setVisibility(View.VISIBLE);
+                                mToolBarTitle.setVisibility(View.VISIBLE);
                             }
 
                         } else {
@@ -677,7 +667,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         intentFilter.addAction(UartService.DEVICE_REFRESH_FALG);
         return intentFilter;
     }
-
 
     Timer timer = null;
     private int posi = 0;

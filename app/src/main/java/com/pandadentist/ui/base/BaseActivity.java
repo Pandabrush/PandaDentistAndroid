@@ -24,7 +24,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Nullable
     @Bind(R.id.tv_toolbar_title)
-    public TextView mToolBarTtitle;
+    public TextView mToolBarTitle;
     @Nullable
     @Bind(R.id.rl_toolbar_func)
     public RelativeLayout mToolbarFuncRl;
@@ -40,9 +40,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Nullable
     @Bind(R.id.ll_toolbar_search)
     public LinearLayout mLLSearch;
-//    @Nullable
-//    @Bind(R.id.tv_search_Enable)
-//    public TextView mTvSearch;
     @Nullable
     @Bind(R.id.iv_toolbar_back)
     public ImageView mTitleBackIv;
@@ -61,27 +58,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(providerLayoutId());
         ButterKnife.bind(this);
-//        if (mEtSearch != null) {
-//            mEtSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//
-//                @Override
-//                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//                    if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-//                        ((InputMethodManager) mEtSearch.getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
-//                                .hideSoftInputFromWindow(
-//                                        getCurrentFocus().getWindowToken(),
-//                                        InputMethodManager.HIDE_NOT_ALWAYS);
-//                        todoSearch(mEtSearch.getText().toString().trim());
-//                        return true;
-//                    }
-//                    return false;
-//                }
-//            });
-//        }
     }
 
-
-    public void  todoSearch(String keyword){}
+    public void todoSearch(String keyword){}
 
     public abstract int providerLayoutId();
 

@@ -134,7 +134,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
             finish();
         }
         hasDevice = getIntent().getBooleanExtra(EXTRA_HAS_DEVICE, false);
-        mToolBarTtitle.setText("连接蓝牙");
+        mToolBarTitle.setText("连接蓝牙");
         mToolbarFuncTv.setText("帮助");
         mToolbarFuncTv.setTextColor(Color.parseColor("#20CBE7"));
         mToolbarFuncRl.setOnClickListener(new View.OnClickListener() {

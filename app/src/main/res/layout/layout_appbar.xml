@@ -15,6 +15,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:title=" ">
+
         <include layout="@layout/layout_toolbar" />
     </android.support.v7.widget.Toolbar>
 

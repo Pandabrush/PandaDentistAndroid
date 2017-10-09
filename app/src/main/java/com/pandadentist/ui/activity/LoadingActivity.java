@@ -51,7 +51,7 @@ public class LoadingActivity extends SwipeRefreshBaseActivity {
         String mac = getIntent().getStringExtra("mac");
         Log.d("TAG", "mac-->" + mac);
         handler = new Handler();
-        mToolBarTtitle.setText(getResources().getString(R.string.connectWifi));
+        mToolBarTitle.setText(getResources().getString(R.string.connectWifi));
         timer = new Timer();
         timerTask = new TimerTask() {
             @Override

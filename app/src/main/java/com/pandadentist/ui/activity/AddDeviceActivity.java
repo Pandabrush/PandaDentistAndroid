@@ -26,7 +26,7 @@ public class AddDeviceActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTtitle.setText(getResources().getString(R.string.addDevice));
+        mToolBarTitle.setText(getResources().getString(R.string.addDevice));
         mTv.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
         mTv.getPaint().setAntiAlias(true);
     }

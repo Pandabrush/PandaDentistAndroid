@@ -25,7 +25,7 @@ public class ConnectWifiActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTtitle.setText(getResources().getString(R.string.connectWifi));
+        mToolBarTitle.setText(getResources().getString(R.string.connectWifi));
     }
 
     @Override
