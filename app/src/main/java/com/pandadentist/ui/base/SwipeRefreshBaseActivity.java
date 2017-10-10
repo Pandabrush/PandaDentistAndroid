@@ -17,13 +17,9 @@ import butterknife.Bind;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
-public abstract class SwipeRefreshBaseActivity extends BaseActivity
-        implements SwipeRefreshLayer {
-
-    private  static final String TAG = "";
+public abstract class SwipeRefreshBaseActivity extends BaseActivity implements SwipeRefreshLayer {
 
     protected ProgressDialog mProg;
-
 
     private CompositeSubscription mCompositeSubscription;
 
@@ -31,7 +27,6 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity
     @Bind(R.id.swipe_refresh_layout)
     public MultiSwipeRefreshLayout mSwipeRefreshLayout;
     private boolean mIsRequestDataRefresh = false;
-
 
     public OnRcvScrollListener onRcvScrollListener = new OnRcvScrollListener() {
         @Override
@@ -44,7 +39,6 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity
     public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
     }
-
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -80,7 +74,6 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity
     public void requestDataRefresh() {
         mIsRequestDataRefresh = true;
     }
-
 
     public void setRefresh(boolean requestDataRefresh) {
         if (mSwipeRefreshLayout == null) {

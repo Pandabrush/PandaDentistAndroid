@@ -18,6 +18,7 @@ import java.util.Vector;
 
 /**
  * Created by maya on 17/6/21.
+ *
  */
 public class BLEProtoProcess {
 

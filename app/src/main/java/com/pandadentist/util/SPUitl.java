@@ -18,10 +18,6 @@ public class SPUitl {
 
     /**
      * 保存boolean类型的数据到config文件中
-     *
-     * @param context
-     * @param key
-     * @param value
      */
     public static void saveBooleanData(Context context, String key, boolean value) {
         if (sp == null) {
@@ -32,25 +28,16 @@ public class SPUitl {
 
     /**
      * 在config文件中获取boolean类型的数据
-     *
-     * @param context
-     * @param key
-     * @param defvalue
-     * @return
      */
-    public static boolean getBooleanData(Context context, String key, boolean defvalue) {
+    public static boolean getBooleanData(Context context, String key, boolean defaultValue) {
         if (sp == null) {
             sp = context.getSharedPreferences(CONFIG, Context.MODE_PRIVATE);
         }
-        return sp.getBoolean(key, defvalue);
+        return sp.getBoolean(key, defaultValue);
     }
 
     /**
      * 保存String类型的数据到config文件中
-     *
-     * @param context
-     * @param key
-     * @param value
      */
     public static void saveStringData(Context context, String key, String value) {
         if (sp == null) {
@@ -62,25 +49,16 @@ public class SPUitl {
 
     /**
      * 在config文件中获取String类型的数据
-     *
-     * @param context
-     * @param key
-     * @param defvalue
-     * @return
      */
-    public static String getStringData(Context context, String key, String defvalue) {
+    public static String getStringData(Context context, String key, String defaultValue) {
         if (sp == null) {
             sp = context.getSharedPreferences(CONFIG, Context.MODE_PRIVATE);
         }
-        return sp.getString(key, defvalue);
+        return sp.getString(key, defaultValue);
     }
 
     /**
      * 保存Int类型的数据到config文件中
-     *
-     * @param context
-     * @param key
-     * @param value
      */
     public static void saveIntData(Context context, String key, int value) {
         if (sp == null) {
@@ -92,17 +70,12 @@ public class SPUitl {
 
     /**
      * 在config文件中获取String类型的数据
-     *
-     * @param context
-     * @param key
-     * @param defvalue
-     * @return
      */
-    public static int getIntData(Context context, String key, int defvalue) {
+    public static int getIntData(Context context, String key, int defaultValue) {
         if (sp == null) {
             sp = context.getSharedPreferences(CONFIG, Context.MODE_PRIVATE);
         }
-        return sp.getInt(key, defvalue);
+        return sp.getInt(key, defaultValue);
     }
 
     public static void saveSettingVibrate(boolean b) {
@@ -130,8 +103,7 @@ public class SPUitl {
     }
 
     public static boolean getSettingNotify() {
-        return App.sContext.getSharedPreferences("setting", Context.MODE_PRIVATE).getBoolean("Notify",
-                true);
+        return App.sContext.getSharedPreferences("setting", Context.MODE_PRIVATE).getBoolean("Notify", true);
     }
 
     public static void saveUser(String jsonStr) {
@@ -147,16 +119,6 @@ public class SPUitl {
     public static String getChannelId() {
         return App.sContext.getSharedPreferences("channelId", Context.MODE_PRIVATE).getString("channelId", "");
     }
-
-//    public static UserEntity getLocalUser(){
-//        SharedPreferences s = App.sContext.getSharedPreferences("user",Context.MODE_PRIVATE);
-//        String str = AESUtils.desAESCode(s.getString("userStr",""));
-//        if(TextUtils.isEmpty(str)){
-//            return null;
-//        }else{
-//            return new Gson().fromJson(str,UserEntity.class);
-//        }
-//    }
 
     public static void clear() {
         SharedPreferences s = App.sContext.getSharedPreferences("user", Context.MODE_PRIVATE);
