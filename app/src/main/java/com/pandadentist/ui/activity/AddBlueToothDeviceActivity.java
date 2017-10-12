@@ -361,7 +361,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
                         result.putExtras(b);
                         setResult(Activity.RESULT_OK, result);
                         finish();
-                        //TODO 返回首页更新数据
+                        // 返回首页更新数据
                     }
                 }, new Action1<Throwable>() {
                     @Override

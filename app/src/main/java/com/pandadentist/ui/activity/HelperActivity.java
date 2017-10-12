@@ -21,6 +21,9 @@ import com.pandadentist.listener.OnStateListener;
 import com.pandadentist.listener.OnZhenListener;
 import com.pandadentist.util.BLEProtoProcess;
 import com.pandadentist.util.FileUtil;
+import com.pandadentist.util.Logger;
+
+import org.json.JSONArray;
 
 import java.util.List;
 import java.util.Locale;
@@ -168,15 +171,30 @@ public class HelperActivity extends Activity implements Handler.Callback{
                     Toast.makeText(HelperActivity.this, "设备正忙，请稍候重拾", Toast.LENGTH_LONG).show();
                     return;
                 }
-                String startReplayAnimate = "javascript:startReplayAnimate(%f, %f, %f, %f, %f, %f, %f)";
-                String js = String.format(Locale.getDefault(), startReplayAnimate, val[0], val[1], val[2], val[3], xyz[0], xyz[1], xyz[2]);
-                Log.d("Helper", js);
-                Toast.makeText(HelperActivity.this, js, Toast.LENGTH_LONG).show();
-                webView.loadUrl(js);
-                String showReplayInfo = "javascript:showReplayInfo(%b, %b, %b)";
-                js = String.format(Locale.getDefault(), showReplayInfo, state[0], state[1], state[2]);
-                Log.d("Helper", js);
-                webView.loadUrl(js);
+                try {
+                    JSONArray valArray = new JSONArray();
+                    for (int i = 0; i < 4; i++) {
+                        valArray.put(val[i]);
+                    }
+                    JSONArray xyzArray = new JSONArray();
+                    for (int i = 0; i < 3; i++) {
+                        xyzArray.put(xyz[i]);
+                    }
+                    JSONArray jsonArray = new JSONArray();
+                    jsonArray.put(valArray);
+                    jsonArray.put(xyzArray);
+                    jsonArray.put(state[0]);
+                    jsonArray.put(state[1]);
+                    jsonArray.put(state[2]);
+
+//                    String info = "javascript:startReplayAnimate([%f, %f, %f, %f], [%f, %f, %f], %b, %b, %b)";
+                    String info = "javascript:startReplayAnimate(%s)";
+                    String js = String.format(Locale.getDefault(), info, jsonArray.toString());
+                    Log.d("Helper", js);
+                    webView.loadUrl(js);
+                } catch (Exception e) {
+                    Logger.e("onRuntime", e);
+                }
             }
         };
         bleProtoProcess.setOnStateListener(onStateListener);
