@@ -20,12 +20,10 @@ import com.pandadentist.R;
 import com.pandadentist.listener.OnStateListener;
 import com.pandadentist.listener.OnZhenListener;
 import com.pandadentist.util.BLEProtoProcess;
-import com.pandadentist.util.FileUtil;
 import com.pandadentist.util.Logger;
 
 import org.json.JSONArray;
 
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -68,13 +66,13 @@ public class HelperActivity extends Activity implements Handler.Callback{
         this.webView.setVisibility(View.GONE);
         this.nativeHome.setVisibility(View.GONE);
         Bundle intent = getIntent().getExtras();
-//        if (!intent.getBoolean(EXTRA_HAS_DEVICE)) {
-//            this.initNoDevice();
-//        } else if (!intent.getBoolean(EXTRA_BLT_CONNECT)) {
-//            this.initDeviceOn();
-//        } else {
+        if (!intent.getBoolean(EXTRA_HAS_DEVICE)) {
+            this.initNoDevice();
+        } else if (!intent.getBoolean(EXTRA_BLT_CONNECT)) {
+            this.initDeviceOn();
+        } else {
             this.initNone();
-//        }
+        }
     }
 
     private void initNoDevice() {
@@ -181,8 +179,8 @@ public class HelperActivity extends Activity implements Handler.Callback{
                         xyzArray.put(xyz[i]);
                     }
                     JSONArray jsonArray = new JSONArray();
-                    jsonArray.put(valArray);
                     jsonArray.put(xyzArray);
+                    jsonArray.put(valArray);
                     jsonArray.put(state[0]);
                     jsonArray.put(state[1]);
                     jsonArray.put(state[2]);
@@ -198,57 +196,57 @@ public class HelperActivity extends Activity implements Handler.Callback{
             }
         };
         bleProtoProcess.setOnStateListener(onStateListener);
-        startAnim();
-//        UrlDetailActivity.mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 20, (byte) 0));
+//        startAnim();
+        UrlDetailActivity.mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 20, (byte) 0));
     }
 
-    private Handler handler = new Handler(this);
-    private List<FileUtil.Elements> elements;
-    private List<FileUtil.CoordInate> coordInates;
-    private final int WHAT_ANIM = 100;
-    private final int DELAYED_ANIM = 25;
-    private int position = 0;
+//    private Handler handler = new Handler(this);
+//    private List<FileUtil.Elements> elements;
+//    private List<FileUtil.CoordInate> coordInates;
+//    private final int WHAT_ANIM = 100;
+//    private final int DELAYED_ANIM = 25;
+//    private int position = 0;
 
     @Override
     public boolean handleMessage(Message msg) {
-        if (position < elements.size() && position < coordInates.size()) {
-            FileUtil.Elements element = elements.get(position);
-            FileUtil.CoordInate coordInate = coordInates.get(position);
-            if (element != null && coordInate != null) {
-                float[] val = {element.getFirst(), element.getSecond(), element.getThird(), element.getFour()};
-                float[] xyz = {coordInate.getX(), coordInate.getY(), coordInate.getZ()};
-                boolean[] state = {true, false, false};
-                onStateListener.onRuntime(val, xyz, state);
-            }
-            position++;
-            sendAnim();
-        }
+//        if (position < elements.size() && position < coordInates.size()) {
+//            FileUtil.Elements element = elements.get(position);
+//            FileUtil.CoordInate coordInate = coordInates.get(position);
+//            if (element != null && coordInate != null) {
+//                float[] val = {element.getFirst(), element.getSecond(), element.getThird(), element.getFour()};
+//                float[] xyz = {coordInate.getX(), coordInate.getY(), coordInate.getZ()};
+//                boolean[] state = {true, false, false};
+//                onStateListener.onRuntime(val, xyz, state);
+//            }
+//            position++;
+//            sendAnim();
+//        }
         return true;
     }
-
-    private void startAnim() {
-        elements = FileUtil.readElementsFromAsset(this);
-        coordInates = FileUtil.readCoordInateFromAsset(this);
-        if (elements == null || elements.isEmpty() || coordInates == null || coordInates.isEmpty()) {
-            Toast.makeText(this, "无数据", Toast.LENGTH_LONG).show();
-            return;
-        }
-        this.sendAnim();
-    }
-
-    private void sendAnim() {
-        if (position >= elements.size() || position >= coordInates.size()) {
-            Toast.makeText(this, "动画结束", Toast.LENGTH_LONG).show();
-            return;
-        }
-        handler.sendEmptyMessageDelayed(WHAT_ANIM, DELAYED_ANIM);
-    }
+//
+//    private void startAnim() {
+//        elements = FileUtil.readElementsFromAsset(this);
+//        coordInates = FileUtil.readCoordInateFromAsset(this);
+//        if (elements == null || elements.isEmpty() || coordInates == null || coordInates.isEmpty()) {
+//            Toast.makeText(this, "无数据", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//        this.sendAnim();
+//    }
+//
+//    private void sendAnim() {
+//        if (position >= elements.size() || position >= coordInates.size()) {
+//            Toast.makeText(this, "动画结束", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//        handler.sendEmptyMessageDelayed(WHAT_ANIM, DELAYED_ANIM);
+//    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (handler != null) {
-            handler.removeMessages(WHAT_ANIM);
-        }
+//        if (handler != null) {
+//            handler.removeMessages(WHAT_ANIM);
+//        }
     }
 }
