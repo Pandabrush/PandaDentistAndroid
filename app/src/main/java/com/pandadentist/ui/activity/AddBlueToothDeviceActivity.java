@@ -164,7 +164,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanBlueDecvice();
+                scanBlueDevice();
             }
         });
 
@@ -202,7 +202,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
         mBtAdapter.getBluetoothLeScanner().startScan(new ScanCallback() {
         });
         //扫描
-        scanBlueDecvice();
+        scanBlueDevice();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -285,7 +285,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
     private Handler mHandler = new Handler();
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void scanBlueDecvice() {
+    private void scanBlueDevice() {
         showLoadingView();
         mHandler.postDelayed(scanRunnable, SCAN_PERIOD);
         mBtAdapter.startLeScan(mLeScanCallback);

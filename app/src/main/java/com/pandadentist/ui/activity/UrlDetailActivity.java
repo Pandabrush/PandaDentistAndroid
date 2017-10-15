@@ -16,7 +16,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.LocalBroadcastManager;
@@ -52,6 +54,7 @@ import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.BLEProtoProcess;
 import com.pandadentist.util.DensityUtil;
 import com.pandadentist.util.IntentHelper;
+import com.pandadentist.util.Logger;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
 import com.pandadentist.widget.RecycleViewDivider;
@@ -82,20 +85,11 @@ import static com.pandadentist.R.id.tv;
 import static com.pandadentist.config.Constants.ACTIVITY_FOR_RESULT_REQUEST_CODE_SELECT_DEVICE;
 
 /**
- * Created by Ford on 2016/10/14.
- *
+ * zhangwy
  */
-public class UrlDetailActivity extends SwipeRefreshBaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class UrlDetailActivity extends SwipeRefreshBaseActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback {
 
-    private static final String TAG = UrlDetailActivity.class.getSimpleName();
-//    private static final int REQUEST_SELECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
-//    private static final int UART_PROFILE_READY = 10;
-//    private static final int UART_PROFILE_CONNECTED = 20;
-//    private static final int UART_PROFILE_DISCONNECTED = 21;
-//    private static final int STATE_OFF = 10;
-//    private static final long SCAN_PERIOD = 10000; //蓝牙扫描时长10秒
-
 
     @Bind(R.id.iv_hint)
     ImageView mivHint;
@@ -127,7 +121,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private PopupWindow mDevicePop;
 
     private List<DeviceListEntity.DevicesBean> data = new ArrayList<>();
-    //    private int mState = UART_PROFILE_DISCONNECTED;
     public static BLEProtoProcess bleProtoProcess;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private int timecount = 0;
@@ -135,9 +128,17 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private String currentMacAddress;
     private boolean isBltConnect = false;
 
+    private Handler handler = new Handler(this);
+    private final static int WHAT_CONNECT_BLUETOOTH_TIMEOUT = 100;
+    private final static int WHAT_RECONNECT_BLUETOOTH = 101;
+    private final static int DELAYMILLIS_CONNECT_BLUETOOTH = 15000;
+    private final static int DELAYMILLIS_RECONNECT_BLUETOOTH = 15000;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logger.d("onCreate(((");
+        Log.d("TDG", "onCreate(((");
         boolean b = SPUitl.isFirstRun();
         findViewById(R.id.tv_close).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,7 +186,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         usernameTv = (TextView) findViewById(R.id.textView3);
         mWebView.setOnScrollChangedCallback(new X5ObserWebView.OnScrollChangedCallback() {
             public void onScroll(int l, int t) {
-                Log.d(TAG, "We Scrolled etc..." + l + " t =" + t);
+                Logger.d("We Scrolled etc..." + l + " t =" + t);
                 if (t == 0) {//webView在顶部
                     mSwipeRefreshLayout.setEnabled(true);
                 } else {//webView不是顶部
@@ -215,12 +216,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             service_init();
         }
         loadData();
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     private void loadData() {
@@ -269,7 +264,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         settings.setJavaScriptEnabled(true);
         settings.setPluginState(WebSettings.PluginState.ON);
         settings.setDomStorageEnabled(true);
-//        settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setAllowContentAccess(true);
         settings.setAllowFileAccess(true);
 
@@ -280,12 +274,10 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     public void requestDataRefresh() {
         super.requestDataRefresh();
         loadUrl(mUrl + SPUitl.getToken());
-//        bleProtoProcess.setIsreqenddatas(false);
-//        bleProtoProcess.setHasrecieved(false);
         // 连接设备  传输数据  如果连接了就请求同步数据
         if (isBltConnect) {
             // 直接请求同步
-            Log.d(TAG, "直接同步数据");
+            Logger.d("直接同步数据");
             appbar.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -302,7 +294,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             }
             if (data.size() > 0) {
                 mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentMacAddress);
-                Log.d(TAG, "currentMacAddress-->" + currentMacAddress);
+                Logger.d("currentMacAddress-->" + currentMacAddress);
                 appbar.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -335,7 +327,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             mService.disconnect();
             mService.close();
             mService = null;
-            Log.d(TAG, "service 置空");
+            Logger.d("service 置空");
         }
     }
 
@@ -346,12 +338,11 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 // When the request to enable Bluetooth returns
                 if (resultCode == Activity.RESULT_OK) {
                     Toast.makeText(this, "蓝牙打开成功", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "onActivityResult");
+                    Logger.d("onActivityResult");
                     service_init();
-
                 } else {
                     // User did not enable Bluetooth or an error occurred
-                    Log.d(TAG, "BT not enabled");
+                    Logger.d("BT not enabled");
                     Toast.makeText(this, "不开启蓝牙将无法同步数据", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -394,13 +385,12 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 break;
         }
 
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss,R.id.ll_helper})
+    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss, R.id.ll_helper})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.ll_member_point:
@@ -494,9 +484,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             //popView即popupWindow的布局，ture设置focusAble.
             WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
             int popHeight = wm.getDefaultDisplay().getHeight() - yOffset;
-            mDevicePop = new PopupWindow(popView,
-                    ViewGroup.LayoutParams.MATCH_PARENT, popHeight
-                    , true);
+            mDevicePop = new PopupWindow(popView, ViewGroup.LayoutParams.MATCH_PARENT, popHeight, true);
             //必须设置BackgroundDrawable后setOutsideTouchable(true)才会有效
             mDevicePop.setBackgroundDrawable(new ColorDrawable());
             //点击外部关闭。
@@ -604,6 +592,9 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                     appbar.postDelayed(new Runnable() {
                                         @Override
                                         public void run() {
+                                            if (isBltConnect)
+                                                return;
+                                            handler.sendEmptyMessageDelayed(WHAT_CONNECT_BLUETOOTH_TIMEOUT, DELAYMILLIS_CONNECT_BLUETOOTH);
                                             tvIsConnect.setText("连接中...");
                                             mService.connect(currentMacAddress);
                                         }
@@ -622,7 +613,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     @Override
                     public void call(Throwable throwable) {
                         Toasts.showShort("登录失败，请检查网络");
-                        Log.d("throwable", "throwable-->" + throwable.toString());
+                        Logger.d("url.call", throwable);
                     }
                 });
         addSubscription(s);
@@ -631,7 +622,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private boolean isBind = false;
     private BluetoothDevice mDevice = null;
     public static UartService mService = null;
-
 
     private void service_init() {
         Intent bindIntent = new Intent(this, UartService.class);
@@ -643,17 +633,17 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         public void onServiceConnected(ComponentName className, IBinder rawBinder) {
             mService = ((UartService.LocalBinder) rawBinder).getService();
             if (mService.initialize()) {
-                Log.d(TAG, "蓝牙连接service 初始化成功");
+                Logger.d("蓝牙连接service 初始化成功");
                 getDeviceList();
             } else {
-                Log.e(TAG, "Unable to initialize Bluetooth");
+                Logger.e("Unable to initialize Bluetooth");
                 finish();
             }
         }
 
         public void onServiceDisconnected(ComponentName classname) {
-            ////     mService.disconnect(mDevice);
-            Log.d(TAG, "classname--->" + classname.getClassName());
+            //     mService.disconnect(mDevice);
+            Logger.d("classname--->" + classname.getClassName());
         }
     };
 
@@ -669,27 +659,24 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     }
 
     Timer timer = null;
-    private int posi = 0;
-
+    private int position = 0;
     private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.d(TAG, "action-->" + action);
+            Logger.d("action-->" + action);
             if (action.equals(UartService.ACTION_GATT_CONNECTED)) {
-                posi++;
-                Log.d(TAG, "蓝牙连接成功------------" + posi + "runType-->" + runtype );
+                position++;
+                Logger.d("蓝牙连接成功------------" + position + "runType-->" + runtype);
                 runOnUiThread(new Runnable() {
                     public void run() {
                         isBltConnect = true;
-//                        mState = UART_PROFILE_CONNECTED;
-//                        bleProtoProcess.clearLog();
                         appbar.postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 dismiss();
                                 tvIsConnect.setText("正在同步数据中...");
-                                Log.d("writeRXCharacteristic", "writeRXCharacteristic");
+                                Logger.d("writeRXCharacteristic.writeRXCharacteristic");
                                 mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
                                 bleProtoProcess.setIsreqenddatas(false);
                                 bleProtoProcess.setHasrecieved(false);
@@ -705,7 +692,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                         isBltConnect = false;
                         dismiss();
                         tvIsConnect.setText("未连接");
-//                        mState = UART_PROFILE_DISCONNECTED;
                     }
                 });
             }
@@ -720,7 +706,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 switch (status) {
                     case BLEProtoProcess.BLE_DATA_START:
                     case BLEProtoProcess.BLE_RESULT_START:
-                        Log.d(TAG, "BLE_DATA_START  and  BLE_RESULT_START");
+                        Logger.d("BLE_DATA_START  and  BLE_RESULT_START");
                         bleProtoProcess.setHasrecieved(true);
                         runtype = 1;
                         timer = new Timer();
@@ -736,47 +722,73 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     case BLEProtoProcess.BLE_MISSED_RECEIVER:
                         break;
                     case BLEProtoProcess.BLE_MISSED_END:
-                        Log.d(TAG, "丢失帧接受完毕");
+                        Logger.d("丢失帧接受完毕");
                         timecount = 100;
                         break;
                     case BLEProtoProcess.BLE_NO_SYNC://没有同步数据
                         if (bleProtoProcess.isHasrecieved()) {
-                            Log.d(TAG, "请求动画");
+                            Logger.d("请求动画");
                             bleProtoProcess.setIsreqenddatas(true);
                             mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 0, (byte) 1));
                         } else {
-                            Log.d(TAG, "没有数据同步");
+                            Logger.d("没有数据同步");
                             tvIsConnect.setText("已连接");
                             rlTips.setVisibility(View.VISIBLE);
                             Toasts.showShort("没有数据同步");
                         }
                         break;
                 }
-
-
             } else if (action.equals(UartService.DEVICE_DOES_NOT_SUPPORT_UART)) {
-                Log.d(TAG, "Device doesn't support UART. Disconnecting");
+                Logger.d("Device doesn't support UART. Disconnecting");
                 mService.disconnect();
             } else if (action.equals(UartService.DEVICE_REFRESH_FALG)) {
-                Log.d(TAG, "refresh");
+                Logger.d("refresh");
                 Toasts.showShort("refresh");
                 //TODO 刷新
             }
-
-
         }
     };
 
-    class DataProcessTimer extends TimerTask {  //1s
+    @Override
+    public boolean handleMessage(Message msg) {
+        switch (msg.what) {
+            case WHAT_CONNECT_BLUETOOTH_TIMEOUT:
+                handler.removeMessages(WHAT_CONNECT_BLUETOOTH_TIMEOUT);
+                if (this.isBltConnect)
+                    return true;
+                dismiss();
+                tvIsConnect.setText("未连接");
+                handler.removeMessages(WHAT_RECONNECT_BLUETOOTH);
+                handler.sendEmptyMessageDelayed(WHAT_RECONNECT_BLUETOOTH, DELAYMILLIS_RECONNECT_BLUETOOTH);
+                break;
+            case WHAT_RECONNECT_BLUETOOTH:
+                handler.removeMessages(WHAT_RECONNECT_BLUETOOTH);
+                if (this.isBltConnect)
+                    return true;
+                // 打开蓝牙
+                if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+                } else if (mService == null) {
+                    this.service_init();
+                } else {
+                    this.getDeviceList();
+                }
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    private class DataProcessTimer extends TimerTask {  //1s
 
         @Override
         public void run() {
-            Log.d(TAG, "计时器开始执行" + "count-->" + timecount);
-            if (runtype == 0)                            //非接收数据过程，什么也不执行，
-            {                                            //可以释放timer
+            Logger.d("计时器开始执行" + "count-->" + timecount);
+            if (runtype == 0) {//非接收数据过程，什么也不执行，//可以释放timer
                 timecount = 0;
                 timer.cancel();
-                return;
             } else {
                 //1 接收数据    2-核对数据
                 if ((runtype == 1 && timecount >= 10) ||
@@ -796,19 +808,19 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         try {
 
             if (bleProtoProcess.checkMissed()) {
-                Log.d(TAG, "丢帧");
+                Logger.d("丢帧");
                 byte[] miss = bleProtoProcess.getMissedRequests();
                 mService.writeRXCharacteristic(miss);
                 return false;
             } else {
 
                 //1.发送请求成功帧  2.把数据交给后台处理
-                Log.d(TAG, "数据接收完毕!");
+                Logger.d("数据接收完毕!");
                 //mService.writeRXCharacteristic(bleProtoProcess.getCompleted());
                 byte[] b = bleProtoProcess.getCompleted();
-                Log.d(TAG, "b-->" + Arrays.toString(b));
+                Logger.d("b-->" + Arrays.toString(b));
                 mService.writeRXCharacteristic(b);
-                Log.d(TAG, "mService-->" + mService.toString());
+                Logger.d("mService-->" + mService.toString());
 
                 //------------发送数据到服务器
                 if (bleProtoProcess.isreqenddatas()) {
@@ -832,7 +844,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 "Factory：" + bleProtoProcess.getFactory() + "-" + "Model：" + bleProtoProcess.getModel() + "-" +
                 "Power：" + bleProtoProcess.getPower() + "-" + "Time：" + bleProtoProcess.getTime() + "-" +
                 "Hardware：" + bleProtoProcess.getHardware() + "-" + bleProtoProcess.getDatatype() + "-";
-        Log.d(TAG, "str-->" + str);
+        Logger.d("str-->" + str);
 
         Subscription s = api.uploadData(addr, bleProtoProcess.getSoftware() + "",
                 bleProtoProcess.getFactory() + "", bleProtoProcess.getModel() + "",
@@ -861,7 +873,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             Toasts.showShort("未知错误");
                             rlTips.setVisibility(View.VISIBLE);
                             tvUpdateRecord.setText("总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条");
-                            Log.d(TAG, "错误code ：" + wxEntity.getCode() + "错误信息：" + wxEntity.getMessage());
+                            Logger.d("错误code ：" + wxEntity.getCode() + "错误信息：" + wxEntity.getMessage());
                         }
                     }
                 }, new Action1<Throwable>() {

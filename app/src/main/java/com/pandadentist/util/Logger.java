@@ -27,6 +27,7 @@ public class Logger {
     private static int level = PRINT_LOG ? LEVEL_VERBOSE : LEVEL_ASSERT;
 
     public static void setLevel(int level) {
+        Logger.PRINT_LOG = true;
         Logger.level = level;
     }
 

@@ -319,9 +319,9 @@ public class BLEProtoProcess {
             case BLE_RUNTIME:   //实时数据
                 datatype = 3;
                 index_rt = index;                   //帧号    由此判断刷牙时间
-                angle_rt = (pagenum & (1 << 0)) == 1;   //角度是否正确，0正确，1错误
-                range_rt = (pagenum & (1 << 1)) == 1;   //幅度是否正确，0正确，1错误
-                pressok_rt = (pagenum & (1 << 2)) == 1; //压力是否正确，0正确，1错误
+                angle_rt = (pagenum & (1 << 0)) != 0;   //角度是否正确，0正确，1错误
+                range_rt = (pagenum & (1 << 1)) != 0;   //幅度是否正确，0正确，1错误
+                pressok_rt = (pagenum & (1 << 2)) != 0; //压力是否正确，0正确，1错误
 
                 for (int i = 0; i < 4; i++) {            //四元数，发给动画
                     val_rt[i] = (float) ((float) data.getShort() / 10000.0);
