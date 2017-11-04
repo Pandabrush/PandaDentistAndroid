@@ -36,6 +36,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.pandadentist.util.Logger;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -273,7 +274,7 @@ public class UartService extends Service {
      */
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
+            Logger.w("BluetoothAdapter not initialized");
             return;
         }
         mBluetoothGatt.readCharacteristic(characteristic);
@@ -355,7 +356,7 @@ public class UartService extends Service {
     }
 
     private void showMessage(String msg) {
-        Log.e(TAG, msg);
+        Logger.e(msg);
     }
 
     /**
@@ -366,7 +367,6 @@ public class UartService extends Service {
      */
     public List<BluetoothGattService> getSupportedGattServices() {
         if (mBluetoothGatt == null) return null;
-
         return mBluetoothGatt.getServices();
     }
 }

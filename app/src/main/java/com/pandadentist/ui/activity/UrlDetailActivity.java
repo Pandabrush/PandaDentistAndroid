@@ -437,7 +437,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         if (null == mPopupWindow) {
             //初始化PopupWindow的布局
             View popView = getLayoutInflater().inflate(R.layout.action_overflow_popwindow, null, false);
-            //popView即popupWindow的布局，ture设置focusAble.
+            //popView即popupWindow的布局，true设置focusAble.
             mPopupWindow = new PopupWindow(popView, (int) DensityUtil.dp(130), ViewGroup.LayoutParams.WRAP_CONTENT, true);
             //必须设置BackgroundDrawable后setOutsideTouchable(true)才会有效
             mPopupWindow.setBackgroundDrawable(new ColorDrawable());
@@ -481,7 +481,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         if (null == mDevicePop) {
             //初始化PopupWindow的布局
             View popView = getLayoutInflater().inflate(R.layout.pop_device_list, null);
-            //popView即popupWindow的布局，ture设置focusAble.
+            //popView即popupWindow的布局，true设置focusAble.
             WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
             int popHeight = wm.getDefaultDisplay().getHeight() - yOffset;
             mDevicePop = new PopupWindow(popView, ViewGroup.LayoutParams.MATCH_PARENT, popHeight, true);
@@ -525,8 +525,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                         sb.delete(0, 1);
                         currentMacAddress = sb.toString();
                         if (mDevice != null) {
-
-
                             mService.disconnect();
                         }
                         if (data.size() > 0) {
@@ -642,7 +640,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         }
 
         public void onServiceDisconnected(ComponentName classname) {
-            //     mService.disconnect(mDevice);
             Logger.d("classname--->" + classname.getClassName());
         }
     };
@@ -744,7 +741,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             } else if (action.equals(UartService.DEVICE_REFRESH_FALG)) {
                 Logger.d("refresh");
                 Toasts.showShort("refresh");
-                //TODO 刷新
             }
         }
     };
@@ -791,8 +787,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 timer.cancel();
             } else {
                 //1 接收数据    2-核对数据
-                if ((runtype == 1 && timecount >= 10) ||
-                        (runtype == 2 && timecount >= 4)) {
+                if ((runtype == 1 && timecount >= 10) || (runtype == 2 && timecount >= 4)) {
                     timecount = 0;
                     if (checkData()) {
                         runtype = 0;
@@ -806,14 +801,12 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
 
     private boolean checkData() {
         try {
-
             if (bleProtoProcess.checkMissed()) {
                 Logger.d("丢帧");
                 byte[] miss = bleProtoProcess.getMissedRequests();
                 mService.writeRXCharacteristic(miss);
                 return false;
             } else {
-
                 //1.发送请求成功帧  2.把数据交给后台处理
                 Logger.d("数据接收完毕!");
                 //mService.writeRXCharacteristic(bleProtoProcess.getCompleted());
@@ -821,7 +814,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 Logger.d("b-->" + Arrays.toString(b));
                 mService.writeRXCharacteristic(b);
                 Logger.d("mService-->" + mService.toString());
-
                 //------------发送数据到服务器
                 if (bleProtoProcess.isreqenddatas()) {
                     uploadData();
@@ -840,10 +832,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         bleProtoProcess.setIsreqenddatas(false);
         APIService api = new APIFactory().create(APIService.class);
         String addr = currentMacAddress.replaceAll(":", "");
-        String str = "设备地址：" + addr + "-" + "Software：" + bleProtoProcess.getSoftware() + "-" +
-                "Factory：" + bleProtoProcess.getFactory() + "-" + "Model：" + bleProtoProcess.getModel() + "-" +
-                "Power：" + bleProtoProcess.getPower() + "-" + "Time：" + bleProtoProcess.getTime() + "-" +
-                "Hardware：" + bleProtoProcess.getHardware() + "-" + bleProtoProcess.getDatatype() + "-";
+        String str = "设备地址：" + addr + "-" + "Software：" + bleProtoProcess.getSoftware() + "-" + "Factory：" + bleProtoProcess.getFactory() + "-" + "Model：" + bleProtoProcess.getModel() + "-" + "Power：" + bleProtoProcess.getPower() + "-" + "Time：" + bleProtoProcess.getTime() + "-" + "Hardware：" + bleProtoProcess.getHardware() + "-" + bleProtoProcess.getDatatype() + "-";
         Logger.d("str-->" + str);
 
         Subscription s = api.uploadData(addr, bleProtoProcess.getSoftware() + "",
@@ -886,6 +875,5 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 });
         addSubscription(s);
     }
-
 
 }

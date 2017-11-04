@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.le.ScanCallback;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -55,13 +54,10 @@ import rx.schedulers.Schedulers;
 import static com.pandadentist.ui.activity.UrlDetailActivity.mService;
 
 /**
- * Created by fudaye on 2017/8/17.
  * Updated by zhangwy on 2017/10/10
  */
 
 public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
-
-    private static final String TAG = AddBlueToothDeviceActivity.class.getSimpleName();
 
     private static final String EXTRA_HAS_DEVICE = "extraHasDevice";
 
@@ -112,7 +108,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (UrlDetailActivity.mService != null && !UrlDetailActivity.mService.initialize()) {
-            Log.d("", "不用初始化 service  直接读写数据");
+            Logger.d("不用初始化 service  直接读写数据");
             Toasts.showShort("Service 初始化失败");
             finish();
         }
@@ -169,7 +165,6 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
         });
 
         getDeviceList();
-
     }
 
     @Override
@@ -199,8 +194,8 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
             }
         });
         //扫描附近蓝牙设备
-        mBtAdapter.getBluetoothLeScanner().startScan(new ScanCallback() {
-        });
+//        mBtAdapter.getBluetoothLeScanner().startScan(new ScanCallback() {
+//        });
         //扫描
         scanBlueDevice();
     }
@@ -216,7 +211,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
                     String deviceAddress = data.getStringExtra(BluetoothDevice.EXTRA_DEVICE);
                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress);
 
-                    Logger.d(TAG, "... onActivityResultdevice.address==" + mDevice + "mserviceValue" + mService);
+                    Logger.d("... onActivityResultdevice.address==" + mDevice + "mserviceValue" + mService);
                     ((TextView) findViewById(R.id.deviceName)).setText(mDevice.getName() + " - connecting");
                     mService.connect(deviceAddress);
                 }
@@ -228,13 +223,13 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
                     init();
                 } else {
                     // User did not enable Bluetooth or an error occurred
-                    Log.d(TAG, "BT not enabled");
+                    Logger.d("BT not enabled");
                     Toast.makeText(this, "蓝牙不可用", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 break;
             default:
-                Log.e(TAG, "wrong request code");
+                Logger.e("wrong request code");
                 break;
         }
     }
@@ -289,9 +284,6 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
         showLoadingView();
         mHandler.postDelayed(scanRunnable, SCAN_PERIOD);
         mBtAdapter.startLeScan(mLeScanCallback);
-        //bluetoothLeScanner.startScan(mScanListener);
-        //扫描6秒后停止扫描
-        //mHandler.postDelayed(scanRunnable, SCAN_PERIOD);
     }
 
     private ScanRunnable scanRunnable = new ScanRunnable();
@@ -317,7 +309,6 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
         super.onDestroy();
         mHandler.removeCallbacks(scanRunnable);
         mBtAdapter.stopLeScan(mLeScanCallback);
-
     }
 
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
@@ -390,7 +381,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity {
                                     data.add(db);
                                 }
                             }
-                            Log.d(TAG, "size-->" + data.size());
+                            Logger.d("size-->" + data.size());
                         } else {
                             Toasts.showShort(deviceListEntity.getMessage());
                         }
