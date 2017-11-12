@@ -1,7 +1,9 @@
 package com.pandadentist.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.StringRes;
@@ -59,7 +61,7 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
     }
 
     private void initialize() {
-        LayoutInflater.from(this.getContext()).inflate(R.layout.layout_toolbar, this, true);
+        LayoutInflater.from(this.getContext()).inflate(R.layout.layout_topbar, this, true);
         this.leftHome = (ViewGroup) findViewById(R.id.topBar_left);
         this.leftImage = (ImageView) findViewById(R.id.topBar_left_Icon);
         this.leftText = (TextView) findViewById(R.id.topBar_left_text);
@@ -116,6 +118,22 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
     }
 
     /**
+     * 设置字体颜色
+     * @param color 颜色资源ID
+     */
+    public void setLeftTextColor(@ColorInt int color) {
+        this.leftText.setTextColor(color);
+    }
+
+    /**
+     * 设置字体颜色
+     * @param colors 颜色
+     */
+    public void setLeftTextColor(ColorStateList colors) {
+        this.leftText.setTextColor(colors);
+    }
+
+    /**
      * Set the visibility state of this view.
      */
     public void setCentreVisibility(boolean show) {
@@ -132,6 +150,22 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
             this.centreText.setVisibility(VISIBLE);
             this.centreText.setText(text);
         }
+    }
+
+    /**
+     * 设置字体颜色
+     * @param color 颜色资源ID
+     */
+    public void setCentreTextColor(@ColorInt int color) {
+        this.centreText.setTextColor(color);
+    }
+
+    /**
+     * 设置字体颜色
+     * @param colors 颜色
+     */
+    public void setCentreTextColor(ColorStateList colors) {
+        this.centreText.setTextColor(colors);
     }
 
     /**
@@ -200,6 +234,22 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
         this.rightText.setVisibility(VISIBLE);
         this.rightImage.setVisibility(hideImage ? GONE : VISIBLE);
         this.rightText.setText(resId);
+    }
+
+    /**
+     * 设置字体颜色
+     * @param color 颜色资源ID
+     */
+    public void setRightTextColor(@ColorInt int color) {
+        this.rightText.setTextColor(color);
+    }
+
+    /**
+     * 设置字体颜色
+     * @param colors 颜色
+     */
+    public void setRightTextColor(ColorStateList colors) {
+        this.rightText.setTextColor(colors);
     }
 
     public void setOnLeftClickListener(OnClickListener listener) {
