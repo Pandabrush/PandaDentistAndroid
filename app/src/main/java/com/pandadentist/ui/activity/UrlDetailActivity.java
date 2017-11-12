@@ -167,7 +167,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
 
         api = WXAPIFactory.createWXAPI(this, APP_ID);
         api.registerApp(APP_ID);
-        mToolBarTitle.setText(getResources().getString(R.string.app_name));
+        mToolBarTitle.setText(R.string.app_name);
         mToolBackRl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
