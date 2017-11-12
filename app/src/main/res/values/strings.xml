@@ -55,8 +55,6 @@
     <string name="scan">Scan</string>
     <string name="paired">paired</string>
 
-
-
     <!-- 配网demo文本 -->
 
     <string name="about">About</string>
@@ -64,7 +62,7 @@
     <string name="ap_not_find">"Not find the AP with SSID \"%s\" in range, please check whether the power is on!"</string>
     <string name="broadcast_content">Devices Searching</string>
     <string name="cmd_scan_modules">HF-A11ASSISTHREAD</string>
-    <string name="cancel">Cancel</string>
+    <string name="cancel">取消</string>
     <string name="choose">Choose</string>
     <string name="content">Searching Code</string>
     <string name="comfirm_modify">Are you sure to modify this field?</string>
@@ -84,7 +82,7 @@
     <string name="network_changed_msg_ssid">SSID is changed to \"%s\", does it use new SSID?</string>
     <string name="network_changed_msg_capabilites">The encryption is changed, please check the password.</string>
     <string name="network_changed_msg_ssid_capabilites">SSID is changed to \"%s\", and encryption is also changed, does it use new SSID(If yes, please double check the password.)? </string>
-    <string name="ok">OK</string>
+    <string name="ok">确定</string>
     <string name="password">Password</string>
     <string name="password_not_empty">The password of AP with SSID \"%s\" cannot be not empty!</string>
     <string name="pls_choose_ap">Please choose a Wifi in the list</string>

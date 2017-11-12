@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/topBar_padding_left"
+    android:paddingRight="@dimen/topBar_padding_right">
+
+    <LinearLayout
+        android:id="@+id/topBar_left"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:gravity="center"
+        android:paddingRight="@dimen/topBar_padding_right">
+
+        <ImageView
+            android:id="@+id/topBar_left_Icon"
+            android:layout_width="25dip"
+            android:layout_height="25dip"
+            android:contentDescription="@string/app_name"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            android:id="@+id/topBar_left_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/topBar_centre"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_toLeftOf="@id/topBar_right"
+        android:layout_toRightOf="@id/topBar_left"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/topBar_centre_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/topBar_centre_textSize" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/topBar_right"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/topBar_padding_left">
+
+        <TextView
+            android:id="@+id/topBar_right_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/topBar_right_Icon"
+            android:layout_width="25dip"
+            android:layout_height="25dip"
+            android:contentDescription="@string/app_name"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_add_device" />
+    </LinearLayout>
+</RelativeLayout>
