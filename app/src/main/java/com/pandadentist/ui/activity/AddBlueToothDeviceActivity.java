@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,6 +11,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -36,16 +36,17 @@ import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.receiver.BlueToothBroadcastReceiver;
 import com.pandadentist.ui.adapter.BlueToothDeviceAdapter;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.BLEProtoProcess;
 import com.pandadentist.util.Logger;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
 import com.pandadentist.widget.ColorProgressBar;
 import com.pandadentist.widget.RecycleViewDivider;
+import com.pandadentist.widget.TopBar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.Bind;
 import rx.Subscription;
@@ -56,7 +57,7 @@ import rx.schedulers.Schedulers;
 import static com.pandadentist.ui.activity.UrlDetailActivity.mService;
 
 /**
- * Updated by zhangwy on 2017/10/10
+ * Updated by zhangwy on 2017/11/12
  */
 
 public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity implements BlueToothBroadcastReceiver.Callback {
@@ -115,21 +116,26 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             Toasts.showShort("Service 初始化失败");
             finish();
         }
-        mToolBarTitle.setText("连接蓝牙");
-        mToolbarFuncTv.setText("帮助");
-        mToolbarFuncTv.setTextColor(Color.parseColor("#20CBE7"));
-        mToolbarFuncRl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(AddBlueToothDeviceActivity.this, BlueHelperActivity.class));
-            }
-        });
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setCentreText(R.string.connect_bluetooth);
+            this.topBar.setRightText(R.string.help, false);
+            this.topBar.setRightTextColor(Color.parseColor("#20CBE7"));
+            this.topBar.setOnRightClickListener(new TopBar.OnClickListener() {
+                @Override
+                public void onClick() {
+                    startActivity(new Intent(AddBlueToothDeviceActivity.this, BlueHelperActivity.class));
+                }
+            });
+        }
+
         new BLEProtoProcess().setOnZhenListener(new OnZhenListener() {
             @Override
             public void onZhen(int zhen, int total) {
                 float percent = zhen / total * 100f;
                 int ip = (int) percent;
-                tvPercent.setText(ip + "%");
+                tvPercent.setText(String.format(Locale.getDefault(), "%1$d%", ip));
                 colorProgressBar.setValue(ip);
             }
         });
@@ -146,8 +152,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
             }
         }
-        final BluetoothManager bluetoothManager = null;//(BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBtAdapter = bluetoothManager == null ? BluetoothAdapter.getDefaultAdapter() : bluetoothManager.getAdapter();
+        mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBtAdapter == null) {
             Toast.makeText(this, "该设备不支持蓝牙", Toast.LENGTH_LONG).show();
             finish();
@@ -212,8 +217,8 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
                     String deviceAddress = data.getStringExtra(BluetoothDevice.EXTRA_DEVICE);
                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress);
 
-                    Logger.d("... onActivityResultdevice.address==" + mDevice + "mserviceValue" + mService);
-                    ((TextView) findViewById(R.id.deviceName)).setText(mDevice.getName() + " - connecting");
+                    Logger.d("... onActivityResultdevice.address==" + mDevice + "mServiceValue" + mService);
+                    ((TextView) findViewById(R.id.deviceName)).setText(String.format(Locale.getDefault(), "%s - connecting", mDevice.getName()));
                     mService.connect(deviceAddress);
                 }
                 break;
@@ -236,14 +241,14 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_REQUEST_COARSE_LOCATION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //  request success
-                }
-                break;
-        }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        switch (requestCode) {
+//            case PERMISSION_REQUEST_COARSE_LOCATION:
+//                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    //  request success
+//                }
+//                break;
+//        }
     }
 
     private void showNotFound() {

@@ -10,7 +10,6 @@ import com.pandadentist.config.Constants;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
@@ -28,11 +27,10 @@ import rx.schedulers.Schedulers;
 
 /**
  * Created by Ford on 2017/5/25.
+ * Updated by zhangwy on 2017/11/12
  */
 
 public class LoadingActivity extends SwipeRefreshBaseActivity {
-    private static final String TAG = LoadingActivity.class.getSimpleName();
-
 
     @Bind(R.id.prog)
     RoundProgressBarWidthNumber prog;
@@ -51,7 +49,12 @@ public class LoadingActivity extends SwipeRefreshBaseActivity {
         String mac = getIntent().getStringExtra("mac");
         Log.d("TAG", "mac-->" + mac);
         handler = new Handler();
-        mToolBarTitle.setText(getResources().getString(R.string.connectWifi));
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setCentreText(R.string.connectWifi);
+            this.topBar.setRightVisibility(false);
+        }
         timer = new Timer();
         timerTask = new TimerTask() {
             @Override

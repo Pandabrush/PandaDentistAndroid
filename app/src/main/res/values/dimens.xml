@@ -7,4 +7,6 @@
     <dimen name="topBar_padding_left">12dip</dimen>
     <dimen name="topBar_padding_right">12dip</dimen>
     <dimen name="topBar_centre_textSize">18sp</dimen>
+    <dimen name="splash_skip_length">30dip</dimen>
+    <dimen name="fontSize_10">10sp</dimen>
 </resources>

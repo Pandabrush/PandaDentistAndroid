@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.pandadentist.R;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.Toasts;
 import com.pandadentist.widget.X5ObserWebView;
 import com.tencent.smtt.sdk.WebChromeClient;
@@ -19,27 +18,33 @@ import butterknife.Bind;
 
 /**
  * Created by fudaye on 2017/9/9.
+ * Updated by zhangwy on 2017/11/12
  */
 
-public class RealTimeBrushToothActivity extends SwipeRefreshBaseActivity{
-    private static final String TAG = RealTimeBrushToothActivity.class.getSimpleName();
+public class RealTimeBrushToothActivity extends SwipeRefreshBaseActivity {
 
     private static final String url = "http://www.easylinkage.cn/webapp/shuaya/app_index.html";
     @Bind(R.id.wv)
     X5ObserWebView mWebView;
 
-    private boolean isLoadFnish= false;
-    private boolean isReciviceNotify = false;
+    private boolean isLoadFinish = false;
+    private boolean isReceiveNotify = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setCentreVisibility(false);
+            this.topBar.setRightVisibility(false);
+        }
         loadUrl(url);
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri uri=Uri.parse("easylinkage://tooth?getReplayData");
-                Intent intent=new Intent(Intent.ACTION_VIEW,uri);
+                Uri uri = Uri.parse("easylinkage://tooth?getReplayData");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
             }
         });
@@ -65,14 +70,14 @@ public class RealTimeBrushToothActivity extends SwipeRefreshBaseActivity{
             public void onPageFinished(WebView webView, String s) {
                 super.onPageFinished(webView, s);
                 setRefresh(false);
-                isLoadFnish = true;
+                isLoadFinish = true;
                 uploadData();
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if("easylinkage://tooth?getReplayData".equals(url)){
-                    isReciviceNotify = false;
+                if ("easylinkage://tooth?getReplayData".equals(url)) {
+                    isReceiveNotify = false;
                     uploadData();
                 }
                 return true;
@@ -87,16 +92,15 @@ public class RealTimeBrushToothActivity extends SwipeRefreshBaseActivity{
         settings.setJavaScriptEnabled(true);
         settings.setPluginState(WebSettings.PluginState.ON);
         settings.setDomStorageEnabled(true);
-//        settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setAllowContentAccess(true);
         settings.setAllowFileAccess(true);
 
         mWebView.loadUrl(url);
     }
 
-    private void  uploadData(){
-        if(isLoadFnish && isReciviceNotify){
-            loadUrl("javascript:alertMessage(\"" +"s"+ "\"  ,\"" + "s" + "\" )");
+    private void uploadData() {
+        if (isLoadFinish && isReceiveNotify) {
+            loadUrl("javascript:alertMessage(\"" + "s" + "\"  ,\"" + "s" + "\" )");
         }
     }
 }

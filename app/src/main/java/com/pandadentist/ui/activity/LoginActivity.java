@@ -16,7 +16,6 @@ import com.pandadentist.config.Constants;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
@@ -34,7 +33,7 @@ import rx.schedulers.Schedulers;
 
 /**
  * Created by Ford on 2016/10/14.
- * <p>
+ * Updated by zhangwy on 2017/11/12
  * test
  */
 public class LoginActivity extends SwipeRefreshBaseActivity {

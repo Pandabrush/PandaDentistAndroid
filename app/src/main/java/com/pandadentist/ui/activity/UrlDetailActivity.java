@@ -50,7 +50,6 @@ import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.service.UartService;
 import com.pandadentist.ui.adapter.PopDeviceAdapter;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.BLEProtoProcess;
 import com.pandadentist.util.DensityUtil;
 import com.pandadentist.util.IntentHelper;
@@ -58,6 +57,7 @@ import com.pandadentist.util.Logger;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
 import com.pandadentist.widget.RecycleViewDivider;
+import com.pandadentist.widget.TopBar;
 import com.pandadentist.widget.X5ObserWebView;
 import com.tencent.mm.opensdk.modelbiz.JumpToBizProfile;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
@@ -81,7 +81,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-import static com.pandadentist.R.id.tv;
 import static com.pandadentist.config.Constants.ACTIVITY_FOR_RESULT_REQUEST_CODE_SELECT_DEVICE;
 
 /**
@@ -103,11 +102,9 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     RelativeLayout rlGuide;
     @Bind(R.id.title)
     View appbar;
-    @Bind(R.id.tv_isConnect)
-    TextView tvIsConnect;
     @Bind(R.id.rl_tips)
     RelativeLayout rlTips;
-    @Bind(tv)
+    @Bind(R.id.tv)
     TextView tvUpdateRecord;
 
     private static final String APP_ID = "wxa2fe13a5495f3908";
@@ -118,10 +115,12 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private PopupWindow mPopupWindow;
     private LinearLayout llSwitchDevice;
     private TextView mTvDeviceName;
+    private TextView tvIsConnect;
+    public TextView mToolBarTitle;
     private PopupWindow mDevicePop;
 
     private List<DeviceListEntity.DevicesBean> data = new ArrayList<>();
-    public static BLEProtoProcess bleProtoProcess;
+    public static BLEProtoProcess bleProtoProcess = new BLEProtoProcess();
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private int timecount = 0;
     private int runtype = 0;//0-未运行， 1-接收数据过程， 2-核对丢失帧过程
@@ -146,17 +145,41 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 rlTips.setVisibility(View.GONE);
             }
         });
-        llSwitchDevice = (LinearLayout) this.findViewById(R.id.ll_switch_device);
-        mTvDeviceName = (TextView) this.findViewById(R.id.tv_device_name);
-        bleProtoProcess = new BLEProtoProcess();
-        llSwitchDevice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (data.size() != 0) {
-                    initPopDeviceList(data, true);
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.topBar.setLeftImage(R.drawable.ic_main_personal, false);
+            this.topBar.setOnLeftClickListener(new TopBar.OnClickListener() {
+                @Override
+                public void onClick() {
+                    drawerLayout.openDrawer(GravityCompat.START);
                 }
+            });
+            this.topBar.setRightImage(R.drawable.ic_add_device, false);
+            this.topBar.setOnRightClickListener(new TopBar.OnClickListener() {
+                @Override
+                public void onClick() {
+                    popUpMyOverflow();
+                }
+            });
+            this.topBar.setCentreContent(R.layout.layout_detail_topbar_centre);
+            try {
+                this.mTvDeviceName = (TextView) this.findViewById(R.id.tv_device_name);
+                this.tvIsConnect = (TextView) this.findViewById(R.id.tv_isConnect);
+                this.mToolBarTitle = (TextView) this.findViewById(R.id.tv_toolbar_title);
+                this.mToolBarTitle.setText(R.string.app_name);
+                this.llSwitchDevice = (LinearLayout) this.findViewById(R.id.ll_switch_device);
+                this.llSwitchDevice.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (data.size() != 0) {
+                            initPopDeviceList(data, true);
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                Logger.e("addTopBar.CentreContent", e);
             }
-        });
+        }
         if (b) {
             rlContent.setVisibility(View.GONE);
             rlGuide.setVisibility(View.VISIBLE);
@@ -167,30 +190,17 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
 
         api = WXAPIFactory.createWXAPI(this, APP_ID);
         api.registerApp(APP_ID);
-        mToolBarTitle.setText(R.string.app_name);
-        mToolBackRl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(GravityCompat.START);
-            }
-        });
-        mTitleBackIv.setImageDrawable(getResources().getDrawable(R.drawable.ic_main_personal));
-        mToolbarFuncIv.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_device));
-        mToolbarFuncRl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popUpMyOverflow();
-            }
-        });
         headerIv = (CircleImageView) findViewById(R.id.imageView);
         usernameTv = (TextView) findViewById(R.id.textView3);
         mWebView.setOnScrollChangedCallback(new X5ObserWebView.OnScrollChangedCallback() {
             public void onScroll(int l, int t) {
                 Logger.d("We Scrolled etc..." + l + " t =" + t);
-                if (t == 0) {//webView在顶部
-                    mSwipeRefreshLayout.setEnabled(true);
-                } else {//webView不是顶部
-                    mSwipeRefreshLayout.setEnabled(false);
+                if (mSwipeRefreshLayout != null) {
+                    if (t == 0) {//webView在顶部
+                        mSwipeRefreshLayout.setEnabled(true);
+                    } else {//webView不是顶部
+                        mSwipeRefreshLayout.setEnabled(false);
+                    }
                 }
             }
         });
@@ -282,7 +292,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 @Override
                 public void run() {
                     dismiss();
-                    tvIsConnect.setText("正在同步数据中...");
+                    setIsConnectText("正在同步数据中...");
                     mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
                     bleProtoProcess.setIsreqenddatas(false);
                     bleProtoProcess.setHasrecieved(false);
@@ -298,7 +308,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 appbar.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        tvIsConnect.setText("连接中...");
+                        setIsConnectText("连接中...");
                         mService.connect(currentMacAddress);
                     }
                 }, 200);
@@ -436,7 +446,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         int yOffset = frame.top + appbar.getHeight();
         if (null == mPopupWindow) {
             //初始化PopupWindow的布局
-            View popView = getLayoutInflater().inflate(R.layout.action_overflow_popwindow, null, false);
+            View popView = getLayoutInflater().inflate(R.layout.action_overflow_popwindow, llSwitchDevice, false);
             //popView即popupWindow的布局，true设置focusAble.
             mPopupWindow = new PopupWindow(popView, (int) DensityUtil.dp(130), ViewGroup.LayoutParams.WRAP_CONTENT, true);
             //必须设置BackgroundDrawable后setOutsideTouchable(true)才会有效
@@ -480,7 +490,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         int yOffset = frame.top + appbar.getHeight();
         if (null == mDevicePop) {
             //初始化PopupWindow的布局
-            View popView = getLayoutInflater().inflate(R.layout.pop_device_list, null);
+            View popView = getLayoutInflater().inflate(R.layout.pop_device_list, llSwitchDevice, false);
             //popView即popupWindow的布局，true设置focusAble.
             WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
             int popHeight = wm.getDefaultDisplay().getHeight() - yOffset;
@@ -515,8 +525,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                         return;
                     }
                     if (mService != null) {
-                        mTvDeviceName.setText(data.get(position).getUsername() + "-" + data.get(position).getDeviceid());
-                        StringBuffer sb = new StringBuffer(data.get(position).getDeviceid());
+                        setTvDeviceNameText(data.get(position).getUsername() + "-" + data.get(position).getDeviceid());
+                        StringBuilder sb = new StringBuilder(data.get(position).getDeviceid());
                         for (int i = 0; i < sb.length(); i++) {
                             if (i % 3 == 0) {
                                 sb.insert(i, ":");
@@ -532,7 +542,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             appbar.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    tvIsConnect.setText("连接中...");
+                                    setIsConnectText("连接中...");
                                     mService.connect(currentMacAddress);
                                 }
                             }, 200);
@@ -571,11 +581,11 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                     }
                                 }
                                 if (data.size() != 0) {
-                                    llSwitchDevice.setVisibility(View.VISIBLE);
-                                    mToolBarTitle.setVisibility(View.GONE);
-                                    mTvDeviceName.setText(data.get(0).getUsername() + "-" + data.get(0).getDeviceid());
+                                    setSwitchDeviceVisibility(true);
+                                    setToolBarTitleVisibility(false);
+                                    setTvDeviceNameText(data.get(0).getUsername() + "-" + data.get(0).getDeviceid());
                                     //发现绑定设备  连接并尝试同步数据  第一次连接
-                                    StringBuffer sb = new StringBuffer(data.get(0).getDeviceid());
+                                    StringBuilder sb = new StringBuilder(data.get(0).getDeviceid());
                                     for (int i = 0; i < sb.length(); i++) {
                                         if (i % 3 == 0) {
                                             sb.insert(i, ":");
@@ -593,14 +603,14 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                             if (isBltConnect)
                                                 return;
                                             handler.sendEmptyMessageDelayed(WHAT_CONNECT_BLUETOOTH_TIMEOUT, DELAYMILLIS_CONNECT_BLUETOOTH);
-                                            tvIsConnect.setText("连接中...");
+                                            setIsConnectText("连接中...");
                                             mService.connect(currentMacAddress);
                                         }
                                     }, 200);
                                 }
                             } else {
-                                llSwitchDevice.setVisibility(View.GONE);
-                                mToolBarTitle.setVisibility(View.VISIBLE);
+                                setSwitchDeviceVisibility(false);
+                                setToolBarTitleVisibility(true);
                             }
 
                         } else {
@@ -672,7 +682,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             @Override
                             public void run() {
                                 dismiss();
-                                tvIsConnect.setText("正在同步数据中...");
+                                setIsConnectText("正在同步数据中...");
                                 Logger.d("writeRXCharacteristic.writeRXCharacteristic");
                                 mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
                                 bleProtoProcess.setIsreqenddatas(false);
@@ -688,13 +698,14 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     public void run() {
                         isBltConnect = false;
                         dismiss();
-                        tvIsConnect.setText("未连接");
+                        setIsConnectText("未连接");
                     }
                 });
             }
             if (action.equals(UartService.ACTION_GATT_SERVICES_DISCOVERED)) {
                 mService.enableTXNotification();
             }
+
             if (action.equals(UartService.ACTION_DATA_AVAILABLE)) {
                 timecount = 0;
                 final byte[] txValue = intent.getByteArrayExtra(UartService.EXTRA_DATA);
@@ -729,7 +740,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 0, (byte) 1));
                         } else {
                             Logger.d("没有数据同步");
-                            tvIsConnect.setText("已连接");
+                            setIsConnectText("已连接");
                             rlTips.setVisibility(View.VISIBLE);
                             Toasts.showShort("没有数据同步");
                         }
@@ -753,7 +764,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 if (this.isBltConnect)
                     return true;
                 dismiss();
-                tvIsConnect.setText("未连接");
+                setIsConnectText("未连接");
                 handler.removeMessages(WHAT_RECONNECT_BLUETOOTH);
                 handler.sendEmptyMessageDelayed(WHAT_RECONNECT_BLUETOOTH, DELAYMILLIS_RECONNECT_BLUETOOTH);
                 break;
@@ -845,7 +856,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     @Override
                     public void call(WXEntity wxEntity) {
                         if (Constants.SUCCESS == wxEntity.getCode()) {
-                            tvIsConnect.setText("已连接");
+                            setIsConnectText("已连接");
                             rlTips.setVisibility(View.VISIBLE);
                             tvUpdateRecord.setText("总共上传数据" + bleProtoProcess.getPagesSize() + "条，成功" + bleProtoProcess.getPagesSize() + "条，失败0条");
                             bleProtoProcess.setPageSize(0);
@@ -876,4 +887,33 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         addSubscription(s);
     }
 
+    private void setTvDeviceNameText(String text) {
+        if (mTvDeviceName != null) {
+            mTvDeviceName.setText(text);
+        }
+    }
+
+    private void setIsConnectText(String text) {
+        if (this.tvIsConnect != null) {
+            this.tvIsConnect.setText(text);
+        }
+    }
+//
+//    private void setIsConnectText(@StringRes int resId) {
+//        if (this.tvIsConnect != null) {
+//            this.tvIsConnect.setText(resId);
+//        }
+//    }
+
+    private void setToolBarTitleVisibility(boolean show) {
+        if (this.mToolBarTitle != null) {
+            this.mToolBarTitle.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void setSwitchDeviceVisibility(boolean show) {
+        if (this.llSwitchDevice != null) {
+            this.llSwitchDevice.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
 }

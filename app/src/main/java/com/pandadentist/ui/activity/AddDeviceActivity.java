@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.pandadentist.R;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.IntentHelper;
 
 import butterknife.Bind;
@@ -16,6 +15,7 @@ import butterknife.OnClick;
 
 /**
  * Created by fudaye on 2017/6/15.
+ * Updated by zhangwy on 2017/11/12
  */
 
 public class AddDeviceActivity extends SwipeRefreshBaseActivity {
@@ -26,7 +26,12 @@ public class AddDeviceActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTitle.setText(getResources().getString(R.string.addDevice));
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setRightVisibility(false);
+            this.topBar.setCentreText(R.string.addDevice);
+        }
         mTv.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
         mTv.getPaint().setAntiAlias(true);
     }

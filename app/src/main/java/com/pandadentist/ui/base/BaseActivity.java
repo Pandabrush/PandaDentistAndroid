@@ -19,27 +19,31 @@ import butterknife.OnClick;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
+    //centre
     @Nullable
     @Bind(R.id.tv_toolbar_title)
     public TextView mToolBarTitle;
-    @Nullable
-    @Bind(R.id.rl_toolbar_func)
-    public RelativeLayout mToolbarFuncRl;
-    @Nullable
-    @Bind(R.id.iv_toolbar_func)
-    public ImageView mToolbarFuncIv;
-    @Nullable
-    @Bind(R.id.rl_toolbar_back)
-    public RelativeLayout mToolBackRl;
-    @Nullable
-    @Bind(R.id.tv_toolbar)
-    public TextView mToolbarFuncTv;
+    //right
+//    @Nullable
+//    @Bind(R.id.rl_toolbar_func)
+//    public RelativeLayout mToolbarFuncRl;
+//    @Nullable
+//    @Bind(R.id.iv_toolbar_func)
+//    public ImageView mToolbarFuncIv;
+//    @Nullable
+//    @Bind(R.id.tv_toolbar)
+//    public TextView mToolbarFuncTv;
+
+//    @Nullable
+//    @Bind(R.id.rl_toolbar_back)
+//    public RelativeLayout mToolBackRl;
+//    @Nullable
+//    @Bind(R.id.iv_toolbar_back)
+//    public ImageView mTitleBackIv;
+
     @Nullable
     @Bind(R.id.ll_toolbar_search)
     public LinearLayout mLLSearch;
-    @Nullable
-    @Bind(R.id.iv_toolbar_back)
-    public ImageView mTitleBackIv;
 
     @Nullable
     @OnClick(R.id.rl_toolbar_back)

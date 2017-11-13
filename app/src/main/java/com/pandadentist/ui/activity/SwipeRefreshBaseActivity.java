@@ -1,4 +1,4 @@
-package com.pandadentist.ui.base;
+package com.pandadentist.ui.activity;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.view.View;
 
 import com.pandadentist.R;
 import com.pandadentist.listener.OnRcvScrollListener;
+import com.pandadentist.ui.base.SwipeRefreshLayer;
 import com.pandadentist.widget.MultiSwipeRefreshLayout;
 
 import butterknife.Bind;

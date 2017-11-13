@@ -4,28 +4,25 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.pandadentist.R;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 
 import butterknife.OnClick;
 
 /**
  * Created by Ford on 2017/5/25.
+ * Updated by zhangwy on 2017/11/12
  */
 
 public class ConnectWifiActivity extends SwipeRefreshBaseActivity {
 
-
-//    @Bind(R.id.tv_wifi_name)
-//    TextView tvWifiName;
-//    @Bind(R.id.tv_wifi_pwd)
-//    EditText tvWifiPwd;
-//    @Bind(R.id.cb)
-//    CheckBox cb;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTitle.setText(getResources().getString(R.string.connectWifi));
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setCentreText(R.string.connectWifi);
+            this.topBar.setRightVisibility(false);
+        }
     }
 
     @Override

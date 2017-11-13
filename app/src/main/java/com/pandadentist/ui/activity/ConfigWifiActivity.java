@@ -9,12 +9,10 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-
 import android.widget.Toast;
 
 import com.pandadentist.R;
 import com.pandadentist.ui.adapter.DeviceAdapter;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.widget.RecycleDecoration;
 
 import java.util.ArrayList;
@@ -22,6 +20,7 @@ import java.util.List;
 
 /**
  * Created by Ford on 2017/5/15.
+ * Updated by zhangwy on 2017/11/12
  */
 
 public class ConfigWifiActivity extends SwipeRefreshBaseActivity {
@@ -30,7 +29,6 @@ public class ConfigWifiActivity extends SwipeRefreshBaseActivity {
     private WifiManager mainWifi;
     //扫描出的网络连接列表
     private List<ScanResult> wifiList = new ArrayList<>();
-    private List<ScanResult> tempwifiList = new ArrayList<>();
     //扫描完毕接收器
     private WifiReceiver receiverWifi;
 
@@ -41,7 +39,12 @@ public class ConfigWifiActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTitle.setText(getResources().getString(R.string.addDevice));
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setCentreText(R.string.addDevice);
+            this.topBar.setRightVisibility(false);
+        }
         mRv = (RecyclerView) findViewById(R.id.rv);
         mRv.setLayoutManager(new LinearLayoutManager(this));
         mRv.addItemDecoration(new RecycleDecoration(ConfigWifiActivity.this));
@@ -84,7 +87,7 @@ public class ConfigWifiActivity extends SwipeRefreshBaseActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
                 wifiList.clear();
-                tempwifiList = mainWifi.getScanResults();
+                List<ScanResult> tempwifiList = mainWifi.getScanResults();
                 Toast.makeText(context, "扫描完毕" + tempwifiList.size(), Toast.LENGTH_SHORT).show();
                 for(ScanResult sr : tempwifiList){
                     if(sr.SSID.contains("BJYDD")){

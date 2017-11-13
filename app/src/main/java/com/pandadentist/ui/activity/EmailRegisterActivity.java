@@ -10,7 +10,6 @@ import com.pandadentist.config.Constants;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
@@ -24,6 +23,7 @@ import rx.schedulers.Schedulers;
 
 /**
  * Created by fudaye on 2017/6/14.
+ * Updated by zhangwy on 2017/11/12
  */
 
 public class EmailRegisterActivity extends SwipeRefreshBaseActivity {
@@ -38,7 +38,12 @@ public class EmailRegisterActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTitle.setText(getResources().getString(R.string.emailRegister));
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setCentreText(R.string.emailRegister);
+            this.topBar.setRightVisibility(false);
+        }
     }
 
     @Override
@@ -50,20 +55,20 @@ public class EmailRegisterActivity extends SwipeRefreshBaseActivity {
     public void onViewClicked() {
         String email = etUsername.getText().toString();
         String pwd = etPwd.getText().toString();
-        if(TextUtils.isEmpty(email)){
+        if (TextUtils.isEmpty(email)) {
             Toasts.showShort("邮箱不能为空");
             return;
         }
-        if(TextUtils.isEmpty(pwd)){
+        if (TextUtils.isEmpty(pwd)) {
             Toasts.showShort("密码不能为空");
             return;
         }
-        register(email,pwd);
+        register(email, pwd);
     }
 
-    private void  register (final String username, String pwd){
+    private void register(final String username, String pwd) {
         APIService api = new APIFactory().create(APIService.class);
-        Subscription s = api.emailRegister(username,pwd,"",Constants.AAAA)
+        Subscription s = api.emailRegister(username, pwd, "", Constants.AAAA)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<WXEntity>() {
@@ -79,7 +84,7 @@ public class EmailRegisterActivity extends SwipeRefreshBaseActivity {
                             finish();
                         } else {
                             Toasts.showShort("注册失败");
-                            Log.d(TAG,"错误code ：" + wxEntity.getCode() + "错误信息：" + wxEntity.getMessage());
+                            Log.d(TAG, "错误code ：" + wxEntity.getCode() + "错误信息：" + wxEntity.getMessage());
                         }
                     }
                 }, new Action1<Throwable>() {

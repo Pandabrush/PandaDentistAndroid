@@ -16,7 +16,10 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:title=" ">
 
-        <include layout="@layout/layout_toolbar" />
+        <com.pandadentist.widget.TopBar
+            android:id="@+id/toolbar_topBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
     </android.support.v7.widget.Toolbar>
 
 </android.support.design.widget.AppBarLayout>

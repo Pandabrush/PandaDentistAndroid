@@ -3,24 +3,26 @@ package com.pandadentist.ui.activity;
 import android.os.Bundle;
 
 import com.pandadentist.R;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 
 import butterknife.OnClick;
 
 /**
  * Created by fudaye on 2017/6/15.
- * <p>
- * <p>
+ * Updated by zhangwy on 2017/11/12
  * 设置指示灯
  */
 
 public class GuideActivity extends SwipeRefreshBaseActivity {
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTitle.setText("如何设置指示灯");
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setCentreText(R.string.help_set_indicator_light);
+            this.topBar.setRightVisibility(false);
+        }
     }
 
     @Override

@@ -8,7 +8,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.pandadentist.R;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
 import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.widget.RoundProgressBarWidthNumber;
@@ -21,11 +20,9 @@ import butterknife.OnClick;
 
 /**
  * 欢迎界面
- * Created by packy on 2016/5/31.
+ * Updated by zhangwy on 2017/11/12
  */
 public class SplashActivity extends SwipeRefreshBaseActivity {
-
-    private static final String  TAG = SplashActivity.class.getSimpleName();
 
     @Bind(R.id.welcome_iv)
     ImageView welcomeIv;
@@ -75,17 +72,14 @@ public class SplashActivity extends SwipeRefreshBaseActivity {
         return R.layout.activity_splash;
     }
 
-
     private void goMainActivity() {
-        if(!TextUtils.isEmpty(SPUitl.getToken())){
+        if (!TextUtils.isEmpty(SPUitl.getToken())) {
             IntentHelper.gotoMain(SplashActivity.this);
-        }else{
+        } else {
             IntentHelper.gotoLogin(SplashActivity.this);
         }
         finish();
     }
-
-
 
     @OnClick({R.id.rl_skip, R.id.welcome_iv})
     public void onClick(View view) {
@@ -96,7 +90,7 @@ public class SplashActivity extends SwipeRefreshBaseActivity {
                 goMainActivity();
                 break;
             case R.id.welcome_iv:
-                //TODO 点击广告
+                //点击广告
 //                if(mSplash == null ){
 //                    return;
 //                }

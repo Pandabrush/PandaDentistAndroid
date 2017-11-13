@@ -1,5 +1,6 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">PandaBrush</string>
+    <string name="skip">skip</string>
     <string name="kuailemeiyitian">Happy everyday</string>
     <string name="emailRegister">Email</string>
     <string name="wxLogin">Wechat</string>
@@ -92,7 +93,6 @@
     <string name="try_connect_failed">Sorry, try to connect failed!</string>
     <string name="try_connect_cmd_error">Warnning, the command to try to connect is error!</string>
     <string name="try_connect_timeout">Sorry, try to connect time out!</string>
-    <!-- Replace "-" with an "en dash" character (–, &#8211;)  -->
     <string name="tel">Tel:</string>
     <string name="tel_hf">4001893108 </string>
     <string name="unknown">Unknown</string>

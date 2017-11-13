@@ -5,12 +5,13 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.pandadentist.R;
-import com.pandadentist.ui.base.SwipeRefreshBaseActivity;
+import com.pandadentist.widget.TopBar;
 
 import java.util.Locale;
 
@@ -19,6 +20,7 @@ import butterknife.OnClick;
 
 /**
  * Created by fudaye on 2017/8/3.
+ * Updated by zhangwy on 2017/11/12
  * 语言选择
  */
 
@@ -36,42 +38,50 @@ public class LanguageSwitchActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mToolBarTitle.setText(getResources().getText(R.string.LanguageSwitch));
-        mToolbarFuncTv.setText(getResources().getText(R.string.save));
-        mToolbarFuncTv.setTextColor(Color.BLACK);
-        mToolbarFuncRl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Resources resources = getResources();
-                DisplayMetrics dm = resources.getDisplayMetrics();
-                Configuration config = resources.getConfiguration();
-                // 应用用户选择语言
-                if(type == 1){
-                    config.locale = Locale.getDefault();
-                }else if (type == 2){
-                    config.locale = Locale.CHINESE;
-                }else if(type == 3) {
-                    config.locale = Locale.ENGLISH;
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setCentreText(R.string.LanguageSwitch);
+            this.topBar.setRightText(R.string.save, false);
+            this.topBar.setRightTextColor(Color.BLACK);
+            this.topBar.setOnRightClickListener(new TopBar.OnClickListener() {
+                @Override
+                public void onClick() {
+                    Resources resources = getResources();
+                    DisplayMetrics dm = resources.getDisplayMetrics();
+                    Configuration config = resources.getConfiguration();
+                    // 应用用户选择语言
+                    switch (type) {
+                        case 1:
+                            config.locale = Locale.getDefault();
+                            break;
+                        case 2:
+                            config.locale = Locale.CHINESE;
+                            break;
+                        case 3:
+                            config.locale = Locale.ENGLISH;
+                            break;
+                    }
+                    resources.updateConfiguration(config, dm);
+                    Intent intent1 = new Intent(LanguageSwitchActivity.this, UrlDetailActivity.class);
+                    intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent1);
                 }
-                resources.updateConfiguration(config, dm);
-                Intent intent1 = new Intent(LanguageSwitchActivity.this, UrlDetailActivity.class);
-                intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent1);
-            }
-        });
+            });
+        }
         Resources resources = getResources();
         Configuration config = resources.getConfiguration();
-        if (config.locale.getLanguage().equals(Locale.ENGLISH.getLanguage()) ) {
+        if (TextUtils.equals(config.locale.getLanguage(), Locale.ENGLISH.getLanguage())) {
             iv1.setVisibility(View.GONE);
             iv2.setVisibility(View.GONE);
             iv3.setVisibility(View.VISIBLE);
             type = 3;
-        }  else if (config.locale.getLanguage().equals(Locale.getDefault().getLanguage()) ) {
+        } else if (TextUtils.equals(config.locale.getLanguage(), Locale.getDefault().getLanguage())) {
             type = 1;
             iv1.setVisibility(View.VISIBLE);
             iv2.setVisibility(View.GONE);
             iv3.setVisibility(View.GONE);
-        }else if (config.locale.getLanguage().equals(Locale.CHINESE.getLanguage()) ) {
+        } else if (TextUtils.equals(config.locale.getLanguage(), Locale.CHINESE.getLanguage())) {
             type = 2;
             iv1.setVisibility(View.GONE);
             iv2.setVisibility(View.VISIBLE);
@@ -95,7 +105,7 @@ public class LanguageSwitchActivity extends SwipeRefreshBaseActivity {
                 iv3.setVisibility(View.GONE);
                 break;
             case R.id.rl_chinese:
-                type = 2 ;
+                type = 2;
                 iv1.setVisibility(View.GONE);
                 iv2.setVisibility(View.VISIBLE);
                 iv3.setVisibility(View.GONE);

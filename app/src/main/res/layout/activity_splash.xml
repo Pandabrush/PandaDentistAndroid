@@ -1,54 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/ic_launch_bg"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@drawable/ic_launch_bg">
 
     <ImageView
         android:id="@+id/welcome_iv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:layout_above="@+id/iv" />
-
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitXY" />
 
     <RelativeLayout
         android:id="@+id/rl_skip"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="@dimen/splash_skip_length"
+        android:layout_height="@dimen/splash_skip_length"
         android:layout_alignParentRight="true"
         android:layout_margin="20dp"
-        android:visibility="visible"
-        >
+        android:visibility="visible">
 
         <com.pandadentist.widget.RoundProgressBarWidthNumber
             android:id="@+id/prog"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            app:progress_reached_bar_height1="1dp"
-            app:progress_text_visibility1="invisible"
-            app:progress_text_size1="0dp"
-            app:progress_unreached_color1="@android:color/transparent"
-            app:progress_reached_color1="@android:color/white"
-            app:progress_unreached_bar_height1="1dp"
+            android:layout_width="@dimen/splash_skip_length"
+            android:layout_height="@dimen/splash_skip_length"
             android:alpha="0.7"
-            android:progress="0" />
+            android:progress="0"
+            app:progress_reached_bar_height1="1dp"
+            app:progress_reached_color1="@android:color/white"
+            app:progress_text_size1="0dp"
+            app:progress_text_visibility1="invisible"
+            app:progress_unreached_bar_height1="1dp"
+            app:progress_unreached_color1="@android:color/transparent" />
 
         <TextView
             android:id="@+id/tv"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="@dimen/splash_skip_length"
+            android:layout_height="@dimen/splash_skip_length"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:gravity="center"
-            android:text="跳过"
+            android:text="@string/skip"
             android:textColor="@android:color/white"
             android:textSize="12sp" />
 
     </RelativeLayout>
-
-
 
 
 </RelativeLayout>
