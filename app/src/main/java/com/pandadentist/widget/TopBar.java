@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.StringRes;
 import android.util.AttributeSet;
@@ -16,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.pandadentist.R;
+import com.pandadentist.util.Logger;
 
 /**
  * Created by zhangwy on 2017/11/12.
@@ -190,6 +192,18 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
         if (this.centreText != null) {
             this.centreText.setOnClickListener(null);
             this.centreText = null;
+        }
+    }
+
+    /**
+     * 设置topBar中间部分内容
+     * @param resource 中间部分要显示的View 资源ID
+     */
+    public void setCentreContent(@LayoutRes int resource) {
+        try {
+            this.setCentreContent(LayoutInflater.from(this.getContext()).inflate(resource, this.centreHome, false));
+        } catch (Exception e) {
+            Logger.e("setCentreContent", e);
         }
     }
 
