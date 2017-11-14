@@ -33,14 +33,13 @@
         <activity
             android:name=".ui.activity.UrlDetailActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait" />
+        <activity android:name="com.pandadentist.ui.activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.pandadentist.ui.activity.SplashActivity"/>
         <activity android:name=".ui.activity.RealTimeBrushToothActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop">

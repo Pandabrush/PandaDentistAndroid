@@ -10,9 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginStart="10dp"
         android:orientation="horizontal"
         android:visibility="visible">
 
@@ -20,7 +20,6 @@
             android:id="@+id/ll_switch_device"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginRight="50dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:padding="3dp"
@@ -36,6 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:layout_weight="1"
                 android:orientation="vertical">
 
                 <TextView
@@ -44,6 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
+                    android:singleLine="true"
                     android:textColor="#042E6F"
                     android:textSize="15sp"
                     tools:text="Pbrush" />
@@ -53,6 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#F54376"
+                    android:singleLine="true"
                     android:textSize="@dimen/fontSize_10"
                     tools:text="未连接" />
             </LinearLayout>
@@ -71,6 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:singleLine="true"
         android:textColor="@android:color/black"
         android:textSize="18sp" />
 </RelativeLayout>

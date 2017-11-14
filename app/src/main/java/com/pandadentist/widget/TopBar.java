@@ -74,6 +74,16 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
         this.rightHome = (ViewGroup) findViewById(R.id.topBar_right);
         this.rightImage = (ImageView) findViewById(R.id.topBar_right_Icon);
         this.rightText = (TextView) findViewById(R.id.topBar_right_text);
+
+        this.setOnClickListener(this.leftHome);
+        this.setOnClickListener(this.centreText);
+        this.setOnClickListener(this.rightHome);
+    }
+
+    private void setOnClickListener(View view) {
+        if (view != null) {
+            view.setOnClickListener(this);
+        }
     }
 
     /**
@@ -91,7 +101,7 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
     public void setLeftImage(@DrawableRes int resId, boolean hideText) {
         this.setLeftVisibility(true);
         this.leftImage.setVisibility(VISIBLE);
-        this.leftText.setVisibility(hideText ? GONE : VISIBLE);
+        this.leftText.setVisibility(hideText ? VISIBLE : GONE);
         this.leftImage.setImageResource(resId);
     }
 
@@ -103,7 +113,7 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
     public void setLeftText(String text, boolean hideImage) {
         this.setLeftVisibility(true);
         this.leftText.setVisibility(VISIBLE);
-        this.leftImage.setVisibility(hideImage ? GONE : VISIBLE);
+        this.leftImage.setVisibility(hideImage ? VISIBLE : GONE);
         this.leftText.setText(text);
     }
 
@@ -115,7 +125,7 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
     public void setLeftText(@StringRes int resId, boolean hideImage) {
         this.setLeftVisibility(true);
         this.leftText.setVisibility(VISIBLE);
-        this.leftImage.setVisibility(hideImage ? GONE : VISIBLE);
+        this.leftImage.setVisibility(hideImage ? VISIBLE : GONE);
         this.leftText.setText(resId);
     }
 
@@ -222,7 +232,7 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
     public void setRightImage(@DrawableRes int resId, boolean hideText) {
         this.setRightVisibility(true);
         this.rightImage.setVisibility(VISIBLE);
-        this.rightText.setVisibility(hideText ? GONE : VISIBLE);
+        this.rightText.setVisibility(hideText ? VISIBLE : GONE);
         this.rightImage.setImageResource(resId);
     }
 
@@ -234,7 +244,7 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
     public void setRightText(String text, boolean hideImage) {
         this.setRightVisibility(true);
         this.rightText.setVisibility(VISIBLE);
-        this.rightImage.setVisibility(hideImage ? GONE : VISIBLE);
+        this.rightImage.setVisibility(hideImage ? VISIBLE : GONE);
         this.rightText.setText(text);
     }
 
@@ -246,7 +256,7 @@ public class TopBar extends RelativeLayout implements View.OnClickListener{
     public void setRightText(@StringRes int resId, boolean hideImage) {
         this.setRightVisibility(true);
         this.rightText.setVisibility(VISIBLE);
-        this.rightImage.setVisibility(hideImage ? GONE : VISIBLE);
+        this.rightImage.setVisibility(hideImage ? VISIBLE : GONE);
         this.rightText.setText(resId);
     }
 
