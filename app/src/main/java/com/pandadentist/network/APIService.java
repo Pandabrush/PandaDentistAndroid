@@ -11,6 +11,7 @@ import rx.Observable;
 
 /**
  * Created by Ford on 2016/7/6.
+ * Updated by zhangwy on 2017/11/15
  */
 public interface APIService {
 

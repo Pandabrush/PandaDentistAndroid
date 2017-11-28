@@ -400,7 +400,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         return true;
     }
 
-    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss, R.id.ll_helper})
+    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss, R.id.ll_helper, R.id.ll_tb_setting})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.ll_member_point:
@@ -429,6 +429,9 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 break;
             case R.id.ll_helper:
                 HelperActivity.start(this, this.data != null && !this.data.isEmpty(), this.isBltConnect);
+                break;
+            case R.id.ll_tb_setting:
+                ToothbrushSettingActivity.start(this);
                 break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -820,7 +823,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             } else {
                 //1.发送请求成功帧  2.把数据交给后台处理
                 Logger.d("数据接收完毕!");
-                //mService.writeRXCharacteristic(bleProtoProcess.getCompleted());
                 byte[] b = bleProtoProcess.getCompleted();
                 Logger.d("b-->" + Arrays.toString(b));
                 mService.writeRXCharacteristic(b);
@@ -832,8 +834,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 return true;
             }
         } catch (IllegalAccessException e) {
+            Logger.e("checkData", e);
             Toast.makeText(UrlDetailActivity.this, "异常", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
         }
         return true;
     }
@@ -842,14 +844,18 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         bleProtoProcess.setHasrecieved(false);
         bleProtoProcess.setIsreqenddatas(false);
         APIService api = new APIFactory().create(APIService.class);
-        String addr = currentMacAddress.replaceAll(":", "");
-        String str = "设备地址：" + addr + "-" + "Software：" + bleProtoProcess.getSoftware() + "-" + "Factory：" + bleProtoProcess.getFactory() + "-" + "Model：" + bleProtoProcess.getModel() + "-" + "Power：" + bleProtoProcess.getPower() + "-" + "Time：" + bleProtoProcess.getTime() + "-" + "Hardware：" + bleProtoProcess.getHardware() + "-" + bleProtoProcess.getDatatype() + "-";
-        Logger.d("str-->" + str);
+        String address = currentMacAddress.replaceAll(":", "");
+//        String str = "设备地址：" + address + "-" + "Software：" + bleProtoProcess.getSoftware() + "-" + "Factory：" + bleProtoProcess.getFactory() + "-" + "Model：" + bleProtoProcess.getModel() + "-" + "Power：" + bleProtoProcess.getPower() + "-" + "Time：" + bleProtoProcess.getTime() + "-" + "Hardware：" + bleProtoProcess.getHardware() + "-" + bleProtoProcess.getDatatype() + "-";
 
-        Subscription s = api.uploadData(addr, bleProtoProcess.getSoftware() + "",
-                bleProtoProcess.getFactory() + "", bleProtoProcess.getModel() + "",
-                bleProtoProcess.getPower() + "", bleProtoProcess.getTime() + "",
-                bleProtoProcess.getHardware() + "", bleProtoProcess.getBuffer(), bleProtoProcess.getDatatype() + "")
+        addSubscription(api.uploadData(address,
+                String.valueOf(bleProtoProcess.getSoftware()),
+                String.valueOf(bleProtoProcess.getFactory()),
+                String.valueOf(bleProtoProcess.getModel()),
+                String.valueOf(bleProtoProcess.getPower()),
+                String.valueOf(bleProtoProcess.getTime()),
+                String.valueOf(bleProtoProcess.getHardware()),
+                bleProtoProcess.getBuffer(),
+                String.valueOf(bleProtoProcess.getDatatype()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<WXEntity>() {
@@ -883,8 +889,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                         rlTips.setVisibility(View.VISIBLE);
                         tvUpdateRecord.setText("总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条");
                     }
-                });
-        addSubscription(s);
+                }));
     }
 
     private void setTvDeviceNameText(String text) {

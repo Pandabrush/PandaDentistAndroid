@@ -43,9 +43,9 @@ import java.util.UUID;
  * Service for managing connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
  */
+@SuppressWarnings("unused")
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class UartService extends Service {
-    private final static String TAG = UartService.class.getSimpleName();
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;

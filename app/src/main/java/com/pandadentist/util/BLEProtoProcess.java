@@ -2,6 +2,7 @@ package com.pandadentist.util;
 
 import android.content.Intent;
 
+import com.pandadentist.listener.OnModelChangeListener;
 import com.pandadentist.listener.OnStateListener;
 import com.pandadentist.listener.OnZhenListener;
 
@@ -10,7 +11,6 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -18,13 +18,15 @@ import java.util.Vector;
 
 /**
  * Created by maya on 17/6/21.
- *
+ * Updated by zhangwy on17/11/15
  */
+@SuppressWarnings("unused")
 public class BLEProtoProcess {
 
     public static final int BLE_DATA_START = 0;
     public static final int BLE_DATA_RECEIVER = 1;
     public static final int BLE_DATA_END = 2;
+    public static final int BLE_SET_MODEL = 0x80;
 
     public static final int BLE_RESULT_START = 10;
     public static final int BLE_RESULT_RECEIVER = 11;
@@ -36,12 +38,11 @@ public class BLEProtoProcess {
     public static final int BLE_RUNTIME_ACT = 21;
     public static final int BLE_NO_SYNC = -1;
 
-
     private int datatype = -1;   //定义传输的数据类型        1=请求数据帧，2=请求结果帧，3 过程真   其他暂时无效
     //将此发给服务器，用来判断是什么类型的数据， 并相应解析
 
     private Map<Integer, byte[]> buffer = Collections.synchronizedMap(new TreeMap<Integer, byte[]>());
-    private Vector<byte[]> result = new Vector<byte[]>();
+    private Vector<byte[]> result = new Vector<>();
     private Vector<Integer> missIndex = null;
     private int missedCheckLimit = 0;
 
@@ -57,14 +58,12 @@ public class BLEProtoProcess {
     //定义实时过程数据
     private float[] val_rt = new float[4];
     private float[] xyz_rt = new float[3];
-    private int index_rt = -1;
-    private boolean pressok_rt, range_rt, angle_rt;
-
 
     private StringBuffer mLog = new StringBuffer();
 
     private OnZhenListener onZhenListener;
     private OnStateListener onStateListener;
+    private OnModelChangeListener onModelChangeListener;
 
     private boolean hasrecieved = false;
     private boolean isreqenddatas = false;
@@ -72,7 +71,7 @@ public class BLEProtoProcess {
     public static void main(String[] args) throws Exception {
         BLEProtoProcess bleProtoProcess = new BLEProtoProcess();
 
-        List<byte[]> mock = new ArrayList<byte[]>();
+        List<byte[]> mock = new ArrayList<>();
 
         //数据起始帧
         mock.add(new byte[]{0X00, 0X00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x00, (byte) 0Xe7, (byte) 0Xef, 0X5b, 0X68});
@@ -88,7 +87,7 @@ public class BLEProtoProcess {
         byte[] request = bleProtoProcess.getRequests((byte) 0, (byte) 0);
         System.out.println(Bytes.bytes2hexString(request)); //debug
 
-        /**
+        /*
          * 从蓝牙接受数据后调用interp完成数据解析，每收到一次调用一次
          * 这里模拟接受到三帧，包含起始帧、两个数据帧、一个结束帧
          * 注视掉1或者2可以模拟丢帧
@@ -99,7 +98,7 @@ public class BLEProtoProcess {
         bleProtoProcess.interp(mock.get(2));
         bleProtoProcess.interp(mock.get(3));
 
-        /**
+        /*
          * 检测是否丢帧，如果丢帧则调用getMissedRequests获取丢失帧重传请求发送给设备即可
          * 如果检测没有丢帧，则调用getCompleted得到接收完成帧发送给设备即可
          * 最后调用getBuffer获取到要发送给后台的BASE64编码后的数据通过HTTP POST即可
@@ -114,13 +113,18 @@ public class BLEProtoProcess {
             System.out.println(base64);
         }
     }
-/*
-    //数据大小端转换
-    public short _chg_(short  value)    {    return (value<<8)|(value>>8) ; }
-    public int   _chg_(int    value)    {    return _chg_((short) (value<<16))  | _chg_((short)(value>>16)) ;   }
-    public long  _chg_(long   value)    {    return _chg_((int) (value<<32))    | _chg_((int)(value>>32)) ;     }
-*/
 
+    public byte[] getModel(byte modelType, Short model, Short pwm, Short tClk, Short time) {
+        ByteBuffer data = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);
+        data.put((byte)0x80);
+        data.put(modelType);
+        data.putShort(model);
+        data.putShort(pwm);
+        data.putShort(tClk);
+        data.putShort(time);
+        data.putShort((short) 0);
+        return data.array();
+    }
 
     //数据请求帧
     public byte[] getRequests(byte type, byte nearnum) {
@@ -131,11 +135,11 @@ public class BLEProtoProcess {
 
         //data[0] = 0x0; // //1bytes 类型，固定值 0- 请求数据帧 1-请求结果(预留) 2-请求配置信息
         //data[1] = 0x0; //1bytes 保留
-        data.put((byte) type);
-        data.put((byte) nearnum);
+        data.put(type);
+        data.put(nearnum);
         data.putShort((short) 0); //2bytes 保留 2
 
-        /**
+        /*
          * 当前服务器时间用于校准牙刷时间
          */
         data.put((byte) date.getSeconds());
@@ -187,9 +191,8 @@ public class BLEProtoProcess {
         this.missIndex = null;
         this.missedCheckLimit = 0;
 
-        Iterator it = this.buffer.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Intent, byte[]> entry = (Map.Entry<Intent, byte[]>) it.next();
+        for (Object o : this.buffer.entrySet()) {
+            Map.Entry<Intent, byte[]> entry = (Map.Entry<Intent, byte[]>) o;
             this.result.addElement(entry.getValue());
         }
         return data;
@@ -207,21 +210,6 @@ public class BLEProtoProcess {
 
         return Bytes.bytes2base64(data.array());
     }
-
-    /*public String getBuffer() {
-        System.out.println("total=" + totalnum * 16);
-        ByteBuffer data = ByteBuffer.allocate(totalnum * 16).order(ByteOrder.LITTLE_ENDIAN);
-        //byte[] data = new byte[totalnum * 16];
-        Iterator it = this.buffer.entrySet().iterator();
-        System.out.println("buffer size=" + this.buffer.size());
-        System.out.println("buffer length=" + this.buffer.size() * 16);
-        while(it.hasNext()) {
-            Map.Entry<Integer, byte[]> entry = (Map.Entry<Integer, byte[]>) it.next();
-            //System.arraycopy(entry.getValue(), 0, data, (entry.getKey() - 1) * 16, 16);
-            data.put(entry.getValue());
-        }
-        return Bytes.bytes2base64(data.array());
-    }*/
 
     private int pagesSize = 0;
 
@@ -242,6 +230,15 @@ public class BLEProtoProcess {
         StringBuilder logBuilder = new StringBuilder();
 
         switch (type) {
+            case BLE_SET_MODEL:
+                if (this.onModelChangeListener != null) {
+                    int pwm = data.getShort();
+                    int tClk = data.getShort();
+                    int time = data.getShort();
+                    int modelResult = data.getShort();
+                    this.onModelChangeListener.onModelChange(pagenum, index, pwm, tClk, time, modelResult);
+                }
+                break;
             case BLE_DATA_START:    //0
             case BLE_RESULT_START:
                 pagesSize++;
@@ -293,7 +290,7 @@ public class BLEProtoProcess {
                 if (onZhenListener != null) {
                     onZhenListener.onZhen(index, totalnum);
                 }
-                /**
+                /*
                  * 检查是否处于丢帧重传中
                  * 如果处于丢帧重传中，每次获取到之后从丢帧列表中清除已经收到的帧
                  * 当丢帧列表为0时代表本次丢帧重传结束，返回BLE_MISSED_END
@@ -318,10 +315,10 @@ public class BLEProtoProcess {
                 break;
             case BLE_RUNTIME:   //实时数据
                 datatype = 3;
-                index_rt = index;                   //帧号    由此判断刷牙时间
-                angle_rt = (pagenum & (1 << 0)) != 0;   //角度是否正确，0正确，1错误
-                range_rt = (pagenum & (1 << 1)) != 0;   //幅度是否正确，0正确，1错误
-                pressok_rt = (pagenum & (1 << 2)) != 0; //压力是否正确，0正确，1错误
+                int index_rt = index;                   //帧号    由此判断刷牙时间
+                boolean angle_rt = (pagenum & (1 << 0)) != 0;   //角度是否正确，0正确，1错误
+                boolean range_rt = (pagenum & (1 << 1)) != 0;   //幅度是否正确，0正确，1错误
+                boolean pressok_rt = (pagenum & (1 << 2)) != 0; //压力是否正确，0正确，1错误
 
                 for (int i = 0; i < 4; i++) {            //四元数，发给动画
                     val_rt[i] = (float) ((float) data.getShort() / 10000.0);
@@ -347,13 +344,13 @@ public class BLEProtoProcess {
                 }
                 break;
         }
-        mLog.append("log-->" + logBuilder.toString());
+        mLog.append("log-->").append(logBuilder.toString());
         System.out.println(logBuilder.toString());
         return type;
     }
 
     public boolean checkMissed() throws IllegalAccessException {
-        /**
+        /*
          * 检查丢帧次数限制不能超过总帧数的两倍
          * 如果超过则抛出IllegalAccessException异常，判定本次同步失败
          */
@@ -361,12 +358,12 @@ public class BLEProtoProcess {
             throw new IllegalAccessException("out of check limit");
         }
 
-        missIndex = new Vector<Integer>();
+        missIndex = new Vector<>();
 
         for (int frame = 0; frame < totalnum; frame++) {
             if (!buffer.containsKey(frame)) {
                 missIndex.addElement(frame);
-                /**
+                /*
                  * 丢帧重传请求每次最多只能请求8帧
                  * 这里不再全部遍历，当检测到需要重传8帧时中断
                  */
@@ -376,7 +373,7 @@ public class BLEProtoProcess {
             }
         }
 
-        return missIndex.size() > 0 ? true : false;
+        return missIndex.size() > 0;
     }
 
     public String getLog() {
@@ -389,6 +386,10 @@ public class BLEProtoProcess {
 
     public void setOnZhenListener(OnZhenListener onZhenListener) {
         this.onZhenListener = onZhenListener;
+    }
+
+    public void setOnModelChangeListener(OnModelChangeListener listener) {
+        this.onModelChangeListener = listener;
     }
 
     public void setOnStateListener(OnStateListener listener) {

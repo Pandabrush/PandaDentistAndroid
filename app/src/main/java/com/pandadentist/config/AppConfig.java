@@ -5,6 +5,7 @@ package com.pandadentist.config;
  *
  * aap 配置信息
  */
+@SuppressWarnings("unused")
 public class AppConfig {
 
     //测试key

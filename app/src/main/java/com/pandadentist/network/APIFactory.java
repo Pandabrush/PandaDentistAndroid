@@ -15,10 +15,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Ford on 2016/5/25 0025.
+ *
  */
 public class APIFactory {
     private static final String TAG = APIFactory.class.getSimpleName();
-    public <T> T create( Class c){
+    public <T> T create(Class c){
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
             @Override public void log(String message) {
                 Log.d(TAG,"message-->"+message);
@@ -36,16 +37,4 @@ public class APIFactory {
                 .build();
          return (T)retrofit.create(c);
     }
-
-//    public BaiduApi createBaiduApi(){
-//        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-//        builder.connectTimeout(AppConfig.DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .client(builder.build())
-//                .baseUrl(WTSApi.BAIDU_API_BASE_URL)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-//                .build();
-//        return  retrofit.create(BaiduApi.class);
-//    }
 }

@@ -44,7 +44,16 @@
     <string name="help_set_indicator_light">如何设置指示灯</string>
     <string name="input_email">请输入邮箱</string>
     <string name="input_password">请输入密码</string>
-
+    <string name="title_toothbrush_setting">牙刷个性设置</string>
+    <string name="toothbrush_cycle_desc">定时%d$1分钟</string>
+    <string name="toothbrush_amplitude_desc">震动频率%d$1次/分钟</string>
+    <string name="toothbrush_intensity_desc">震动强度%d$1级</string>
+    <string name="toothbrush_tablayout_0">美白</string>
+    <string name="toothbrush_tablayout_1">抛光</string>
+    <string name="toothbrush_tablayout_2">按摩</string>
+    <string name="toothbrush_tablayout_3">清洁</string>
+    <string name="toothbrush_tablayout_4">学习</string>
+    <string name="toothbrush_tablayout_5">自定义</string>
 
 
     <string name="device">Device:</string>

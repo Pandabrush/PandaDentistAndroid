@@ -9,4 +9,12 @@
     <dimen name="topBar_centre_textSize">18sp</dimen>
     <dimen name="splash_skip_length">30dip</dimen>
     <dimen name="fontSize_10">10sp</dimen>
+    <dimen name="fontSize_14">14sp</dimen>
+    <dimen name="fontSize_18">18sp</dimen>
+
+    <dimen name="margin_8">8dip</dimen>
+    <dimen name="margin_3">3dip</dimen>
+    <dimen name="margin_38">38dip</dimen>
+    <dimen name="margin_16">16dip</dimen>
+    <dimen name="margin_18">18dip</dimen>
 </resources>

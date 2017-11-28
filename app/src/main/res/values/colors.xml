@@ -14,7 +14,6 @@
     <color name="loginTextGreen">#30cc6b</color>
     <color name="loginTextLightBlue">#20cbe7</color>
 
-
     <color name="titleColor">#042e6f</color>
     <color name="subtitleColor">#8599b9</color>
     <color name="auxiliaryTextColor">#9aaac4</color>
@@ -28,8 +27,6 @@
     <color name="black">#333333</color>
     <color name="btnTextColor">#032d6f</color>
 
-
-
     <!--配网demo-->
     <color name="title_bgd">#5384c2</color>
     <color name="bottom_bgd">#3971b8</color>
@@ -38,4 +35,10 @@
     <color name="light_blue">#2f77cf</color>
     <color name="dark_blue">#0f1dd2</color>
 
+    <color name="font_color_booth_brush_title">#042E6F</color>
+    <color name="font_color_progress_desc">#8599B9</color>
+
+    <color name="color_toothbrush_tablayout_indicator">#FF5F8C</color>
+    <color name="font_color_toothbrush_tablayout_tabtext_selected">#FF5F8C</color>
+    <color name="font_color_toothbrush_default">#8599B9</color>
 </resources>

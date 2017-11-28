@@ -16,7 +16,7 @@ import android.content.IntentFilter;
 public class BlueToothBroadcastReceiver extends BroadcastReceiver {
 
     private Callback callback;
-
+    private boolean hasRegistered = false;
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent == null)
@@ -54,12 +54,15 @@ public class BlueToothBroadcastReceiver extends BroadcastReceiver {
             filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
             this.setCallback(callback);
             context.registerReceiver(this, filter);
+            this.hasRegistered = true;
         }
     }
 
     public void unRegister(Context context) {
-        if (context != null) {
+        if (this.hasRegistered && context != null) {
             context.unregisterReceiver(this);
+            this.setCallback(null);
+            this.hasRegistered = false;
         }
     }
 

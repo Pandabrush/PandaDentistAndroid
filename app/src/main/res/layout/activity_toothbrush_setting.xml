@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/title"
+        layout="@layout/layout_appbar" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/toothbrush_setting_icon"
+        android:layout_width="72dip"
+        android:layout_height="72dip"
+        android:layout_marginTop="@dimen/margin_8"
+        android:contentDescription="@string/about" />
+
+    <TextView
+        android:id="@+id/toothbrush_setting_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_3"
+        android:textColor="@color/font_color_booth_brush_title"
+        android:textSize="@dimen/fontSize_18" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/margin_18"
+        android:layout_marginRight="@dimen/margin_18"
+        android:layout_marginTop="@dimen/margin_38"
+        android:background="@android:color/transparent"
+        android:orientation="vertical">
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/toothbrush_setting_tablayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@android:color/transparent"
+            android:paddingBottom="2dip"
+            app:tabIndicatorColor="@color/color_toothbrush_tablayout_indicator"
+            app:tabIndicatorHeight="2dp"
+            app:tabMaxWidth="54dip"
+            app:tabMinWidth="54dip"
+            app:tabMode="scrollable"
+            app:tabPaddingBottom="-1dp"
+            app:tabPaddingEnd="-1dp"
+            app:tabPaddingStart="-1dp"
+            app:tabPaddingTop="-1dp"
+            app:tabSelectedTextColor="@color/font_color_toothbrush_tablayout_tabtext_selected"
+            app:tabTextColor="@color/font_color_toothbrush_default">
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/toothbrush_setting_tablayout_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/toothbrush_tablayout_0" />
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/toothbrush_setting_tablayout_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/toothbrush_tablayout_1" />
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/toothbrush_setting_tablayout_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/toothbrush_tablayout_2" />
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/toothbrush_setting_tablayout_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/toothbrush_tablayout_3" />
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/toothbrush_setting_tablayout_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/toothbrush_tablayout_4" />
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/toothbrush_setting_tablayout_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/toothbrush_tablayout_5" />
+        </android.support.design.widget.TabLayout>
+
+        <com.pandadentist.widget.ScaleSeekBar
+            android:id="@+id/toothbrush_setting_cycle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_16" />
+
+        <com.pandadentist.widget.ScaleSeekBar
+            android:id="@+id/toothbrush_setting_amplitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_16" />
+
+        <com.pandadentist.widget.ScaleSeekBar
+            android:id="@+id/toothbrush_setting_intensity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_16" />
+    </LinearLayout>
+</LinearLayout>
