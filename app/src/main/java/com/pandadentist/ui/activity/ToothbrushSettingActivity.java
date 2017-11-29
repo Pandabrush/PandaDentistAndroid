@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.view.View;
 import android.widget.Toast;
 
 import com.pandadentist.R;
@@ -74,6 +75,9 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
+        this.setCycleSeekBarVisibility(tab.getPosition() == 5);
+        this.setAmplitudeSeekBarVisibility(tab.getPosition() == 5);
+        this.setIntensitySeekBarVisibility(tab.getPosition() == 5);
         switch (tab.getPosition()) {
             case 0:
             case 1:
@@ -81,9 +85,6 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
             case 3:
             case 4:
                 this.requestModel(0, tab.getPosition(), 0, 0, 0);
-                break;
-            case 5:
-                //TODO:
                 break;
         }
     }
@@ -105,6 +106,11 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         this.cycleSeekBar.setSections(array);
         this.cycleSeekBar.setProgress(0);
         this.cycleSeekBar.canActiveMove(false);
+        this.setCycleSeekBarVisibility(false);
+    }
+
+    private void setCycleSeekBarVisibility(boolean show) {
+        this.cycleSeekBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void initAmplitudeSeekBar() {
@@ -113,6 +119,11 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         ArrayList<String> array = getArray(3000, 6000, 200);
         this.amplitudeSeekBar.setSections(array);
         this.amplitudeSeekBar.setProgress(0);
+        this.setAmplitudeSeekBarVisibility(false);
+    }
+
+    private void setAmplitudeSeekBarVisibility(boolean show) {
+        this.amplitudeSeekBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void initIntensitySeekBar() {
@@ -121,6 +132,11 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         ArrayList<String> array = getArray(200, 1800, 100);
         this.intensitySeekBar.setSections(array);
         this.intensitySeekBar.setProgress(0);
+        this.setIntensitySeekBarVisibility(false);
+    }
+
+    private void setIntensitySeekBarVisibility(boolean show) {
+        this.intensitySeekBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void refreshSeekBarDesc(ScaleSeekBar seekBar, String desc) {
@@ -205,9 +221,13 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     @Override
     public void onModelChange(int modelType, int model, int pwm, int tClk, int time, int modelResult) {
         this.removeOutTime();
-        //TODO: 设置值
         Toast.makeText(this, "modelType=" + modelType + "\nmodel=" + model + "\npwm=" + pwm + "\ntClk=" + tClk + "\ntime=" + time + "\nmodelResult=" + modelResult, Toast.LENGTH_SHORT).show();
-//        int position = modelType == 0 ? model : 5;
+        int position = modelType == 0 ? model : 5;
+        this.tabLayout.getTabAt(position).select();
+        boolean show = modelType != 0;
+        this.setCycleSeekBarVisibility(show);
+        this.setAmplitudeSeekBarVisibility(show);
+        this.setIntensitySeekBarVisibility(show);
     }
 
     private static class OnSettingModelChangeListener implements OnModelChangeListener {
