@@ -91,7 +91,7 @@
         </android.support.design.widget.TabLayout>
 
         <com.pandadentist.widget.ScaleSeekBar
-            android:id="@+id/toothbrush_setting_cycle"
+            android:id="@+id/toothbrush_setting_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_16" />

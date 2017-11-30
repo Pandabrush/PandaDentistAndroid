@@ -14,7 +14,7 @@
         android:textColor="@color/font_color_progress_desc"
         android:textSize="@dimen/fontSize_14" />
 
-    <com.pandadentist.widget.CustomSeekBar
+    <SeekBar
         android:id="@+id/progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

@@ -7,6 +7,7 @@ import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.pandadentist.R;
@@ -23,8 +24,8 @@ import java.util.List;
 public class ScaleSeekBar extends LinearLayout {
 
     private TextView desc;
-    private CustomSeekBar seekBar;
-    private CustomSeekBar.OnSeekBarChangeListener changeListener;
+    private SeekBar seekBar;
+    private SeekBar.OnSeekBarChangeListener changeListener;
 
     public ScaleSeekBar(Context context) {
         super(context);
@@ -50,9 +51,8 @@ public class ScaleSeekBar extends LinearLayout {
     private void init() {
         LayoutInflater.from(this.getContext()).inflate(R.layout.widget_progress, this, true);
         this.desc = (TextView) findViewById(R.id.progress_desc);
-        this.seekBar = (CustomSeekBar) findViewById(R.id.progress);
+        this.seekBar = (SeekBar) findViewById(R.id.progress);
         this.seekBar.setOnSeekBarChangeListener(changeListener);
-        this.seekBar.showSectionText(false);
     }
 
     public ScaleSeekBar setDesc(String desc) {
@@ -62,16 +62,18 @@ public class ScaleSeekBar extends LinearLayout {
         return this;
     }
 
-    public ScaleSeekBar setSections(String... sections) {
+    public ScaleSeekBar setSections(Integer... sections) {
         if (this.seekBar != null && !Util.isEmpty(sections)) {
-            this.seekBar.setSections(Util.array2List(sections));
+//            this.seekBar.setSections(Util.array2List(sections));
+            this.seekBar.setMax(sections.length);
         }
         return this;
     }
 
-    public ScaleSeekBar setSections(List<String> sections) {
+    public ScaleSeekBar setSections(List<Integer> sections) {
         if (this.seekBar != null && !Util.isEmpty(sections)) {
-            this.seekBar.setSections(sections);
+//            this.seekBar.setSections(sections);
+            this.seekBar.setMax(sections.size());
         }
         return this;
     }
@@ -84,18 +86,18 @@ public class ScaleSeekBar extends LinearLayout {
     }
 
     public void showSectionText(boolean show) {
-        if (this.seekBar != null) {
-            this.seekBar.showSectionText(show);
-        }
+//        if (this.seekBar != null) {
+//            this.seekBar.showSectionText(show);
+//        }
     }
 
     public void canActiveMove(boolean canActiveMove) {
-        if (this.seekBar != null) {
-            this.seekBar.canActiveMove(canActiveMove);
-        }
+//        if (this.seekBar != null) {
+//            this.seekBar.canActiveMove(canActiveMove);
+//        }
     }
 
-    public ScaleSeekBar setOnSeekBarChangeListener(CustomSeekBar.OnSeekBarChangeListener listener) {
+    public ScaleSeekBar setOnSeekBarChangeListener(SeekBar.OnSeekBarChangeListener listener) {
         if (this.seekBar != null) {
             this.seekBar.setOnSeekBarChangeListener(listener);
         }
