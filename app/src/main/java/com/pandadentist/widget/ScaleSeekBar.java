@@ -65,7 +65,7 @@ public class ScaleSeekBar extends LinearLayout {
     public ScaleSeekBar setSections(Integer... sections) {
         if (this.seekBar != null && !Util.isEmpty(sections)) {
 //            this.seekBar.setSections(Util.array2List(sections));
-            this.seekBar.setMax(sections.length);
+            this.seekBar.setMax(sections.length - 1);
         }
         return this;
     }
@@ -73,7 +73,7 @@ public class ScaleSeekBar extends LinearLayout {
     public ScaleSeekBar setSections(List<Integer> sections) {
         if (this.seekBar != null && !Util.isEmpty(sections)) {
 //            this.seekBar.setSections(sections);
-            this.seekBar.setMax(sections.size());
+            this.seekBar.setMax(sections.size() - 1);
         }
         return this;
     }

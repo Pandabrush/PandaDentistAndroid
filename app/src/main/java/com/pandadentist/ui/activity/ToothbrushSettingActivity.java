@@ -18,6 +18,7 @@ import com.pandadentist.util.Util;
 import com.pandadentist.widget.ScaleSeekBar;
 import com.pandadentist.widget.TopBar;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -94,7 +95,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         this.initTimeSeekBar();
         this.initAmplitudeSeekBar();
         this.initIntensitySeekBar();
-        this.refreshSeekBarValue();
+        this.refreshSeekBarValue(false);
         this.setSeekBarVisibility(false);
         this.requestModel(0xff, 0, 0, 0, 0);
     }
@@ -151,7 +152,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     timeSeekBarProgress = progress;
-                    refreshSeekBarValue();
+                    refreshSeekBarValue(false);
                     requestModelForUser(true);
                 }
             }
@@ -170,7 +171,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     amplitudeSeekBarProgress = progress;
-                    refreshSeekBarValue();
+                    refreshSeekBarValue(false);
                     requestModelForUser(false);
                 }
             }
@@ -189,7 +190,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     intensitySeekBarProgress = progress;
-                    refreshSeekBarValue();
+                    refreshSeekBarValue(false);
                     requestModelForUser(false);
                 }
             }
@@ -215,6 +216,9 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         super.onDestroy();
         this.clearModelChangeListener();
         this.removeOutTime();
+        this.timeSeekBar.setOnSeekBarChangeListener(null);
+        this.amplitudeSeekBar.setOnSeekBarChangeListener(null);
+        this.intensitySeekBar.setOnSeekBarChangeListener(null);
     }
 
     private void requestModelForUser(boolean time) {
@@ -229,6 +233,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
      * @param time      刷牙时间  单位s
      */
     private void requestModel(int modelType, int model, int pwm, int tClk, int time) {
+        this.showMessage(String.format(Locale.getDefault(), "requestModel(modelType:%1$d, model:%2$d, pwm:%3$d, tClk:%4$d, time:%5$d)", modelType, model, pwm, tClk, time));
         if (this.bleProtoProcess == null)
             bleProtoProcess = UrlDetailActivity.bleProtoProcess == null ? new BLEProtoProcess() : UrlDetailActivity.bleProtoProcess;
         this.clearModelChangeListener();
@@ -281,6 +286,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
      */
     @Override
     public void onModelChange(int modelType, int model, int pwm, int tClk, int time, int modelResult) {
+        this.showMessage("onModelChange");
         this.removeOutTime();
         int position = modelType == 0 ? model : 5;
         TabLayout.Tab tab = this.tabLayout.getTabAt(position);
@@ -291,7 +297,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         this.timeSeekBarProgress = this.findPosition(this.timeSeekBarArray, this.correctionValue(time, this.TIME_INTERVAL, this.TIME_MIN, this.TIME_MAX));
         this.amplitudeSeekBarProgress = this.findPosition(this.amplitudeSeekBarArray, this.correctionValue(tClk, this.AMPLITUDE_INTERVAL, this.AMPLITUDE_MIN, this.AMPLITUDE_MAX));
         this.intensitySeekBarProgress = this.findPosition(this.intensitySeekBarArray, this.correctionValue(pwm, this.INTENSITY_INTERVAL, this.INTENSITY_MIN, this.INTENSITY_MAX));
-        this.refreshSeekBarValue();
+        this.refreshSeekBarValue(true);
     }
 
     private int correctionValue(int src, int interval, int min, int max) {
@@ -302,30 +308,47 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         return Math.round((src - min) / (float) interval) * interval + min;
     }
 
-    private void refreshSeekBarValue() {
-        String base = "%1$s :   %2$s    :   %3$d    :   %4$d";
+    private void refreshSeekBarValue(boolean showMsg) {
+        int ctimeSeekBarValue = timeSeekBarValue;
+        int camplitudeSeekBarValue = amplitudeSeekBarValue;
+        int cintensitySeekBarValue = intensitySeekBarValue;
+
         this.timeSeekBarValue = findValue(timeSeekBarArray, timeSeekBarProgress, this.TIME_MIN);
         this.amplitudeSeekBarValue = findValue(amplitudeSeekBarArray, amplitudeSeekBarProgress, this.AMPLITUDE_MIN);
         this.intensitySeekBarValue = findValue(intensitySeekBarArray, intensitySeekBarProgress, this.INTENSITY_MIN);
-        Logger.d(String.format(Locale.getDefault(), base, "timeSeekBarArray", Util.array2Strings(timeSeekBarArray, ','), this.timeSeekBarProgress, this.timeSeekBarValue));
-        Logger.d(String.format(Locale.getDefault(), base, "amplitudeSeekBarArray", Util.array2Strings(amplitudeSeekBarArray, ','), this.amplitudeSeekBarProgress, this.amplitudeSeekBarValue));
-        Logger.d(String.format(Locale.getDefault(), base, "intensitySeekBarArray", Util.array2Strings(intensitySeekBarArray, ','), this.intensitySeekBarProgress, this.intensitySeekBarValue));
+
+        if (showMsg) {
+            String base = "%1$s :   %2$d    :   %3$d    :   %4$d";
+            this.showMessage(String.format(Locale.getDefault(), base, "timeSeekBarArray", this.timeSeekBarProgress, this.timeSeekBarValue, ctimeSeekBarValue));
+            this.showMessage(String.format(Locale.getDefault(), base, "amplitudeSeekBarArray", this.amplitudeSeekBarProgress, this.amplitudeSeekBarValue, camplitudeSeekBarValue));
+            this.showMessage(String.format(Locale.getDefault(), base, "intensitySeekBarArray", this.intensitySeekBarProgress, this.intensitySeekBarValue, cintensitySeekBarValue));
+        }
+
         {
             int minutes = this.timeSeekBarValue / 60;
             int seconds = this.timeSeekBarValue % 60;
             this.refreshSeekBarDesc(this.timeSeekBar, seconds == 0 ? getString(R.string.toothbrush_time_desc, minutes) : getString(R.string.toothbrush_time_desc_mmss, minutes, seconds));
+            this.refreshSeekBarProgress(this.timeSeekBar, this.timeSeekBarProgress);
         }
         {
             this.refreshSeekBarDesc(this.amplitudeSeekBar, getString(R.string.toothbrush_amplitude_desc, 2 * 60 * 1000 * 1000 / this.amplitudeSeekBarValue));
+            this.refreshSeekBarProgress(this.amplitudeSeekBar, this.amplitudeSeekBarProgress);
         }
         {
             this.refreshSeekBarDesc(this.intensitySeekBar, getString(R.string.toothbrush_intensity_desc, this.intensitySeekBarProgress + 1));
+            this.refreshSeekBarProgress(this.intensitySeekBar, this.intensitySeekBarProgress);
         }
     }
 
     private void refreshSeekBarDesc(ScaleSeekBar seekBar, String desc) {
         if (seekBar != null) {
             seekBar.setDesc(desc);
+        }
+    }
+
+    private void refreshSeekBarProgress(ScaleSeekBar seekBar, int progress) {
+        if (seekBar != null) {
+            seekBar.setProgress(progress);
         }
     }
 
@@ -400,10 +423,10 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
 
         private int progress = 0;
         private boolean fromUser = false;
-        private WeakReference<SeekBarChangeListener> reference;
+        private SoftReference<SeekBarChangeListener> reference;
 
         private OnSettingSeekBarChangeListener(SeekBarChangeListener listener) {
-            this.reference = new WeakReference<>(listener);
+            this.reference = new SoftReference<>(listener);
         }
 
         @Override
