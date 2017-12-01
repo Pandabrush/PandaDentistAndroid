@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
 import com.pandadentist.R;
 import com.pandadentist.util.Logger;
@@ -82,5 +84,15 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void handleReceiver(Context context, Intent intent) {
+    }
+
+    protected final void showMessage(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        Logger.d(msg);
+    }
+
+    protected final void showMessage(@StringRes int resId) {
+        Toast.makeText(this, resId, Toast.LENGTH_LONG).show();
+        Logger.d(getString(resId));
     }
 }

@@ -431,7 +431,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 HelperActivity.start(this, this.data != null && !this.data.isEmpty(), this.isBltConnect);
                 break;
             case R.id.ll_tb_setting:
-                ToothbrushSettingActivity.start(this);
+                ToothbrushSettingActivity.start(this, this.isBltConnect);
                 break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

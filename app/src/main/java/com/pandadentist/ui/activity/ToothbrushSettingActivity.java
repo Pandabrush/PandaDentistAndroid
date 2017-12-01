@@ -20,6 +20,7 @@ import com.pandadentist.widget.TopBar;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Created by zhangwy on 2017/11/18.
@@ -29,8 +30,12 @@ import java.util.ArrayList;
 
 public class ToothbrushSettingActivity extends BaseActivity implements Handler.Callback, OnModelChangeListener, TabLayout.OnTabSelectedListener {
 
-    public static void start(Context context) {
-        context.startActivity(new Intent(context, ToothbrushSettingActivity.class));
+    private static final String EXTRA_BLUE_CONNECT = "blue_connect";
+
+    public static void start(Context context, boolean connect) {
+        Intent intent = new Intent(context, ToothbrushSettingActivity.class);
+        intent.putExtra(EXTRA_BLUE_CONNECT, connect);
+        context.startActivity(intent);
     }
 
     private final int WHAT_OUT_TIME = 100;
@@ -63,6 +68,16 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (UrlDetailActivity.mService != null && !UrlDetailActivity.mService.initialize()) {
+            this.showMessage(R.string.toast_msg_un_initialized_service);
+            finish();
+            return;
+        }
+        if (!this.isConnect()) {
+            this.showMessage(R.string.toast_msg_un_connect_blue);
+            finish();
+            return;
+        }
         if (this.hasTopBar()) {
             this.topBar.setLeftVisibility(true);
             this.topBar.setRightVisibility(false);
@@ -82,6 +97,11 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         this.refreshSeekBarValue();
         this.setSeekBarVisibility(false);
         this.requestModel(0xff, 0, 0, 0, 0);
+    }
+
+    private boolean isConnect() {
+        Intent intent = getIntent();
+        return intent != null && intent.hasExtra(EXTRA_BLUE_CONNECT) && intent.getBooleanExtra(EXTRA_BLUE_CONNECT, false);
     }
 
     @Override
@@ -121,7 +141,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     private void initTimeSeekBar() {
         this.timeSeekBar = (ScaleSeekBar) findViewById(R.id.toothbrush_setting_time);
         this.refreshSeekBarDesc(this.timeSeekBar, getString(R.string.toothbrush_time_desc));
-        this.timeSeekBarArray = getArray(this.TIME_MIN, this.TIME_MAX, this.TIME_INTERVAL);
+        this.timeSeekBarArray = getArray(this.TIME_MIN, this.TIME_MAX, this.TIME_INTERVAL, true);
         this.timeSeekBar.setSections(this.timeSeekBarArray);
         this.timeSeekBar.setProgress(0);
         this.timeSeekBar.canActiveMove(false);
@@ -141,7 +161,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     private void initAmplitudeSeekBar() {
         this.amplitudeSeekBar = (ScaleSeekBar) findViewById(R.id.toothbrush_setting_amplitude);
         this.refreshSeekBarDesc(this.amplitudeSeekBar, getString(R.string.toothbrush_amplitude_desc));
-        this.amplitudeSeekBarArray = getArray(this.AMPLITUDE_MAX, this.AMPLITUDE_MIN, -this.AMPLITUDE_INTERVAL);
+        this.amplitudeSeekBarArray = getArray(this.AMPLITUDE_MIN, this.AMPLITUDE_MAX, this.AMPLITUDE_INTERVAL, false);
         this.amplitudeSeekBar.setSections(this.amplitudeSeekBarArray);
         this.amplitudeSeekBar.setProgress(0);
         this.amplitudeSeekBar.setOnSeekBarChangeListener(new OnSettingSeekBarChangeListener(new SeekBarChangeListener() {
@@ -160,7 +180,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     private void initIntensitySeekBar() {
         this.intensitySeekBar = (ScaleSeekBar) findViewById(R.id.toothbrush_setting_intensity);
         this.refreshSeekBarDesc(this.intensitySeekBar, getString(R.string.toothbrush_intensity_desc));
-        this.intensitySeekBarArray = getArray(this.INTENSITY_MIN, this.INTENSITY_MAX, this.INTENSITY_INTERVAL);
+        this.intensitySeekBarArray = getArray(this.INTENSITY_MIN, this.INTENSITY_MAX, this.INTENSITY_INTERVAL, true);
         this.intensitySeekBar.setSections(this.intensitySeekBarArray);
         this.intensitySeekBar.setProgress(0);
         this.intensitySeekBar.setOnSeekBarChangeListener(new OnSettingSeekBarChangeListener(new SeekBarChangeListener() {
@@ -176,10 +196,16 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         }));
     }
 
-    private ArrayList<Integer> getArray(int min, int max, int interval) {
+    private ArrayList<Integer> getArray(int min, int max, int interval, boolean asc) {
         ArrayList<Integer> array = new ArrayList<>();
-        for (int item = min; item <= max; item += interval) {
-            array.add(item);
+        if (asc) {
+            for (int item = min; item <= max; item += interval) {
+                array.add(item);
+            }
+        } else {
+            for (int item = max; item >= min; item -= interval) {
+                array.add(item);
+            }
         }
         return array;
     }
@@ -277,9 +303,13 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     }
 
     private void refreshSeekBarValue() {
-        this.timeSeekBarValue = findValue(timeSeekBarArray, timeSeekBarProgress);
-        this.amplitudeSeekBarValue = findValue(amplitudeSeekBarArray, amplitudeSeekBarProgress);
-        this.intensitySeekBarValue = findValue(intensitySeekBarArray, intensitySeekBarProgress);
+        String base = "%1$s :   %2$s    :   %3$d    :   %4$d";
+        this.timeSeekBarValue = findValue(timeSeekBarArray, timeSeekBarProgress, this.TIME_MIN);
+        this.amplitudeSeekBarValue = findValue(amplitudeSeekBarArray, amplitudeSeekBarProgress, this.AMPLITUDE_MIN);
+        this.intensitySeekBarValue = findValue(intensitySeekBarArray, intensitySeekBarProgress, this.INTENSITY_MIN);
+        Logger.d(String.format(Locale.getDefault(), base, "timeSeekBarArray", Util.array2Strings(timeSeekBarArray, ','), this.timeSeekBarProgress, this.timeSeekBarValue));
+        Logger.d(String.format(Locale.getDefault(), base, "amplitudeSeekBarArray", Util.array2Strings(amplitudeSeekBarArray, ','), this.amplitudeSeekBarProgress, this.amplitudeSeekBarValue));
+        Logger.d(String.format(Locale.getDefault(), base, "intensitySeekBarArray", Util.array2Strings(intensitySeekBarArray, ','), this.intensitySeekBarProgress, this.intensitySeekBarValue));
         {
             int minutes = this.timeSeekBarValue / 60;
             int seconds = this.timeSeekBarValue % 60;
@@ -325,7 +355,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         return 0;
     }
 
-    private int findValue(ArrayList<Integer> array, int position) {
+    private int findValue(ArrayList<Integer> array, int position, int min) {
         if (!Util.isEmpty(array)) {
             if (position < array.size()) {
                 return array.get(position);
@@ -333,7 +363,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
                 return array.get(0);
             }
         }
-        return 0;
+        return min;
     }
 
     private static class OnSettingModelChangeListener implements OnModelChangeListener {

@@ -56,6 +56,8 @@
     <string name="toothbrush_tablayout_4">学习</string>
     <string name="toothbrush_tablayout_5">自定义</string>
 
+    <string name="toast_msg_un_initialized_service">Service初始化失败</string>
+    <string name="toast_msg_un_connect_blue">您还没有链接蓝牙，请链接\.\.\.</string>
 
     <string name="device">Device:</string>
     <string name="no_device">&lt;Select a device&gt;</string>
