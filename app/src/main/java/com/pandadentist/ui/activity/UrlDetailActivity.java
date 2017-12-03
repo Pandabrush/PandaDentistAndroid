@@ -56,6 +56,7 @@ import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.Logger;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
+import com.pandadentist.util.Util;
 import com.pandadentist.widget.RecycleViewDivider;
 import com.pandadentist.widget.TopBar;
 import com.pandadentist.widget.X5ObserWebView;
@@ -69,7 +70,9 @@ import com.tencent.smtt.sdk.WebViewClient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -254,14 +257,45 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private void loadUrl(String url) {
         setRefresh(true);
         mWebView.setWebViewClient(new WebViewClient() {
+
             @Override
-            public void onPageFinished(WebView webView, String s) {
-                super.onPageFinished(webView, s);
+            public void onLoadResource(WebView webView, String url) {
+                super.onLoadResource(webView, url);
+                if (!TextUtils.isEmpty(url) && url.startsWith("easylinkage://devices.delete")){
+                    final String USER_KEY = "userid";
+                    HashMap<String, String> queries = Util.getUrlQueries(url);
+                    if (Util.isEmpty(queries) && !queries.containsKey(USER_KEY))
+                        return;
+                    String userId = queries.get(USER_KEY);
+                    if (TextUtils.isEmpty(userId))
+                        return;
+                    try {
+                        DeviceListEntity.DevicesBean devicesBean = findDevice(Integer.valueOf(userId));
+                        if (devicesBean != null) {
+                            try {
+                                data.remove(devicesBean);
+                            } catch (Exception e) {
+                                Logger.d("", e);
+                            }
+                            mService.disconnect();
+                            getDeviceList();
+                        }
+                    } catch (Exception e) {
+                        Logger.d("easylinkage://devices.delete", e);
+                    }
+                }
+            }
+
+            @Override
+            public void onPageFinished(WebView webView, String url) {
+                super.onPageFinished(webView, url);
+                Logger.d("onPageFinished.url:" + url);
                 setRefresh(false);
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Logger.d("shouldOverrideUrlLoading.url:" + url);
                 return true;
             }
         });
@@ -520,16 +554,16 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             rv.setLayoutManager(new LinearLayoutManager(this));
             rv.addItemDecoration(new RecycleViewDivider(this, LinearLayoutManager.VERTICAL, 1));
             PopDeviceAdapter popDeviceAdapter = new PopDeviceAdapter(data);
-            popDeviceAdapter.setOnItemClickListener(new OnItemClickListener() {
+            popDeviceAdapter.setOnItemClickListener(new OnItemClickListener<DeviceListEntity.DevicesBean>() {
                 @Override
-                public void onItemClick(View v, int position) {
-                    if (!TextUtils.isEmpty(currentMacAddress) && currentMacAddress.replaceAll(":", "").equals(data.get(position).getDeviceid())) {
+                public void onItemClick(View v, DeviceListEntity.DevicesBean bean, int position) {
+                    if (bean == null || (!TextUtils.isEmpty(currentMacAddress) && currentMacAddress.replaceAll(":", "").equals(bean.getDeviceid()))) {
                         mDevicePop.dismiss();
                         return;
                     }
                     if (mService != null) {
-                        setTvDeviceNameText(data.get(position).getUsername() + "-" + data.get(position).getDeviceid());
-                        StringBuilder sb = new StringBuilder(data.get(position).getDeviceid());
+                        setTvDeviceNameText(String.format(Locale.getDefault(), "%1$s-%2$s", bean.getUsername(), bean.getDeviceid()));
+                        StringBuilder sb = new StringBuilder(bean.getDeviceid());
                         for (int i = 0; i < sb.length(); i++) {
                             if (i % 3 == 0) {
                                 sb.insert(i, ":");
@@ -586,7 +620,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                 if (data.size() != 0) {
                                     setSwitchDeviceVisibility(true);
                                     setToolBarTitleVisibility(false);
-                                    setTvDeviceNameText(data.get(0).getUsername() + "-" + data.get(0).getDeviceid());
+                                    setTvDeviceNameText(String.format(Locale.getDefault(), "%1$s-%2$s", data.get(0).getUsername(), data.get(0).getDeviceid()));
                                     //发现绑定设备  连接并尝试同步数据  第一次连接
                                     StringBuilder sb = new StringBuilder(data.get(0).getDeviceid());
                                     for (int i = 0; i < sb.length(); i++) {
@@ -669,92 +703,95 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     }
 
     Timer timer = null;
-    private int position = 0;
     private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Logger.d("action-->" + action);
-            if (action.equals(UartService.ACTION_GATT_CONNECTED)) {
-                position++;
-                Logger.d("蓝牙连接成功------------" + position + "runType-->" + runtype);
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        isBltConnect = true;
-                        appbar.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                dismiss();
-                                setIsConnectText("正在同步数据中...");
-                                Logger.d("writeRXCharacteristic.writeRXCharacteristic");
-                                mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
-                                bleProtoProcess.setIsreqenddatas(false);
-                                bleProtoProcess.setHasrecieved(false);
-                            }
-                        }, 1000);
-                    }
-                });
-
-            }
-            if (action.equals(UartService.ACTION_GATT_DISCONNECTED)) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        isBltConnect = false;
-                        dismiss();
-                        setIsConnectText("未连接");
-                    }
-                });
-            }
-            if (action.equals(UartService.ACTION_GATT_SERVICES_DISCOVERED)) {
-                mService.enableTXNotification();
-            }
-
-            if (action.equals(UartService.ACTION_DATA_AVAILABLE)) {
-                timecount = 0;
-                final byte[] txValue = intent.getByteArrayExtra(UartService.EXTRA_DATA);
-                int status = bleProtoProcess.interp(txValue);
-
-                switch (status) {
-                    case BLEProtoProcess.BLE_DATA_START:
-                    case BLEProtoProcess.BLE_RESULT_START:
-                        Logger.d("BLE_DATA_START  and  BLE_RESULT_START");
-                        bleProtoProcess.setHasrecieved(true);
-                        runtype = 1;
-                        timer = new Timer();
-                        timer.schedule(new DataProcessTimer(), 0, 200);
-                        break;
-                    case BLEProtoProcess.BLE_DATA_RECEIVER:
-                        break;
-                    case BLEProtoProcess.BLE_DATA_END:
-                    case BLEProtoProcess.BLE_RESULT_END:
-                        runtype = 2;
-                        timecount = 100;
-                        break;
-                    case BLEProtoProcess.BLE_MISSED_RECEIVER:
-                        break;
-                    case BLEProtoProcess.BLE_MISSED_END:
-                        Logger.d("丢失帧接受完毕");
-                        timecount = 100;
-                        break;
-                    case BLEProtoProcess.BLE_NO_SYNC://没有同步数据
-                        if (bleProtoProcess.isHasrecieved()) {
-                            Logger.d("请求动画");
-                            bleProtoProcess.setIsreqenddatas(true);
-                            mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 0, (byte) 1));
-                        } else {
-                            Logger.d("没有数据同步");
-                            setIsConnectText("已连接");
-                            rlTips.setVisibility(View.VISIBLE);
-                            Toasts.showShort("没有数据同步");
+            switch (intent.getAction()) {
+                case UartService.ACTION_GATT_CONNECTED: {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            isBltConnect = true;
+                            appbar.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dismiss();
+                                    setIsConnectText("正在同步数据中...");
+                                    Logger.d("writeRXCharacteristic.writeRXCharacteristic");
+                                    mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
+                                    bleProtoProcess.setIsreqenddatas(false);
+                                    bleProtoProcess.setHasrecieved(false);
+                                }
+                            }, 1000);
                         }
-                        break;
+                    });
+                    break;
                 }
-            } else if (action.equals(UartService.DEVICE_DOES_NOT_SUPPORT_UART)) {
-                Logger.d("Device doesn't support UART. Disconnecting");
-                mService.disconnect();
-            } else if (action.equals(UartService.DEVICE_REFRESH_FALG)) {
-                Logger.d("refresh");
-                Toasts.showShort("refresh");
+                case UartService.ACTION_GATT_DISCONNECTED: {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            isBltConnect = false;
+                            dismiss();
+                            setIsConnectText("未连接");
+                        }
+                    });
+                    break;
+                }
+                case UartService.ACTION_GATT_SERVICES_DISCOVERED: {
+                    mService.enableTXNotification();
+                    break;
+                }
+                case UartService.ACTION_DATA_AVAILABLE: {
+                    timecount = 0;
+                    final byte[] txValue = intent.getByteArrayExtra(UartService.EXTRA_DATA);
+                    int status = bleProtoProcess.interp(txValue);
+
+                    switch (status) {
+                        case BLEProtoProcess.BLE_DATA_START:
+                        case BLEProtoProcess.BLE_RESULT_START:
+                            Logger.d("BLE_DATA_START  and  BLE_RESULT_START");
+                            bleProtoProcess.setHasrecieved(true);
+                            runtype = 1;
+                            timer = new Timer();
+                            timer.schedule(new DataProcessTimer(), 0, 200);
+                            break;
+                        case BLEProtoProcess.BLE_DATA_RECEIVER:
+                            break;
+                        case BLEProtoProcess.BLE_DATA_END:
+                        case BLEProtoProcess.BLE_RESULT_END:
+                            runtype = 2;
+                            timecount = 100;
+                            break;
+                        case BLEProtoProcess.BLE_MISSED_RECEIVER:
+                            break;
+                        case BLEProtoProcess.BLE_MISSED_END:
+                            Logger.d("丢失帧接受完毕");
+                            timecount = 100;
+                            break;
+                        case BLEProtoProcess.BLE_NO_SYNC://没有同步数据
+                            if (bleProtoProcess.isHasrecieved()) {
+                                Logger.d("请求动画");
+                                bleProtoProcess.setIsreqenddatas(true);
+                                mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 0, (byte) 1));
+                            } else {
+                                Logger.d("没有数据同步");
+                                setIsConnectText("已连接");
+                                rlTips.setVisibility(View.VISIBLE);
+                                Toasts.showShort("没有数据同步");
+                            }
+                            break;
+                    }
+                    break;
+                }
+                case UartService.DEVICE_DOES_NOT_SUPPORT_UART: {
+                    Logger.d("Device doesn't support UART. Disconnecting");
+                    mService.disconnect();
+                    break;
+                }
+                case UartService.DEVICE_REFRESH_FALG: {
+                    Logger.d("refresh");
+                    Toasts.showShort("refresh");
+                    break;
+                }
             }
         }
     };
@@ -920,5 +957,17 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         if (this.llSwitchDevice != null) {
             this.llSwitchDevice.setVisibility(show ? View.VISIBLE : View.GONE);
         }
+    }
+
+    private DeviceListEntity.DevicesBean findDevice(int userId) {
+        if (Util.isEmpty(this.data)) {
+            return null;
+        }
+        for (DeviceListEntity.DevicesBean device : this.data) {
+            if (device != null && device.getUserid() == userId) {
+                return device;
+            }
+        }
+        return null;
     }
 }

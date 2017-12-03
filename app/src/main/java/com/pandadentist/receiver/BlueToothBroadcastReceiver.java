@@ -66,7 +66,7 @@ public class BlueToothBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    public static interface Callback {
+    public interface Callback {
 
         void onDiscoveryStart();
 

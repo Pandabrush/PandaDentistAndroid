@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -250,5 +251,33 @@ public class Util {
 
     public static int getCpuCount() {
         return Runtime.getRuntime().availableProcessors();
+    }
+
+    public static HashMap<String, String> getUrlQueries(String url) {
+        HashMap<String, String> hashMap = new HashMap<>();
+        try {
+            if (TextUtils.isEmpty(url))
+                return hashMap;
+
+            String queryString = url.substring(url.indexOf('?') + 1);
+            if (TextUtils.isEmpty(queryString))
+                return hashMap;
+
+            String[] array = queryString.split("&");
+            if (isEmpty(array))
+                return hashMap;
+
+            for (String string : array) {
+                if (TextUtils.isEmpty(string) || !string.contains("="))
+                    continue;
+                String[] keyValue = string.split("=");
+                if (isEmpty(keyValue) || keyValue.length != 2 || TextUtils.isEmpty(keyValue[0]))
+                    continue;
+                hashMap.put(keyValue[0], keyValue[1]);
+            }
+        } catch (Exception e) {
+            Logger.d("getUrlQueries", e);
+        }
+        return hashMap;
     }
 }

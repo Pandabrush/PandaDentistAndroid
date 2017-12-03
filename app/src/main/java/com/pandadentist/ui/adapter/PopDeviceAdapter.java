@@ -15,15 +15,16 @@ import java.util.List;
 
 /**
  * Created by Ford on 2017/5/24.
+ * Updated by zhangwy on 2017/12/02
  */
 
 public class PopDeviceAdapter extends RecyclerView.Adapter<PopDeviceAdapter.ViewHolder> {
 
     private List<DeviceListEntity.DevicesBean> mData = new ArrayList<>();
 
-    private OnItemClickListener onItemClickListener;
+    private OnItemClickListener<DeviceListEntity.DevicesBean> onItemClickListener;
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener(OnItemClickListener<DeviceListEntity.DevicesBean> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
 
@@ -33,13 +34,21 @@ public class PopDeviceAdapter extends RecyclerView.Adapter<PopDeviceAdapter.View
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_pop_device_list,parent,false));
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_pop_device_list, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        DeviceListEntity.DevicesBean db = mData.get(position);
-        holder.name.setText(db.getUsername()+"-"+db.getDeviceid());
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        final DeviceListEntity.DevicesBean db = mData.get(position);
+        holder.name.setText(db.getUsername() + "-" + db.getDeviceid());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(v, db, holder.getAdapterPosition());
+                }
+            }
+        });
     }
 
     @Override
@@ -52,23 +61,14 @@ public class PopDeviceAdapter extends RecyclerView.Adapter<PopDeviceAdapter.View
         TextView name;
         TextView isConnect;
 
-        public ViewHolder(final View itemView) {
+        ViewHolder(final View itemView) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.name);
             isConnect = (TextView) itemView.findViewById(R.id.tv_isConnect);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(onItemClickListener != null ){
-                        onItemClickListener.onItemClick(itemView,getAdapterPosition());
-                    }
-                }
-            });
-
         }
     }
 
-    public void setData (List<DeviceListEntity.DevicesBean> data){
+    public void setData(List<DeviceListEntity.DevicesBean> data) {
         this.mData = data;
         notifyDataSetChanged();
     }

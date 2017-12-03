@@ -10,7 +10,10 @@ import android.widget.TextView;
 
 import com.pandadentist.R;
 import com.pandadentist.listener.OnItemClickListener;
+import com.pandadentist.util.Util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import butterknife.Bind;
@@ -18,16 +21,15 @@ import butterknife.ButterKnife;
 
 /**
  * Created by fudaye on 2017/8/21.
+ * Updated by zhangwy on 2017/12/02.
  */
 
 public class BlueToothDeviceAdapter extends RecyclerView.Adapter<BlueToothDeviceAdapter.ViewHolder> {
 
-    List<BluetoothDevice> devices;
-    private OnItemClickListener onItemClickListener;
+    private List<BluetoothDevice> devices = new ArrayList<>();
+    private OnItemClickListener<BluetoothDevice> onItemClickListener;
 
-
-    public BlueToothDeviceAdapter(List<BluetoothDevice> devices) {
-        this.devices = devices;
+    public BlueToothDeviceAdapter() {
     }
 
     @Override
@@ -37,13 +39,13 @@ public class BlueToothDeviceAdapter extends RecyclerView.Adapter<BlueToothDevice
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        BluetoothDevice device = devices.get(position);
+        final BluetoothDevice device = devices.get(position);
         holder.tv.setText(device.getName());
         holder.btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(onItemClickListener != null){
-                    onItemClickListener.onItemClick(v,holder.getAdapterPosition());
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(v, device, holder.getAdapterPosition());
                 }
             }
         });
@@ -60,19 +62,22 @@ public class BlueToothDeviceAdapter extends RecyclerView.Adapter<BlueToothDevice
         @Bind(R.id.btn_add)
         Button btn;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(this,itemView);
+            ButterKnife.bind(this, itemView);
         }
     }
 
-    public void setData(List<BluetoothDevice> devices){
-        this.devices = devices;
-        notifyDataSetChanged();
+    public void replace(Collection<BluetoothDevice> collection) {
+        if (Util.isEmpty(collection)) {
+            return;
+        }
+        this.devices.clear();
+        this.devices.addAll(collection);
+        this.notifyDataSetChanged();
     }
 
-    public void setOnItemClickListener (OnItemClickListener onItemClickListener){
+    public void setOnItemClickListener(OnItemClickListener<BluetoothDevice> onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
-
     }
 }
