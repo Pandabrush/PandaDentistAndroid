@@ -26,6 +26,7 @@
         android:textSize="@dimen/fontSize_18" />
 
     <LinearLayout
+        android:id="@+id/toothbrush_setting_models"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/margin_18"
@@ -107,5 +108,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_16" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/toothbrush_setting_no_device"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top"
+        android:orientation="vertical"
+        android:padding="16dip"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/toothbrush_setting_no_device_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dip"
+            android:layout_marginRight="16dip"
+            android:contentDescription="@string/app_name"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_no_device" />
+
+        <TextView
+            android:id="@+id/toothbrush_setting_no_device_remind"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dip"
+            android:gravity="center"
+            android:text="@string/msg_unconnect_device" />
+
+        <Button
+            android:id="@+id/toothbrush_setting_no_device_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dip"
+            android:text="@string/goto_connect_device" />
     </LinearLayout>
 </LinearLayout>

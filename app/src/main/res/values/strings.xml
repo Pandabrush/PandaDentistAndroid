@@ -58,6 +58,10 @@
 
     <string name="toast_msg_un_initialized_service">Service初始化失败</string>
     <string name="toast_msg_un_connect_blue">您还没有链接蓝牙，请链接\.\.\.</string>
+    <string name="msg_unconnect_device">APP未连接智能牙刷，\n请先连接上牙刷再点击此功能！</string>
+    <string name="msg_needs_reopen_device">您的牙刷处于开机状态，请关机重启后重试，谢谢配合</string>
+    <string name="goto_connect_device">去连接牙刷</string>
+    <string name="has_reopen_connect_device">已关机重新连接蓝牙</string>
 
     <string name="device">Device:</string>
     <string name="no_device">&lt;Select a device&gt;</string>

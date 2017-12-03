@@ -74,11 +74,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
             finish();
             return;
         }
-        if (!this.isConnect()) {
-            this.showMessage(R.string.toast_msg_un_connect_blue);
-            finish();
-            return;
-        }
+
         if (this.hasTopBar()) {
             this.topBar.setLeftVisibility(true);
             this.topBar.setRightVisibility(false);
@@ -90,6 +86,10 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
             });
             this.topBar.setCentreText(R.string.title_toothbrush_setting);
             this.topBar.setCentreTextColor(getResources().getColor(R.color.font_color_toothbrush_default));
+        }
+        if (!this.isConnect()) {
+            this.showNoDevice();
+            return;
         }
         this.initTabLayout();
         this.initTimeSeekBar();
@@ -103,6 +103,21 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     private boolean isConnect() {
         Intent intent = getIntent();
         return intent != null && intent.hasExtra(EXTRA_BLUE_CONNECT) && intent.getBooleanExtra(EXTRA_BLUE_CONNECT, false);
+    }
+
+    private void showNoDevice() {
+
+        findViewById(R.id.toothbrush_setting_icon).setVisibility(View.GONE);
+        findViewById(R.id.toothbrush_setting_name).setVisibility(View.GONE);
+        findViewById(R.id.toothbrush_setting_models).setVisibility(View.GONE);
+
+        findViewById(R.id.toothbrush_setting_no_device).setVisibility(View.VISIBLE);
+        findViewById(R.id.toothbrush_setting_no_device_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -214,11 +229,15 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.clearModelChangeListener();
-        this.removeOutTime();
-        this.timeSeekBar.setOnSeekBarChangeListener(null);
-        this.amplitudeSeekBar.setOnSeekBarChangeListener(null);
-        this.intensitySeekBar.setOnSeekBarChangeListener(null);
+        try {
+            this.clearModelChangeListener();
+            this.removeOutTime();
+            this.timeSeekBar.setOnSeekBarChangeListener(null);
+            this.amplitudeSeekBar.setOnSeekBarChangeListener(null);
+            this.intensitySeekBar.setOnSeekBarChangeListener(null);
+        } catch (Exception e) {
+            Logger.d("onDestroy", e);
+        }
     }
 
     private void requestModelForUser(boolean time) {

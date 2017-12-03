@@ -73,8 +73,8 @@ public class HelperActivity extends Activity {
     private void initNoDevice() {
         this.nativeHome.setVisibility(View.VISIBLE);
         this.nativeImage.setImageResource(R.drawable.icon_no_device);
-        this.nativeText.setText("APP未连接到牙刷，请进行连接后重试，谢谢配合");
-        this.nativeButton.setText("去连接牙刷");
+        this.nativeText.setText(R.string.msg_unconnect_device);
+        this.nativeButton.setText(R.string.goto_connect_device);
         this.nativeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,8 +86,8 @@ public class HelperActivity extends Activity {
     private void initDeviceOn() {
         this.nativeHome.setVisibility(View.VISIBLE);
         this.nativeImage.setImageResource(R.drawable.icon_device_on);
-        this.nativeText.setText("您的牙刷处于开机状态，请关机重启后重试，谢谢配合");
-        this.nativeButton.setText("已关机重新连接蓝牙");
+        this.nativeText.setText(R.string.msg_needs_reopen_device);
+        this.nativeButton.setText(R.string.has_reopen_connect_device);
         this.nativeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
