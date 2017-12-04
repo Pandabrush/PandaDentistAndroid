@@ -21,7 +21,7 @@
 
         <include layout="@layout/nav_header_main" />
 
-        <include layout="@layout/nav_menu_main"/>
+        <include layout="@layout/nav_menu_main" />
     </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>

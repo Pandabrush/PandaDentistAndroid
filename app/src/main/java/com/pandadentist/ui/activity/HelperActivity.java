@@ -1,6 +1,5 @@
 package com.pandadentist.ui.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +18,7 @@ import com.pandadentist.listener.OnStateListener;
 import com.pandadentist.listener.OnZhenListener;
 import com.pandadentist.util.BLEProtoProcess;
 import com.pandadentist.util.Logger;
+import com.pandadentist.widget.TopBar;
 
 import org.json.JSONArray;
 
@@ -29,7 +29,7 @@ import java.util.Locale;
  * Updated by zhangwy on 2017/9/16.
  */
 @SuppressWarnings("unused")
-public class HelperActivity extends Activity {
+public class HelperActivity extends BaseActivity {
 
     private static final String EXTRA_HAS_DEVICE = "extraHasDevice";
     private static final String EXTRA_BLT_CONNECT = "extraBltConnect";
@@ -50,8 +50,24 @@ public class HelperActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_helper);
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.topBar.setRightVisibility(false);
+            this.topBar.setOnLeftClickListener(new TopBar.OnClickListener() {
+                @Override
+                public void onClick() {
+                    finish();
+                }
+            });
+            this.topBar.setCentreText(R.string.title_toothbrush_setting);
+            this.topBar.setCentreTextColor(getResources().getColor(R.color.font_color_toothbrush_default));
+        }
         this.init();
+    }
+
+    @Override
+    public int providerLayoutId() {
+        return R.layout.activity_helper;
     }
 
     private void init() {
@@ -60,8 +76,6 @@ public class HelperActivity extends Activity {
         this.nativeText = (TextView) findViewById(R.id.helper_native_remind);
         this.nativeButton = (Button) findViewById(R.id.helper_native_button);
         this.webView = (WebView) findViewById(R.id.helper_webView);
-        this.webView.setVisibility(View.GONE);
-        this.nativeHome.setVisibility(View.GONE);
         Bundle intent = getIntent().getExtras();
         if (!intent.getBoolean(EXTRA_BLT_CONNECT)) {
             this.initNoDevice();
@@ -71,6 +85,7 @@ public class HelperActivity extends Activity {
     }
 
     private void initNoDevice() {
+        this.webView.setVisibility(View.GONE);
         this.nativeHome.setVisibility(View.VISIBLE);
         this.nativeImage.setImageResource(R.drawable.icon_no_device);
         this.nativeText.setText(R.string.msg_unconnect_device);
@@ -84,6 +99,7 @@ public class HelperActivity extends Activity {
     }
 
     private void initDeviceOn() {
+        this.webView.setVisibility(View.GONE);
         this.nativeHome.setVisibility(View.VISIBLE);
         this.nativeImage.setImageResource(R.drawable.icon_device_on);
         this.nativeText.setText(R.string.msg_needs_reopen_device);
@@ -97,6 +113,7 @@ public class HelperActivity extends Activity {
     }
 
     private void initNone() {
+        this.nativeHome.setVisibility(View.GONE);
         this.webView.setVisibility(View.VISIBLE);
         this.webView.getSettings().setJavaScriptEnabled(true);
         this.webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);

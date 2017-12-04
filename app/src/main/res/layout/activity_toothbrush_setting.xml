@@ -15,7 +15,8 @@
         android:layout_width="72dip"
         android:layout_height="72dip"
         android:layout_marginTop="@dimen/margin_8"
-        android:contentDescription="@string/about" />
+        android:contentDescription="@string/about"
+        android:src="@drawable/ic_personal_default"/>
 
     <TextView
         android:id="@+id/toothbrush_setting_name"

@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/title"
+        layout="@layout/layout_appbar" />
 
     <LinearLayout
         android:id="@+id/helper_native"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="top"
+        android:visibility="gone"
         android:orientation="vertical"
         android:padding="16dip">
 
@@ -40,4 +46,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="none" />
-</FrameLayout>
+</LinearLayout>

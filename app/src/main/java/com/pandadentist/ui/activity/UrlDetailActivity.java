@@ -393,6 +393,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             case ACTIVITY_FOR_RESULT_REQUEST_CODE_SELECT_DEVICE:
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     getDeviceList();
+                    loadUrl(mUrl + SPUitl.getToken());
                 }
                 break;
         }

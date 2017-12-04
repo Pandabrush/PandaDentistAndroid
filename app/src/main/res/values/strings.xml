@@ -41,6 +41,7 @@
     <string name="jinzhichi">仅支持2.4G WiFi网络</string>
     <string name="connect_bluetooth">连接蓝牙</string>
     <string name="help">帮助</string>
+    <string name="title_help">刷牙指导</string>
     <string name="help_set_indicator_light">如何设置指示灯</string>
     <string name="input_email">请输入邮箱</string>
     <string name="input_password">请输入密码</string>
