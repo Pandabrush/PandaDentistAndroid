@@ -73,8 +73,10 @@ public class SplashActivity extends SwipeRefreshBaseActivity {
     }
 
     private void goMainActivity() {
+//        if (SPUitl.firstLaunch(this)) {
+//        } else
         if (!TextUtils.isEmpty(SPUitl.getToken())) {
-            IntentHelper.gotoMain(SplashActivity.this);
+            UrlDetailActivity.start(this);
         } else {
             IntentHelper.gotoLogin(SplashActivity.this);
         }

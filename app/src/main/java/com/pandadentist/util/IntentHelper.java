@@ -17,13 +17,6 @@ import com.pandadentist.ui.activity.UrlDetailActivity;
  */
 public class IntentHelper {
 
-    public static void gotoMain(Context context){
-
-        Intent intent = new Intent(context, UrlDetailActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        context.startActivity(intent);
-    }
-
     public static void gotoLogin(Context context){
         Intent intent = new Intent(context, LoginActivity.class);
         context.startActivity(intent);

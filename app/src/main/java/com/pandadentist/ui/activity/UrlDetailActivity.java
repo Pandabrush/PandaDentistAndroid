@@ -91,6 +91,12 @@ import static com.pandadentist.config.Constants.ACTIVITY_FOR_RESULT_REQUEST_CODE
  */
 public class UrlDetailActivity extends SwipeRefreshBaseActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback {
 
+    public static void start(Context context){
+        Intent intent = new Intent(context, UrlDetailActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.startActivity(intent);
+    }
+
     private static final int REQUEST_ENABLE_BT = 2;
 
     @Bind(R.id.iv_hint)
