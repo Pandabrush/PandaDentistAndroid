@@ -8,7 +8,6 @@ import android.util.AttributeSet;
 
 import com.pandadentist.R;
 
-
 public class MultiSwipeRefreshLayout extends SwipeRefreshLayout {
 
     private CanChildScrollUpCallback mCanChildScrollUpCallback;
@@ -20,8 +19,7 @@ public class MultiSwipeRefreshLayout extends SwipeRefreshLayout {
 
     public MultiSwipeRefreshLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        final TypedArray array = context.obtainStyledAttributes(attrs,
-                R.styleable.MultiSwipeRefreshLayout, 0, 0);
+        final TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.MultiSwipeRefreshLayout, 0, 0);
 
         mForegroundDrawable = array.getDrawable(R.styleable.MultiSwipeRefreshLayout_foreground);
         if (mForegroundDrawable != null) {
@@ -31,7 +29,6 @@ public class MultiSwipeRefreshLayout extends SwipeRefreshLayout {
         array.recycle();
     }
 
-
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -40,16 +37,13 @@ public class MultiSwipeRefreshLayout extends SwipeRefreshLayout {
         }
     }
 
-
     public void setCanChildScrollUpCallback(CanChildScrollUpCallback canChildScrollUpCallback) {
         mCanChildScrollUpCallback = canChildScrollUpCallback;
     }
 
-
     public interface CanChildScrollUpCallback {
         boolean canSwipeRefreshChildScrollUp();
     }
-
 
     @Override
     public boolean canChildScrollUp() {

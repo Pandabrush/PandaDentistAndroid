@@ -12,12 +12,14 @@ import android.view.View;
 import com.pandadentist.R;
 import com.pandadentist.listener.OnRcvScrollListener;
 import com.pandadentist.ui.base.SwipeRefreshLayer;
+import com.pandadentist.util.Logger;
 import com.pandadentist.widget.MultiSwipeRefreshLayout;
 
 import butterknife.Bind;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
+@SuppressWarnings("unused")
 public abstract class SwipeRefreshBaseActivity extends BaseActivity implements SwipeRefreshLayer {
 
     protected ProgressDialog mProg;
@@ -36,6 +38,7 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
             loadMore();
         }
     };
+
     @Override
     public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
         super.onCreate(savedInstanceState, persistentState);
@@ -50,6 +53,14 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (this.mSwipeRefreshLayout != null) {
+            try {
+                this.mSwipeRefreshLayout.removeCallbacks(this.hideRefreshing);
+            } catch (Exception e) {
+                Logger.d("onDestroy", e);
+            }
+            this.mSwipeRefreshLayout = null;
+        }
     }
 
     void trySetupSwipeRefresh() {
@@ -65,9 +76,10 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
         }
     }
 
-    public  void  loadMore(){}
+    public void loadMore() {
+    }
 
-    public void setLoadEnable(boolean b){
+    public void setLoadEnable(boolean b) {
         onRcvScrollListener.setLoadEnable(b);
     }
 
@@ -83,27 +95,29 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
         if (!requestDataRefresh) {
             mIsRequestDataRefresh = false;
             // 防止刷新消失太快，让子弹飞一会儿.
-            mSwipeRefreshLayout.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (mSwipeRefreshLayout != null) {
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-                }
-            }, 1000);
+            mSwipeRefreshLayout.postDelayed(this.hideRefreshing, 1000);
         } else {
             mSwipeRefreshLayout.setRefreshing(true);
+            mSwipeRefreshLayout.postDelayed(this.hideRefreshing, 10000);
         }
-
     }
 
-    public void setLoadingMore(boolean b ){
+    private Runnable hideRefreshing = new Runnable() {
+        @Override
+        public void run() {
+            if (mSwipeRefreshLayout != null && mSwipeRefreshLayout.isRefreshing()) {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+
+    public void setLoadingMore(boolean b) {
         setRefresh(b);
         onRcvScrollListener.setLoadingMore(b);
     }
 
     public void loadError(View view, Throwable throwable) {
-        if(view == null){
+        if (view == null) {
             return;
         }
         throwable.printStackTrace();
@@ -121,7 +135,7 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
         return mIsRequestDataRefresh;
     }
 
-    public void  showLoading(){
+    public void showLoading() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -130,18 +144,19 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
         }, 358);
     }
 
-    protected void showProgress(){
-        if(mProg == null){
+    protected void showProgress() {
+        if (mProg == null) {
             mProg = new ProgressDialog(this);
             mProg.setMessage("正在加载中...");
             mProg.setCancelable(false);
             mProg.show();
-        }else{
+        } else {
             mProg.show();
         }
     }
-    protected void dismiss(){
-        if(mProg != null){
+
+    protected void dismiss() {
+        if (mProg != null) {
             mProg.dismiss();
         }
     }
@@ -152,5 +167,4 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
         }
         this.mCompositeSubscription.add(s);
     }
-
 }
