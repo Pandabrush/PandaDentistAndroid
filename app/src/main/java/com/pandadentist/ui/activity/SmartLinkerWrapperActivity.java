@@ -103,7 +103,7 @@ public class SmartLinkerWrapperActivity extends MulticastSmartLinkerActivity {
 
     private void gotoMain() {
         if (isBind && isCompleted) {
-            IntentHelper.gotoMain(this);
+            UrlDetailActivity.start(this);
             finish();
         }
     }

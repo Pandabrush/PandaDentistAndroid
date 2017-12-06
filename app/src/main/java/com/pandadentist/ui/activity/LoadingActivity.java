@@ -10,7 +10,6 @@ import com.pandadentist.config.Constants;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
-import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
 import com.pandadentist.widget.RoundProgressBarWidthNumber;
@@ -110,7 +109,7 @@ public class LoadingActivity extends SwipeRefreshBaseActivity {
     public void onViewClicked() {
         timer.cancel();
         timerTask.cancel();
-        IntentHelper.gotoMain(this);
+        UrlDetailActivity.start(this);
         finish();
     }
 

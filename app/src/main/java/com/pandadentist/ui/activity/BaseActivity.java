@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.pandadentist.R;
 import com.pandadentist.util.Logger;
 import com.pandadentist.widget.TopBar;
+import com.umeng.analytics.MobclickAgent;
 
 import butterknife.ButterKnife;
 
@@ -84,6 +85,18 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void handleReceiver(Context context, Intent intent) {
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 
     protected final void showMessage(String msg) {

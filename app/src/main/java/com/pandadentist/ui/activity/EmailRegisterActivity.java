@@ -10,7 +10,6 @@ import com.pandadentist.config.Constants;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
-import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
 
@@ -80,7 +79,7 @@ public class EmailRegisterActivity extends SwipeRefreshBaseActivity {
                             wxEntity.setInfo(infoBean);
                             SPUitl.saveWXUser(wxEntity);
                             SPUitl.saveToken(wxEntity.getToken());
-                            IntentHelper.gotoMain(EmailRegisterActivity.this);
+                            UrlDetailActivity.start(EmailRegisterActivity.this);
                             finish();
                         } else {
                             Toasts.showShort("注册失败");

@@ -30,19 +30,26 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data android:name="UMENG_APPKEY" android:value="5a278e22f43e486c00000115" />
+        <meta-data android:name="UMENG_CHANNEL" android:value="CHANNEL_ID" />
+
         <activity
             android:name=".ui.activity.UrlDetailActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+
         <activity android:name="com.pandadentist.ui.activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.RealTimeBrushToothActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop">
+
+        <activity
+            android:name=".ui.activity.RealTimeBrushToothActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -51,7 +58,7 @@
 
                 <data
                     android:host="tooth"
-                    android:scheme="easylinkage"/>
+                    android:scheme="easylinkage" />
             </intent-filter>
         </activity>
 

@@ -8,7 +8,9 @@ import com.pandadentist.download.DownloadManager;
 import com.pandadentist.util.DensityUtil;
 import com.pandadentist.util.Logger;
 import com.pandadentist.util.Toasts;
+import com.pandadentist.util.Util;
 import com.tencent.smtt.sdk.QbSdk;
+import com.umeng.analytics.MobclickAgent;
 
 
 /**
@@ -22,6 +24,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         Logger.setLevel(Logger.LEVEL_VERBOSE);
+        this.initUmeng();
         sContext = this;
         Toasts.register(this);
         DensityUtil.register(this);
@@ -40,6 +43,13 @@ public class App extends Application {
         };
         //x5内核初始化接口
         QbSdk.initX5Environment(getApplicationContext(), cb);
+    }
+
+    private void initUmeng() {
+        MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(this.getApplicationContext(), Util.getMetaDataString(this, "UMENG_APPKEY"), Util.getMetaDataString(this, "UMENG_CHANNEL")));
+        MobclickAgent.setSessionContinueMillis(600000);//10 * 60 * 1000 = 600000 10分钟
+        MobclickAgent.setCatchUncaughtExceptions(true);
+        MobclickAgent.setDebugMode(true);
     }
 
     public static Context getContext() {

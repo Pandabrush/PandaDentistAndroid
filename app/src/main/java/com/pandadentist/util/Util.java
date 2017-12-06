@@ -2,6 +2,8 @@ package com.pandadentist.util;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -279,5 +281,18 @@ public class Util {
             Logger.d("getUrlQueries", e);
         }
         return hashMap;
+    }
+
+    public static String getMetaDataString(Context context, String key) {
+        if (context == null || TextUtils.isEmpty(key))
+            return "";
+        try {
+            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            return appInfo.metaData.getString(key, "");
+        } catch (PackageManager.NameNotFoundException e) {
+            return "";
+        } catch (Exception e) {
+            return "";
+        }
     }
 }

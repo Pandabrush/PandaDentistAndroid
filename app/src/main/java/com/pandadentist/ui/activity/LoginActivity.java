@@ -51,7 +51,7 @@ public class LoginActivity extends SwipeRefreshBaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (!TextUtils.isEmpty(SPUitl.getToken())) {
-            IntentHelper.gotoMain(this);
+            UrlDetailActivity.start(this);
             finish();
         }
         api = WXAPIFactory.createWXAPI(this, APP_ID);
@@ -83,7 +83,7 @@ public class LoginActivity extends SwipeRefreshBaseActivity {
                         if (wxEntity.getCode() == Constants.SUCCESS) {
                             SPUitl.saveToken(wxEntity.getToken());
                             SPUitl.saveWXUser(wxEntity);
-                            IntentHelper.gotoMain(LoginActivity.this);
+                            UrlDetailActivity.start(LoginActivity.this);
                             finish();
                         } else {
                             Toasts.showShort("绑定失败，请稍后重试");
@@ -161,7 +161,7 @@ public class LoginActivity extends SwipeRefreshBaseActivity {
                             infoBean.setName(username);
                             wxEntity.setInfo(infoBean);
                             SPUitl.saveWXUser(wxEntity);
-                            IntentHelper.gotoMain(LoginActivity.this);
+                            UrlDetailActivity.start(LoginActivity.this);
                             finish();
                         } else if (20002 == wxEntity.getCode()) {
                             Toasts.showShort("用户名不存在");
