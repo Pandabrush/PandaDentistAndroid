@@ -49,7 +49,6 @@ public class App extends Application {
         MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(this.getApplicationContext(), Util.getMetaDataString(this, "UMENG_APPKEY"), Util.getMetaDataString(this, "UMENG_CHANNEL")));
         MobclickAgent.setSessionContinueMillis(600000);//10 * 60 * 1000 = 600000 10分钟
         MobclickAgent.setCatchUncaughtExceptions(true);
-        MobclickAgent.setDebugMode(true);
     }
 
     public static Context getContext() {
