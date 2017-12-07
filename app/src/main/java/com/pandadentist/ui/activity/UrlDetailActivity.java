@@ -69,7 +69,6 @@ import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -91,7 +90,7 @@ import static com.pandadentist.config.Constants.ACTIVITY_FOR_RESULT_REQUEST_CODE
  */
 public class UrlDetailActivity extends SwipeRefreshBaseActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback {
 
-    public static void start(Context context){
+    public static void start(Context context) {
         Intent intent = new Intent(context, UrlDetailActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
@@ -267,7 +266,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             @Override
             public void onLoadResource(WebView webView, String url) {
                 super.onLoadResource(webView, url);
-                if (!TextUtils.isEmpty(url) && url.startsWith("easylinkage://devices.delete")){
+                if (!TextUtils.isEmpty(url) && url.startsWith("easylinkage://devices.delete")) {
                     final String USER_KEY = "userid";
                     HashMap<String, String> queries = Util.getUrlQueries(url);
                     if (Util.isEmpty(queries) && !queries.containsKey(USER_KEY))
@@ -283,7 +282,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             } catch (Exception e) {
                                 Logger.d("", e);
                             }
-                            mService.disconnect();
+                            if (mService != null)
+                                mService.disconnect();
                             getDeviceList();
                         }
                     } catch (Exception e) {
@@ -333,7 +333,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 public void run() {
                     dismiss();
                     setIsConnectText("正在同步数据中...");
-                    mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
+                    if (mService != null)
+                        mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
                     bleProtoProcess.setIsreqenddatas(false);
                     bleProtoProcess.setHasrecieved(false);
                 }
@@ -349,7 +350,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     @Override
                     public void run() {
                         setIsConnectText("连接中...");
-                        mService.connect(currentMacAddress);
+                        if (mService != null)
+                            mService.connect(currentMacAddress);
                     }
                 }, 200);
 
@@ -370,6 +372,10 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             mWebView.clearFormData();
             mWebView.clearHistory();
             mWebView.destroy();
+        }
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
         }
         LocalBroadcastManager.getInstance(this).unregisterReceiver(UARTStatusChangeReceiver);
         if (mService != null) {
@@ -587,7 +593,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                 @Override
                                 public void run() {
                                     setIsConnectText("连接中...");
-                                    mService.connect(currentMacAddress);
+                                    if (mService != null)
+                                        mService.connect(currentMacAddress);
                                 }
                             }, 200);
 
@@ -638,7 +645,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                     sb.delete(0, 1);
                                     currentMacAddress = sb.toString();
                                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentMacAddress);
-                                    if (mDevice != null) {
+                                    if (mDevice != null && mService != null) {
                                         mService.disconnect();
                                     }
                                     appbar.postDelayed(new Runnable() {
@@ -648,7 +655,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                                 return;
                                             handler.sendEmptyMessageDelayed(WHAT_CONNECT_BLUETOOTH_TIMEOUT, DELAYMILLIS_CONNECT_BLUETOOTH);
                                             setIsConnectText("连接中...");
-                                            mService.connect(currentMacAddress);
+                                            if (mService != null)
+                                                mService.connect(currentMacAddress);
                                         }
                                     }, 200);
                                 }
@@ -684,7 +692,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder rawBinder) {
             mService = ((UartService.LocalBinder) rawBinder).getService();
-            if (mService.initialize()) {
+            if (mService != null && mService.initialize()) {
                 Logger.d("蓝牙连接service 初始化成功");
                 getDeviceList();
             } else {
@@ -724,7 +732,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                     dismiss();
                                     setIsConnectText("正在同步数据中...");
                                     Logger.d("writeRXCharacteristic.writeRXCharacteristic");
-                                    mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
+                                    writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
                                     bleProtoProcess.setIsreqenddatas(false);
                                     bleProtoProcess.setHasrecieved(false);
                                 }
@@ -744,7 +752,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     break;
                 }
                 case UartService.ACTION_GATT_SERVICES_DISCOVERED: {
-                    mService.enableTXNotification();
+                    if (mService != null)
+                        mService.enableTXNotification();
                     break;
                 }
                 case UartService.ACTION_DATA_AVAILABLE: {
@@ -778,7 +787,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             if (bleProtoProcess.isHasrecieved()) {
                                 Logger.d("请求动画");
                                 bleProtoProcess.setIsreqenddatas(true);
-                                mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 0, (byte) 1));
+                                writeRXCharacteristic(bleProtoProcess.getRequests((byte) 0, (byte) 1));
                             } else {
                                 Logger.d("没有数据同步");
                                 setIsConnectText("已连接");
@@ -791,7 +800,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 }
                 case UartService.DEVICE_DOES_NOT_SUPPORT_UART: {
                     Logger.d("Device doesn't support UART. Disconnecting");
-                    mService.disconnect();
+                    if (mService != null)
+                        mService.disconnect();
                     break;
                 }
                 case UartService.DEVICE_REFRESH_FALG: {
@@ -861,27 +871,28 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         try {
             if (bleProtoProcess.checkMissed()) {
                 Logger.d("丢帧");
-                byte[] miss = bleProtoProcess.getMissedRequests();
-                mService.writeRXCharacteristic(miss);
+                this.writeRXCharacteristic(bleProtoProcess.getMissedRequests());
                 return false;
             } else {
                 //1.发送请求成功帧  2.把数据交给后台处理
                 Logger.d("数据接收完毕!");
-                byte[] b = bleProtoProcess.getCompleted();
-                Logger.d("b-->" + Arrays.toString(b));
-                mService.writeRXCharacteristic(b);
-                Logger.d("mService-->" + mService.toString());
+                this.writeRXCharacteristic(bleProtoProcess.getCompleted());
                 //------------发送数据到服务器
                 if (bleProtoProcess.isreqenddatas()) {
                     uploadData();
                 }
                 return true;
             }
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             Logger.e("checkData", e);
-            Toast.makeText(UrlDetailActivity.this, "异常", Toast.LENGTH_SHORT).show();
         }
         return true;
+    }
+
+    private void writeRXCharacteristic(byte[] value) {
+        if (mService != null) {
+            mService.writeRXCharacteristic(value);
+        }
     }
 
     private void uploadData() {
