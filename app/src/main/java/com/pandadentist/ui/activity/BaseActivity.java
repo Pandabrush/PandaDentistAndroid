@@ -108,4 +108,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         Toast.makeText(this, resId, Toast.LENGTH_LONG).show();
         Logger.d(getString(resId));
     }
+
+    protected final boolean postDelayed(View view, Runnable action, long delayMillis) {
+        return view != null && action != null && view.postDelayed(action, delayMillis >= 0 ? delayMillis : 0);
+    }
 }

@@ -328,7 +328,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         if (isBltConnect) {
             // 直接请求同步
             Logger.d("直接同步数据");
-            appbar.postDelayed(new Runnable() {
+            postDelayed(appbar, new Runnable() {
                 @Override
                 public void run() {
                     dismiss();
@@ -346,7 +346,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             if (data.size() > 0) {
                 mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentMacAddress);
                 Logger.d("currentMacAddress-->" + currentMacAddress);
-                appbar.postDelayed(new Runnable() {
+                postDelayed(appbar, new Runnable() {
                     @Override
                     public void run() {
                         setIsConnectText("连接中...");
@@ -589,7 +589,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                         }
                         if (data.size() > 0) {
                             mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentMacAddress);
-                            appbar.postDelayed(new Runnable() {
+                            postDelayed(appbar, new Runnable() {
                                 @Override
                                 public void run() {
                                     setIsConnectText("连接中...");
@@ -648,7 +648,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                     if (mDevice != null && mService != null) {
                                         mService.disconnect();
                                     }
-                                    appbar.postDelayed(new Runnable() {
+                                    postDelayed(appbar, new Runnable() {
                                         @Override
                                         public void run() {
                                             if (isBltConnect)
@@ -666,13 +666,13 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             }
 
                         } else {
-                            Toasts.showShort(deviceListEntity.getMessage());
+                            showMessage(deviceListEntity.getMessage());
                         }
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        Toasts.showShort("登录失败，请检查网络");
+                        showMessage("登录失败，请检查网络");
                         Logger.d("url.call", throwable);
                     }
                 });
@@ -721,12 +721,20 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
+            if (isDestroyed()) {
+                try {
+                    LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
+                } catch (Exception e) {
+                    Logger.d("unregisterReceiver", e);
+                }
+                return;
+            }
             switch (intent.getAction()) {
                 case UartService.ACTION_GATT_CONNECTED: {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             isBltConnect = true;
-                            appbar.postDelayed(new Runnable() {
+                            postDelayed(appbar, new Runnable() {
                                 @Override
                                 public void run() {
                                     dismiss();
@@ -747,6 +755,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             isBltConnect = false;
                             dismiss();
                             setIsConnectText("未连接");
+                            mService.close();
                         }
                     });
                     break;
@@ -852,14 +861,18 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             Logger.d("计时器开始执行" + "count-->" + timecount);
             if (runtype == 0) {//非接收数据过程，什么也不执行，//可以释放timer
                 timecount = 0;
-                timer.cancel();
+                if (timer != null) {
+                    timer.cancel();
+                }
             } else {
                 //1 接收数据    2-核对数据
                 if ((runtype == 1 && timecount >= 10) || (runtype == 2 && timecount >= 4)) {
                     timecount = 0;
                     if (checkData()) {
                         runtype = 0;
-                        timer.cancel();
+                        if (timer != null) {
+                            timer.cancel();
+                        }
                     }
                 }
                 timecount++;
