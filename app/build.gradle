@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'pandadentist'
             keyPassword 'pandadentist'
-            storeFile file('/Users/zhangwy/workspace/PandaDentist/pandadentist.jks')
+            storeFile file('../pandadentist.jks')
             storePassword 'pandadentist'
         }
     }
