@@ -51,9 +51,9 @@
     <string name="toothbrush_amplitude_desc">震动频率%1$d次/分钟</string>
     <string name="toothbrush_intensity_desc">震动强度%1$d级</string>
     <string name="toothbrush_tablayout_0">亮白</string>
-    <string name="toothbrush_tablayout_1">抛光</string>
-    <string name="toothbrush_tablayout_2">按摩</string>
-    <string name="toothbrush_tablayout_3">清洁</string>
+    <string name="toothbrush_tablayout_1">清洁</string>
+    <string name="toothbrush_tablayout_2">抛光</string>
+    <string name="toothbrush_tablayout_3">按摩</string>
     <string name="toothbrush_tablayout_4">体验</string>
     <string name="toothbrush_tablayout_5">自定义</string>
 

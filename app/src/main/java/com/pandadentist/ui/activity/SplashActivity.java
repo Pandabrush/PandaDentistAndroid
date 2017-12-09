@@ -3,6 +3,8 @@ package com.pandadentist.ui.activity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -40,6 +42,7 @@ public class SplashActivity extends SwipeRefreshBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         timer = new Timer();
         timerTask = new TimerTask() {
             @Override
@@ -55,6 +58,11 @@ public class SplashActivity extends SwipeRefreshBaseActivity {
         };
         // 倒计时ji
         timer.schedule(timerTask, 0, 110);
+    }
+
+    @Override
+    protected boolean fullScreen() {
+        return true;
     }
 
     @Override
