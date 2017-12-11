@@ -95,9 +95,19 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
         if (!requestDataRefresh) {
             mIsRequestDataRefresh = false;
             // 防止刷新消失太快，让子弹飞一会儿.
+            try {
+                mSwipeRefreshLayout.removeCallbacks(this.hideRefreshing);
+            } catch (Exception e) {
+                Logger.d("postDelayed(this.hideRefreshing, 1000)", e);
+            }
             mSwipeRefreshLayout.postDelayed(this.hideRefreshing, 1000);
         } else {
             mSwipeRefreshLayout.setRefreshing(true);
+            try {
+                mSwipeRefreshLayout.removeCallbacks(this.hideRefreshing);
+            } catch (Exception e) {
+                Logger.d("postDelayed(this.hideRefreshing, 10000)", e);
+            }
             mSwipeRefreshLayout.postDelayed(this.hideRefreshing, 10000);
         }
     }
@@ -105,6 +115,7 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
     private Runnable hideRefreshing = new Runnable() {
         @Override
         public void run() {
+            Logger.d("hideRefreshing");
             if (mSwipeRefreshLayout != null && mSwipeRefreshLayout.isRefreshing()) {
                 mSwipeRefreshLayout.setRefreshing(false);
             }

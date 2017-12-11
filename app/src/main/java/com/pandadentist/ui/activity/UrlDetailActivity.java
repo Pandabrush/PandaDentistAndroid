@@ -136,8 +136,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private boolean isBltConnect = false;
 
     private Handler handler = new Handler(this);
-    private final static int WHAT_CONNECT_BLUETOOTH_TIMEOUT = 100;
-    private final static int WHAT_RECONNECT_BLUETOOTH = 101;
+    private final static int WHAT_CONNECT_BLUETOOTH_TIMEOUT = 100;//连接超时
+    private final static int WHAT_RECONNECT_BLUETOOTH = 101;//重连
     private final static int DELAYMILLIS_CONNECT_BLUETOOTH = 15000;
     private final static int DELAYMILLIS_RECONNECT_BLUETOOTH = 15000;
 
@@ -328,7 +328,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         if (isBltConnect) {
             // 直接请求同步
             Logger.d("直接同步数据");
-            postDelayed(appbar, new Runnable() {
+            postDelayedOnUIThread(appbar, new Runnable() {
                 @Override
                 public void run() {
                     dismiss();
@@ -340,18 +340,21 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 }
             }, 1000);
         } else {
+            Logger.d("requestDataRefresh isBltConnect = false");
             if (mDevice != null && mService != null) {
                 mService.disconnect();
             }
             if (data.size() > 0) {
                 mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentMacAddress);
                 Logger.d("currentMacAddress-->" + currentMacAddress);
-                postDelayed(appbar, new Runnable() {
+                postDelayedOnUIThread(appbar, new Runnable() {
                     @Override
                     public void run() {
                         setIsConnectText("连接中...");
-                        if (mService != null)
+                        if (mService != null) {
+                            Logger.d("mService.connect354");
                             mService.connect(currentMacAddress);
+                        }
                     }
                 }, 200);
 
@@ -363,9 +366,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (isBind) {
-            unbindService(mServiceConnection);
-        }
+        Logger.d("onDestroy");
+        Logger.d("onDestroy mWebView != null =" + (mWebView != null));
         if (mWebView != null) {
             mWebView.onPause();
             mWebView.clearCache(true);
@@ -373,17 +375,27 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             mWebView.clearHistory();
             mWebView.destroy();
         }
+        Logger.d("onDestroy timer != null =" + (timer != null));
         if (timer != null) {
             timer.cancel();
             timer = null;
         }
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(UARTStatusChangeReceiver);
+        Logger.d("onDestroy UARTStatusChangeReceiver != null =" + (UARTStatusChangeReceiver != null));
+        try {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(UARTStatusChangeReceiver);
+        } catch (Exception e) {
+            Logger.d("unregisterReceiver", e);
+        }
+        Logger.d("onDestroy mService != null =" + (mService != null));
         if (mService != null) {
-            mService.stopSelf();
             mService.disconnect();
             mService.close();
+            mService.stopSelf();
             mService = null;
             Logger.d("service 置空");
+        }
+        if (isBind) {
+            unbindService(mServiceConnection);
         }
     }
 
@@ -589,12 +601,14 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                         }
                         if (data.size() > 0) {
                             mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentMacAddress);
-                            postDelayed(appbar, new Runnable() {
+                            postDelayedOnUIThread(appbar, new Runnable() {
                                 @Override
                                 public void run() {
                                     setIsConnectText("连接中...");
-                                    if (mService != null)
+                                    if (mService != null) {
+                                        Logger.d("mService.connect608");
                                         mService.connect(currentMacAddress);
+                                    }
                                 }
                             }, 200);
 
@@ -645,18 +659,21 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                     sb.delete(0, 1);
                                     currentMacAddress = sb.toString();
                                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentMacAddress);
-                                    if (mDevice != null && mService != null) {
+                                    if (mDevice != null && mService != null && !mService.hasConnected(currentMacAddress)) {
+                                        Logger.d("getDeviceList disconnect");
                                         mService.disconnect();
                                     }
-                                    postDelayed(appbar, new Runnable() {
+                                    postDelayedOnUIThread(appbar, new Runnable() {
                                         @Override
                                         public void run() {
                                             if (isBltConnect)
                                                 return;
                                             handler.sendEmptyMessageDelayed(WHAT_CONNECT_BLUETOOTH_TIMEOUT, DELAYMILLIS_CONNECT_BLUETOOTH);
                                             setIsConnectText("连接中...");
-                                            if (mService != null)
+                                            if (mService != null) {
+                                                Logger.d("mService.connect672");
                                                 mService.connect(currentMacAddress);
+                                            }
                                         }
                                     }, 200);
                                 }
@@ -734,7 +751,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     runOnUiThread(new Runnable() {
                         public void run() {
                             isBltConnect = true;
-                            postDelayed(appbar, new Runnable() {
+                            postDelayedOnUIThread(appbar, new Runnable() {
                                 @Override
                                 public void run() {
                                     dismiss();
@@ -755,7 +772,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             isBltConnect = false;
                             dismiss();
                             setIsConnectText("未连接");
-                            mService.close();
+//                            mService.close();
                         }
                     });
                     break;

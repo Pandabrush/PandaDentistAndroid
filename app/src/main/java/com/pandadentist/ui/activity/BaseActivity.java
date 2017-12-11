@@ -121,7 +121,20 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.d(getString(resId));
     }
 
-    protected final boolean postDelayed(View view, Runnable action, long delayMillis) {
-        return view != null && action != null && view.postDelayed(action, delayMillis >= 0 ? delayMillis : 0);
+    protected final boolean postDelayedOnUIThread(final View view, final Runnable action, final long delayMillis) {
+        if (view == null || action == null) {
+            return false;
+        }
+        try {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    view.postDelayed(action, delayMillis >= 0 ? delayMillis : 0);
+                }
+            });
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 }
