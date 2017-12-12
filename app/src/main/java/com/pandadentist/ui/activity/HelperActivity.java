@@ -59,7 +59,7 @@ public class HelperActivity extends BaseActivity {
                     finish();
                 }
             });
-            this.topBar.setCentreText(R.string.title_toothbrush_setting);
+            this.topBar.setCentreText(R.string.title_help);
             this.topBar.setCentreTextColor(getResources().getColor(R.color.font_color_toothbrush_default));
         }
         this.init();

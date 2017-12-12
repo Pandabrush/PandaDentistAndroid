@@ -85,7 +85,15 @@ public class UartService extends Service {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Logger.d("address-->" + gatt.getDevice().getAddress() + ";status-->" + status + ";newState-->" + newState);
             String intentAction;
-            if (status == BluetoothGatt.GATT_SUCCESS) {
+            if (status == 133) {
+                String address = mBluetoothDeviceAddress;
+                Logger.d("onConnectionStateChange received: " + status);
+                intentAction = ACTION_GATT_STATE133;//TODO:
+                mConnectionState = STATE_DISCONNECTED;//TODO:
+                close(); // 防止出现status 133
+                broadcastUpdate(intentAction);
+                connect(address);
+            } else {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     intentAction = ACTION_GATT_CONNECTED;
                     mConnectionState = STATE_CONNECTED;
@@ -100,14 +108,6 @@ public class UartService extends Service {
                     close();
                     broadcastUpdate(intentAction);
                 }
-            } else {
-                String address = mBluetoothDeviceAddress;
-                Logger.d("onConnectionStateChange received: " + status);
-                intentAction = ACTION_GATT_STATE133;//TODO:
-                mConnectionState = STATE_DISCONNECTED;//TODO:
-                close(); // 防止出现status 133
-                broadcastUpdate(intentAction);
-                connect(address);
             }
         }
 
@@ -277,7 +277,7 @@ public class UartService extends Service {
             return;
         }
         mBluetoothGatt.disconnect();
-        mBluetoothGatt.close();
+//        mBluetoothGatt.close();
     }
 
     public boolean hasConnected(String address) {

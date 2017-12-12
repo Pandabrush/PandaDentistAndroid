@@ -91,7 +91,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
                     finish();
                 }
             });
-            this.topBar.setCentreText(R.string.title_help);
+            this.topBar.setCentreText(R.string.title_toothbrush_setting);
             this.topBar.setCentreTextColor(getResources().getColor(R.color.font_color_toothbrush_default));
         }
         if (!this.isConnect()) {
