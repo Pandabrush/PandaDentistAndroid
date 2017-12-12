@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.hiflying.smartlink.SmartLinkedModule;
 import com.hiflying.smartlink.v7.MulticastSmartLinkerActivity;
@@ -16,8 +15,10 @@ import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.util.IntentHelper;
+import com.pandadentist.util.Logger;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.util.Toasts;
+import com.pandadentist.widget.TopBar;
 
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -39,21 +40,19 @@ public class SmartLinkerWrapperActivity extends MulticastSmartLinkerActivity {
     private LinearLayout mCb;
     private ImageView checkIv;
     private boolean isChecked = false;
-
+    protected TopBar topBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TextView tv = (TextView) findViewById(R.id.tv_toolbar_title);
-        tv.setText(getResources().getString(R.string.connectWifi));
+        if (this.hasTopBar()) {
+            this.topBar.setLeftVisibility(true);
+            this.setOnLeftClickListener();
+            this.topBar.setCentreText(R.string.connect_bluetooth);
+            this.topBar.setRightVisibility(false);
+        }
         mCb = (LinearLayout) findViewById(R.id.cb);
         checkIv = (ImageView) findViewById(R.id.iv);
-        findViewById(R.id.rl_toolbar_back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         if(!TextUtils.isEmpty(SPUitl.getWiFiPwd(mSsidEditText.getText().toString()))){
             mPasswordEditText.setText(SPUitl.getWiFiPwd(mSsidEditText.getText().toString()));
@@ -108,6 +107,35 @@ public class SmartLinkerWrapperActivity extends MulticastSmartLinkerActivity {
         }
     }
 
+
+    protected final void setOnLeftClickListener() {
+        if (this.hasTopBar()) {
+            this.topBar.setOnLeftClickListener(new TopBar.OnClickListener() {
+                @Override
+                public void onClick() {
+                    onBackPressed();
+                }
+            });
+        }
+    }
+
+    protected final boolean hasTopBar() {
+        if (this.topBar == null) {
+            this.findTopBar();
+        }
+        return this.topBar != null;
+    }
+
+    protected void findTopBar() {
+        try {
+            View view = this.findViewById(R.id.toolbar_topBar);
+            if (view != null) {
+                this.topBar = (TopBar) view;
+            }
+        } catch (Exception e) {
+            Logger.e("findTopBar", e);
+        }
+    }
 
     private void bindDevice(String mac){
         APIService api = new APIFactory().create(APIService.class);
