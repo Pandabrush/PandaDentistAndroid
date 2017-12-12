@@ -121,17 +121,35 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.d(getString(resId));
     }
 
+    protected final boolean postDelayedOnUIThread(final Runnable action) {
+        return this.postDelayedOnUIThread(null, action, 0);
+    }
+
     protected final boolean postDelayedOnUIThread(final View view, final Runnable action, final long delayMillis) {
-        if (view == null || action == null) {
+        if (action == null) {
             return false;
         }
         try {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    view.postDelayed(action, delayMillis >= 0 ? delayMillis : 0);
-                }
-            });
+            if (delayMillis <= 0 || view == null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(action);
+                    }
+                });
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                view.postDelayed(action, delayMillis);
+                            }
+                        });
+                    }
+                });
+            }
         } catch (Exception e) {
             return false;
         }

@@ -319,20 +319,25 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         });
     }
 
-    private void addDevices(BluetoothDevice device) {
+    private void addDevices(final BluetoothDevice device) {
         if (device == null)
             return;
 
-        Logger.d("addDevices" + device.getName());
-        String address = device.getAddress();
-        String name = device.getName();
-        if (this.deviceHashMap.containsKey(address) || TextUtils.isEmpty(name) || !name.contains("PBrush"))
-            return;
-        this.deviceHashMap.put(address, device);
-        this.mAdapter.replace(this.deviceHashMap.values());
-        if (this.hasDevice()) {
-            showList();
-        }
+        postDelayedOnUIThread(new Runnable() {
+            @Override
+            public void run() {
+                Logger.d("addDevices" + device.getName());
+                String address = device.getAddress();
+                String name = device.getName();
+                if (deviceHashMap.containsKey(address) || TextUtils.isEmpty(name) || !name.contains("PBrush"))
+                    return;
+                deviceHashMap.put(address, device);
+                mAdapter.replace(deviceHashMap.values());
+                if (hasDevice()) {
+                    showList();
+                }
+            }
+        });
     }
 
     private class ScanRunnable implements Runnable {

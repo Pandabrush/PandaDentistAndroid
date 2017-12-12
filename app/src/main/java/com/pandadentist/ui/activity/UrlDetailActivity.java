@@ -767,7 +767,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     break;
                 }
                 case UartService.ACTION_GATT_DISCONNECTED: {
-                    runOnUiThread(new Runnable() {
+                    postDelayedOnUIThread(new Runnable() {
                         public void run() {
                             isBltConnect = false;
                             dismiss();
