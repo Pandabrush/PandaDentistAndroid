@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -27,6 +29,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -116,7 +119,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     TextView tvUpdateRecord;
 
     private static final String APP_ID = "wxa2fe13a5495f3908";
-    private String mUrl = "http://www.easylinkage.cn/webapp2/analysis/today?id=361&index=0&r=0.4784193145863376&token=";
     private CircleImageView headerIv;
     private TextView usernameTv;
     private IWXAPI api;
@@ -240,7 +242,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         if (SPUitl.isLogin()) {
             mivHint.setVisibility(View.GONE);
             mWebView.setVisibility(View.VISIBLE);
-            loadUrl(mUrl + SPUitl.getToken());
+            loadUrl(getUrl(SPUitl.getToken()));
             WXEntity wxEntity = SPUitl.getWXUser();
             if (wxEntity != null) {
                 Glide.with(this).load(wxEntity.getInfo().getIcon()).into(headerIv);
@@ -323,7 +325,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     @Override
     public void requestDataRefresh() {
         super.requestDataRefresh();
-        loadUrl(mUrl + SPUitl.getToken());
+        loadUrl(getUrl(SPUitl.getToken()));
         // 连接设备  传输数据  如果连接了就请求同步数据
         if (isBltConnect) {
             // 直接请求同步
@@ -417,7 +419,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             case ACTIVITY_FOR_RESULT_REQUEST_CODE_SELECT_DEVICE:
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     getDeviceList();
-                    loadUrl(mUrl + SPUitl.getToken());
+                    loadUrl(getUrl(SPUitl.getToken()));
                 }
                 break;
         }
@@ -951,7 +953,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             rlTips.setVisibility(View.VISIBLE);
                             tvUpdateRecord.setText("总共上传数据" + bleProtoProcess.getPagesSize() + "条，成功" + bleProtoProcess.getPagesSize() + "条，失败0条");
                             bleProtoProcess.setPageSize(0);
-                            loadUrl(mUrl + SPUitl.getToken());
+                            loadUrl(getUrl(SPUitl.getToken()));
                         } else if (99 == wxEntity.getCode()) {
                             rlTips.setVisibility(View.VISIBLE);
                             tvUpdateRecord.setText("总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条");
@@ -1005,6 +1007,12 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         if (this.llSwitchDevice != null) {
             this.llSwitchDevice.setVisibility(show ? View.VISIBLE : View.GONE);
         }
+    }
+
+    private String getUrl(String token) {
+        boolean chinese = TextUtils.equals(getResources().getConfiguration().locale.getLanguage(), "zh");
+        final String URL = "http://www.easylinkage.cn/webapp2/%1$sanalysis/today?id=361&index=0&r=0.4784193145863376&token=%2$s";
+        return String.format(Locale.getDefault(), URL, chinese ? "" : "en/", token);
     }
 
     private DeviceListEntity.DevicesBean findDevice(int userId) {
