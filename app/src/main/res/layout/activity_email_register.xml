@@ -40,7 +40,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:background="@android:color/transparent"
-            android:hint="请输入邮箱"
+            android:hint="@string/input_email"
             android:inputType="text"
             android:textColor="@color/black"
             android:textSize="15sp" />
@@ -59,7 +59,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:background="@android:color/transparent"
-            android:hint="请输入密码"
+            android:hint="@string/input_password"
             android:inputType="textPassword"
             android:textColor="@color/black"
             android:textSize="15sp" />

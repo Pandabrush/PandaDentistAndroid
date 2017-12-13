@@ -115,7 +115,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="23dp"
-            android:text="@string/helper"
+            android:text="@string/title_help"
             android:textColor="#333333"
             android:textSize="15sp" />
 

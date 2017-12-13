@@ -30,9 +30,7 @@
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:text="设备是否已经被其他手机连接
-请先关闭其他已绑定该设备的手机
-蓝牙"
+                    android:text="@string/bleHelpSentence1"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
 
@@ -59,8 +57,7 @@
                 <TextView
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:text="设备是否有电
-请确保设备按钮可被点亮"
+                    android:text="@string/bleHelpSentence2"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
 
@@ -88,10 +85,7 @@
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:text="尝试重启蓝牙
-若设备有电，且手机靠近后仍然无
-法搜索到，可以尝试重新启动手机
-蓝牙"
+                    android:text="@string/bleHelpSentence3"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
 
@@ -119,9 +113,7 @@
                 <TextView
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:text="尝试重启手机
-若重新启动手机蓝牙无效，请尝试
-从新启动手机"
+                    android:text="@string/bleHelpSentence4"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
 

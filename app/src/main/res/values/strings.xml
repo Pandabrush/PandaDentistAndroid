@@ -9,7 +9,6 @@
     <string name="navPandaDentistStore">熊猫商城</string>
     <string name="language">语言</string>
     <string name="bindWechat">绑定我的微信</string>
-    <string name="helper">刷牙指导</string>
     <string name="logout">退出</string>
     <string name="zhubaofangshilianji">抓包方式连接</string>
     <string name="addDevice">添加设备</string>
@@ -39,13 +38,14 @@
     <string name="zhishidengshanshuo">指示灯闪烁</string>
     <string name="qingshurujiazhong">请输入家中的WiFi密码</string>
     <string name="jinzhichi">仅支持2.4G WiFi网络</string>
-    <string name="connect_bluetooth">连接蓝牙</string>
-    <string name="help">帮助</string>
+
     <string name="title_help">刷牙指导</string>
+    <string name="title_toothbrush_setting">牙刷个性设置</string>
     <string name="help_set_indicator_light">如何设置指示灯</string>
     <string name="input_email">请输入邮箱</string>
     <string name="input_password">请输入密码</string>
-    <string name="title_toothbrush_setting">牙刷个性设置</string>
+
+    <string name="bluetooth">蓝牙</string>
     <string name="toothbrush_time_desc">定时%1$d分</string>
     <string name="toothbrush_time_desc_mmss">定时%1$d分%2$d秒</string>
     <string name="toothbrush_amplitude_desc">震动频率%1$d次/分钟</string>
@@ -141,8 +141,7 @@
     <string name="web_hf">http://www.hi-flying.com/</string>
     <string name="wep_password_invalid">The password of WEP is not valid!</string>
     <string name="yes">Yes</string>
-    <string name="hf_profile" formatted="false" >
-        &#160;&#160;&#160;&#160;Shanghai High-Flying Electronics Technology Co., Ltd, found in Dec.2009 by leading experts, is a high-tech enterprises specialized in wireless communication domain and designs, develops, manufacture, markets and sells high quality, robust embedded Wi-Fi modules, and provide total IOT solution (Cloud Servers and APP) to the customer. Through continuous development and endeavor in field edge technology, High Flying developed a series high integrity and high cost effective intelligent hardware product. Now High-Flying’ s Wi-Fi products were broadly applied to Industrial, Smart-Metering, Smart Home, handset devices, medical and industrial instruments, smart grid,M2M field, etc. Based on its stable function and reasonable price, our product have won thousands of customers’ positive feedback and trust over the world.</string>
+    <string name="hf_profile" formatted="false" >&#160;&#160;&#160;&#160;Shanghai High-Flying Electronics Technology Co., Ltd, found in Dec.2009 by leading experts, is a high-tech enterprises specialized in wireless communication domain and designs, develops, manufacture, markets and sells high quality, robust embedded Wi-Fi modules, and provide total IOT solution (Cloud Servers and APP) to the customer. Through continuous development and endeavor in field edge technology, High Flying developed a series high integrity and high cost effective intelligent hardware product. Now High-Flying’ s Wi-Fi products were broadly applied to Industrial, Smart-Metering, Smart Home, handset devices, medical and industrial instruments, smart grid,M2M field, etc. Based on its stable function and reasonable price, our product have won thousands of customers’ positive feedback and trust over the world.</string>
 
     <!-- Wi-Fi Settings --> <skip />
     <string name="wifi">WiFi</string>
@@ -169,7 +168,6 @@
     <!-- Summary for the secured and remembered network. Status can be "Remembered", "Disabled" or "Not in range". -->
     <string name="wifi_secured_with_status"><xliff:g id="wifi_status">%2$s</xliff:g>, secured with <xliff:g id="wifi_security">%1$s</xliff:g></string>
 
-
     <!--抓包方式-->
 
     <string name="hiflying_smartlinker_ssid">SSID:</string>
@@ -180,5 +178,23 @@
     <string name="hiflying_smartlinker_completed">配网成功</string>
     <string name="hiflying_smartlinker_new_module_found" formatted="false">New smart linked module: Mac-%s Ip-%s</string>
     <string name="hiflying_smartlinker_no_wifi_connectivity">No Wifi Connectivity</string>
+
+    <!--连接蓝牙-->
+    <string name="connect_bluetooth">连接蓝牙</string>
+    <string name="help">帮助</string>
+    <string name="addToothBrush">绑定</string>
+    <string name="bleSentence1">正在搜索附近蓝牙设备</string>
+    <string name="bleSentence2">请保持牙刷有电 放在手机附近</string>
+    <string name="bleSentence3">会自动识别您的设备</string>
+    <string name="bleSentence4">未发现附近可添加的设备</string>
+    <string name="bleSentence5">请保持牙刷有电 放在手机附近</string>
+    <string name="bleSentence6">会自动识别您的设备</string>
+    <string name="bleReScan">重新搜索</string>
+
+    <!--蓝牙连接帮助-->
+    <string name="bleHelpSentence1">设备是否已经被其他手机连接，\n请先关闭其他已绑定该设备的手机\n蓝牙</string>
+    <string name="bleHelpSentence2">设备是否有电，请确保设备指示灯可以点亮</string>
+    <string name="bleHelpSentence3">尝试重启蓝牙：若设备有电，且手机靠近后仍然无法搜索到，可以尝试重新启动手机蓝牙</string>
+    <string name="bleHelpSentence4">尝试重启手机：若重新启动手机蓝牙无效，请尝试重新启动手机</string>
 
 </resources>

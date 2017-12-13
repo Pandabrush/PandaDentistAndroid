@@ -3,13 +3,16 @@
     <string name="skip">skip</string>
     <string name="kuailemeiyitian">Happy everyday</string>
     <string name="emailRegister">Email</string>
+    <string name="input_email">email</string>
+    <string name="input_password">password</string>
     <string name="wxLogin">Wechat</string>
     <string name="login">Log in</string>
     <string name="navMenuMemberPoint">membership points </string>
     <string name="navPandaDentistStore">Panda mall</string>
     <string name="language">Language</string>
     <string name="bindWechat">Bind your account to Wechat</string>
-    <string name="helper">Help</string>
+    <string name="title_help">Tooth brushing instruction</string>
+    <string name="title_toothbrush_setting">Toothbrush setting</string>
     <string name="logout">Exit</string>
     <string name="zhubaofangshilianji">packet capture connection</string>
     <string name="addDevice">Add device</string>
@@ -31,6 +34,7 @@
     <string name="navMyBrushRecord">MyBrushRecord</string>
     <string name="auto">Auto</string>
     <string name="LanguageSwitch">LanguageSwitch</string>
+    <string name="bluetooth">BLE</string>
     <string name="off">Power off</string>
     <string name="changansanmiao">Press and hold for three seconds when power is off, then the indicator will be flashing</string>
     <string name="ruhejiangzhishi">How to set the indicator to flash</string>
@@ -143,5 +147,23 @@
     <string name="hiflying_smartlinker_completed">配网成功</string>
     <string name="hiflying_smartlinker_new_module_found" formatted="false">New smart linked module: Mac-%s Ip-%s</string>
     <string name="hiflying_smartlinker_no_wifi_connectivity">No Wifi Connectivity</string>
+
+    <!--连接蓝牙-->
+    <string name="connect_bluetooth">Add Electric Toothbrush</string>
+    <string name="help">help</string>
+    <string name="addToothBrush">add</string>
+    <string name="bleSentence1">Searching for nearby Bluetooth devices</string>
+    <string name="bleSentence2">Keep enough electricity</string>
+    <string name="bleSentence3">Identify your device automatically</string>
+    <string name="bleSentence4">No devices found nearby</string>
+    <string name="bleSentence5">Keep enough electricity</string>
+    <string name="bleSentence6">Identify your device automatically</string>
+    <string name="bleReScan">Try again</string>
+
+    <!--蓝牙连接帮助-->
+    <string name="bleHelpSentence1">If the device has been connected, please turn off the other phone bluetooth that has been connected to the device</string>
+    <string name="bleHelpSentence2">Please ensure that the device is full of power</string>
+    <string name="bleHelpSentence3">If the device has power and the phone is still unable to search, you can try to restart the bluetooth</string>
+    <string name="bleHelpSentence4">If restarting Bluetooth is not valid, try restarting your phone</string>
 
 </resources>

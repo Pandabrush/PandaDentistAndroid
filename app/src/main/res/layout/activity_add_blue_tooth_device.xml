@@ -54,7 +54,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="正在搜索附近蓝牙设备"
+                        android:text="@string/bleSentence1"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
 
@@ -63,7 +63,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="20dp"
-                        android:text="请保持牙刷有电 放在手机附近"
+                        android:text="@string/bleSentence2"
                         android:textColor="#4FD4EB"
                         android:textSize="15sp" />
 
@@ -72,7 +72,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="20dp"
-                        android:text="会自动识别您的设备"
+                        android:text="@string/bleSentence3"
                         android:textColor="#4FD4EB"
                         android:textSize="15sp" />
 
@@ -101,7 +101,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="未发现附近可添加的设备"
+                        android:text="@string/bleSentence4"
                         android:textColor="@color/black"
                         android:textSize="15sp" />
 
@@ -110,7 +110,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="20dp"
-                        android:text="请保持牙刷有电 放在手机附近"
+                        android:text="@string/bleSentence5"
                         android:textColor="#4FD4EB"
                         android:textSize="15sp" />
 
@@ -119,7 +119,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginTop="20dp"
-                        android:text="会自动识别您的设备"
+                        android:text="@string/bleSentence6"
                         android:textColor="#4FD4EB"
                         android:textSize="15sp" />
 
@@ -130,7 +130,7 @@
                         android:layout_gravity="center"
                         android:layout_marginTop="20dp"
                         android:background="#8BBAE0"
-                        android:text="重新搜索"
+                        android:text="@string/bleReScan"
                         android:textColor="@android:color/white"
                         android:textSize="17sp" />
                 </LinearLayout>
