@@ -100,7 +100,7 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
             } catch (Exception e) {
                 Logger.d("postDelayed(this.hideRefreshing, 1000)", e);
             }
-            mSwipeRefreshLayout.postDelayed(this.hideRefreshing, 1000);
+            postDelayedOnUIThread(mSwipeRefreshLayout, this.hideRefreshing, 1000);
         } else {
             mSwipeRefreshLayout.setRefreshing(true);
             try {
@@ -108,7 +108,7 @@ public abstract class SwipeRefreshBaseActivity extends BaseActivity implements S
             } catch (Exception e) {
                 Logger.d("postDelayed(this.hideRefreshing, 10000)", e);
             }
-            mSwipeRefreshLayout.postDelayed(this.hideRefreshing, 10000);
+            this.postDelayedOnUIThread(mSwipeRefreshLayout, this.hideRefreshing, 10000);
         }
     }
 
