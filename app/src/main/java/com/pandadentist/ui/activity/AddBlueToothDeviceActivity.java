@@ -198,6 +198,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
                 // 绑定蓝牙设备
                 if (data.size() == 0) {
                     String deviceAddress = device.getAddress();
+                    scanDeviceFinished(false);
                     bindDevice(deviceAddress);
                 } else {
                     Toasts.showShort("一个账户只能绑定一个设备，请先解除绑定！");
@@ -399,16 +400,21 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
                 .subscribe(new Action1<WXEntity>() {
                     @Override
                     public void call(WXEntity wxEntity) {
-                        mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
-                        macAddress = mac;
-                        Bundle b = new Bundle();
-                        b.putString(BluetoothDevice.EXTRA_DEVICE, macAddress);
+                        postDelayedOnUIThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+                                macAddress = mac;
+                                Bundle b = new Bundle();
+                                b.putString(BluetoothDevice.EXTRA_DEVICE, macAddress);
 
-                        Intent result = new Intent();
-                        result.putExtras(b);
-                        setResult(Activity.RESULT_OK, result);
-                        finish();
-                        // 返回首页更新数据
+                                Intent result = new Intent();
+                                result.putExtras(b);
+                                setResult(Activity.RESULT_OK, result);
+                                finish();
+                                // 返回首页更新数据
+                            }
+                        });
                     }
                 }, new Action1<Throwable>() {
                     @Override
