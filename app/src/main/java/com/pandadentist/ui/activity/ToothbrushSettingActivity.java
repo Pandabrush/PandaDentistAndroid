@@ -284,7 +284,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
      * @param time      刷牙时间  单位s
      */
     private void requestModel(int modelType, int model, int pwm, int tClk, int time) {
-        this.showMessage(String.format(Locale.getDefault(), "requestModel(modelType:%1$d, model:%2$d, pwm:%3$d, tClk:%4$d, time:%5$d)", modelType, model, pwm, tClk, time));
+//        this.showMessage(String.format(Locale.getDefault(), "requestModel(modelType:%1$d, model:%2$d, pwm:%3$d, tClk:%4$d, time:%5$d)", modelType, model, pwm, tClk, time));
         if (this.bleProtoProcess == null)
             bleProtoProcess = UrlDetailActivity.bleProtoProcess == null ? new BLEProtoProcess() : UrlDetailActivity.bleProtoProcess;
         this.clearModelChangeListener();
@@ -337,7 +337,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
      */
     @Override
     public void onModelChange(int modelType, int model, int pwm, int tClk, int time, int modelResult) {
-        this.showMessage("onModelChange");
+//        this.showMessage("onModelChange");
         this.removeOutTime();
         int position = modelType == 0 ? model : 5;
         TabLayout.Tab tab = this.tabLayout.getTabAt(position);
