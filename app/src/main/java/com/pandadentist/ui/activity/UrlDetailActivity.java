@@ -12,8 +12,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -29,7 +27,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -369,6 +366,12 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     protected void onDestroy() {
         super.onDestroy();
         Logger.d("onDestroy");
+        if (this.isBind) {
+            unbindService(mServiceConnection);
+            this.isBind = false;
+        }
+        this.removeConnectBluetoothTimeOut();
+        this.removeReConnectBlueTooth();
         Logger.d("onDestroy mWebView != null =" + (mWebView != null));
         if (mWebView != null) {
             mWebView.onPause();
@@ -382,7 +385,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             timer.cancel();
             timer = null;
         }
-        Logger.d("onDestroy UARTStatusChangeReceiver != null =" + (UARTStatusChangeReceiver != null));
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(UARTStatusChangeReceiver);
         } catch (Exception e) {
@@ -390,14 +392,10 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         }
         Logger.d("onDestroy mService != null =" + (mService != null));
         if (mService != null) {
-            mService.disconnect();
-            mService.close();
+            mService.destroy();
             mService.stopSelf();
             mService = null;
             Logger.d("service 置空");
-        }
-        if (isBind) {
-            unbindService(mServiceConnection);
         }
     }
 
@@ -670,7 +668,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                         public void run() {
                                             if (isBltConnect)
                                                 return;
-                                            handler.sendEmptyMessageDelayed(WHAT_CONNECT_BLUETOOTH_TIMEOUT, DELAYMILLIS_CONNECT_BLUETOOTH);
+                                            sendConnectBluetoothTimeOut();
                                             setIsConnectText("连接中...");
                                             if (mService != null) {
                                                 Logger.d("mService.connect672");
@@ -845,16 +843,15 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
             case WHAT_CONNECT_BLUETOOTH_TIMEOUT:
-                handler.removeMessages(WHAT_CONNECT_BLUETOOTH_TIMEOUT);
+                this.removeConnectBluetoothTimeOut();
                 if (this.isBltConnect)
                     return true;
                 dismiss();
                 setIsConnectText("未连接");
-                handler.removeMessages(WHAT_RECONNECT_BLUETOOTH);
-                handler.sendEmptyMessageDelayed(WHAT_RECONNECT_BLUETOOTH, DELAYMILLIS_RECONNECT_BLUETOOTH);
+                this.sendReConnectBlueTooth();
                 break;
             case WHAT_RECONNECT_BLUETOOTH:
-                handler.removeMessages(WHAT_RECONNECT_BLUETOOTH);
+                this.removeReConnectBlueTooth();
                 if (this.isBltConnect)
                     return true;
                 // 打开蓝牙
@@ -871,6 +868,32 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 return false;
         }
         return true;
+    }
+
+    private void sendConnectBluetoothTimeOut() {
+        this.removeConnectBluetoothTimeOut();
+        if (this.handler == null || this.isBltConnect)
+            return;
+        this.handler.sendEmptyMessageDelayed(WHAT_CONNECT_BLUETOOTH_TIMEOUT, DELAYMILLIS_CONNECT_BLUETOOTH);
+    }
+
+    private void removeConnectBluetoothTimeOut() {
+        if (this.handler == null)
+            return;
+        this.handler.removeMessages(WHAT_CONNECT_BLUETOOTH_TIMEOUT);
+    }
+
+    private void sendReConnectBlueTooth() {
+        this.removeReConnectBlueTooth();
+        if (this.isBltConnect || this.handler == null)
+            return;
+        handler.sendEmptyMessageDelayed(WHAT_RECONNECT_BLUETOOTH, DELAYMILLIS_RECONNECT_BLUETOOTH);
+    }
+
+    private void removeReConnectBlueTooth() {
+        if (this.handler == null)
+            return;
+        this.handler.removeMessages(WHAT_RECONNECT_BLUETOOTH);
     }
 
     private class DataProcessTimer extends TimerTask {  //1s
