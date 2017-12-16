@@ -49,6 +49,7 @@ import java.util.UUID;
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class UartService extends Service {
 
+    private boolean isDestroy = false;
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
@@ -101,6 +102,7 @@ public class UartService extends Service {
                     Logger.i("Connected to GATT server.");
                     // Attempts to discover services after successful connection.
                     Logger.i("Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
+                    disConnectOnDestroy(gatt);
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     intentAction = ACTION_GATT_DISCONNECTED;
                     mConnectionState = STATE_DISCONNECTED;
@@ -143,6 +145,12 @@ public class UartService extends Service {
         }
     };
 
+    private void disConnectOnDestroy(BluetoothGatt gatt) {
+        if (this.isDestroy && gatt != null) {
+            gatt.disconnect();
+        }
+    }
+
     private void broadcastUpdate(final String action) {
         Logger.d("broadcastUpdate(final String action)");
         final Intent intent = new Intent(action);
@@ -179,8 +187,15 @@ public class UartService extends Service {
         // After using a given device, you should make sure that BluetoothGatt.close() is called
         // such that resources are cleaned up properly.  In this particular example, close() is
         // invoked when the UI is disconnected from the Service.
+        disconnect();
         close();
         return super.onUnbind(intent);
+    }
+
+    public void destroy() {
+        this.isDestroy = true;
+        disconnect();
+        close();
     }
 
     private final IBinder mBinder = new LocalBinder();
@@ -277,7 +292,6 @@ public class UartService extends Service {
             return;
         }
         mBluetoothGatt.disconnect();
-//        mBluetoothGatt.close();
     }
 
     public boolean hasConnected(String address) {
