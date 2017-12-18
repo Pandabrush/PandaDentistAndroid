@@ -114,9 +114,17 @@ public class BLEProtoProcess {
         }
     }
 
+    public byte[] quitRunTime() {
+        ByteBuffer data = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);
+        data.put((byte) 0x21); ///0x81冲突了，改为0x21.【复制过来的忘改它了】
+        data.put((byte) 0);
+        data.putShort((short) 0);
+        return data.array();
+    }
+
     public byte[] getModel(byte modelType, Short model, Short pwm, Short tClk, Short time) {
         ByteBuffer data = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);
-        data.put((byte)0x80);
+        data.put((byte) 0x80);
         data.put(modelType);
         data.putShort(model);
         data.putShort(pwm);
@@ -216,7 +224,8 @@ public class BLEProtoProcess {
     public int getPagesSize() {
         return pagesSize - 1;
     }
-    public void setPageSize(int i){
+
+    public void setPageSize(int i) {
         this.pagesSize = i;
     }
 

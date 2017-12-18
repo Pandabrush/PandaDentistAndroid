@@ -46,6 +46,7 @@ public class HelperActivity extends BaseActivity {
     private TextView nativeText;
     private Button nativeButton;
     private WebView webView;
+    private BLEProtoProcess bleProtoProcess;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -143,8 +144,8 @@ public class HelperActivity extends BaseActivity {
 
     private void syncAnimation() {
 
-        BLEProtoProcess bleProtoProcess = UrlDetailActivity.bleProtoProcess == null ? new BLEProtoProcess() : UrlDetailActivity.bleProtoProcess;
-        bleProtoProcess.setOnZhenListener(new OnZhenListener() {
+        this.bleProtoProcess = UrlDetailActivity.bleProtoProcess == null ? new BLEProtoProcess() : UrlDetailActivity.bleProtoProcess;
+        this.bleProtoProcess.setOnZhenListener(new OnZhenListener() {
             @Override
             public void onZhen(int zhen, int total) {
             }
@@ -198,12 +199,16 @@ public class HelperActivity extends BaseActivity {
                 }
             }
         };
-        bleProtoProcess.setOnStateListener(onStateListener);
-        UrlDetailActivity.mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 20, (byte) 0));
+        this.bleProtoProcess.setOnStateListener(onStateListener);
+        UrlDetailActivity.mService.writeRXCharacteristic(this.bleProtoProcess.getRequests((byte) 20, (byte) 0));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (this.bleProtoProcess != null && UrlDetailActivity.mService != null) {
+            UrlDetailActivity.mService.writeRXCharacteristic(this.bleProtoProcess.quitRunTime());
+            this.bleProtoProcess = null;
+        }
     }
 }

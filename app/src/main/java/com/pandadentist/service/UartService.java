@@ -358,13 +358,11 @@ public class UartService extends Service {
      */
     public void enableTXNotification() {
         Logger.d("enableTXNotification");
-        /*
         if (mBluetoothGatt == null) {
-    		showMessage("mBluetoothGatt null" + mBluetoothGatt);
-    		broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+            Logger.d("BluetoothGatt not initialized");
     		return;
     	}
-    		*/
+
         BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
         if (RxService == null) {
             showMessage("Rx service not found!");
@@ -387,6 +385,10 @@ public class UartService extends Service {
 
     public void writeRXCharacteristic(byte[] value) {
         Logger.d("writeRXCharacteristic");
+        if (this.mBluetoothGatt == null) {
+            Logger.d("BluetoothGatt not initialized");
+            return;
+        }
         BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
         showMessage("mBluetoothGatt null" + mBluetoothGatt);
         if (RxService == null) {
