@@ -71,7 +71,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         context.startActivity(intent);
     }
 
-//    private static final String BUILD_BRAND_OPPO = "OPPO";
+    //    private static final String BUILD_BRAND_OPPO = "OPPO";
     private static final int REQUEST_SELECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
     private static final long SCAN_PERIOD = 10000; //蓝牙扫描时长10秒
@@ -286,6 +286,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
 //                this.mBtAdapter.startDiscovery();
 //            } else {
             this.mBtAdapter.startLeScan(this);
+            this.showLoadingView();
 //            }
             this.mHandler.postDelayed(scanRunnable, SCAN_PERIOD);
         }
