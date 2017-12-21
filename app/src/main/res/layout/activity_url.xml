@@ -28,19 +28,11 @@
                     android:visibility="gone">
 
                     <ImageView
+                        android:id="@+id/btn_dismiss"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="fitXY"
                         android:src="@drawable/ic_guide" />
-
-                    <Button
-                        android:id="@+id/btn_dismiss"
-                        android:layout_width="180dp"
-                        android:layout_height="80dp"
-                        android:layout_alignParentBottom="true"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginBottom="140dp"
-                        android:background="@android:color/transparent" />
                 </RelativeLayout>
 
                 <RelativeLayout

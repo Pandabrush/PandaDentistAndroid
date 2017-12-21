@@ -1,9 +1,8 @@
 package com.pandadentist.network;
 
 
-import android.util.Log;
-
 import com.pandadentist.config.AppConfig;
+import com.pandadentist.util.Logger;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,14 +14,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Ford on 2016/5/25 0025.
- *
+ * Updated by zhangwy
  */
 public class APIFactory {
-    private static final String TAG = APIFactory.class.getSimpleName();
     public <T> T create(Class c){
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
             @Override public void log(String message) {
-                Log.d(TAG,"message-->"+message);
+                Logger.d("message-->"+message);
             }
         });
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);

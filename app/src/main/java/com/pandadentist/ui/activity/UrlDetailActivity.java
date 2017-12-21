@@ -483,7 +483,12 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 finish();
                 break;
             case R.id.btn_dismiss:
-                rlContent.setVisibility(View.VISIBLE);
+                if (rlGuide != null) {
+                    rlGuide.setVisibility(View.GONE);
+                }
+                if (rlContent != null) {
+                    rlContent.setVisibility(View.VISIBLE);
+                }
                 SPUitl.saveFirsRun(false);
                 break;
             case R.id.ll_helper:

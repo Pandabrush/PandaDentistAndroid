@@ -1,9 +1,9 @@
 package com.pandadentist.entity;
 
 /**
- * Created by Ford on 2017/5/27.
+ * Updated zhangwy
  */
-
+@SuppressWarnings("unused")
 public class WXEntity {
 
 

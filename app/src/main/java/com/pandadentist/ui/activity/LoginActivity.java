@@ -145,7 +145,6 @@ public class LoginActivity extends SwipeRefreshBaseActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcast);
     }
 
-
     private void loginForEmail(final String username, String pwd) {
         APIService api = new APIFactory().create(APIService.class);
         Subscription s = api.loginForEmail(username, pwd, Constants.AAAA)
