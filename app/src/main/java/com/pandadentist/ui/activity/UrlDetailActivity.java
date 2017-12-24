@@ -27,7 +27,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -143,8 +142,6 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logger.d("onCreate(((");
-        Log.d("TDG", "onCreate(((");
         boolean b = SPUitl.isFirstRun();
         findViewById(R.id.tv_close).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -265,6 +262,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             @Override
             public void onLoadResource(WebView webView, String url) {
                 super.onLoadResource(webView, url);
+                Logger.d(String.format(Locale.getDefault(), "onLoadResource:%1$s", url));
                 if (!TextUtils.isEmpty(url) && url.startsWith("easylinkage://devices.delete")) {
                     final String USER_KEY = "userid";
                     HashMap<String, String> queries = Util.getUrlQueries(url);
@@ -331,11 +329,13 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 @Override
                 public void run() {
                     dismiss();
-                    setIsConnectText("正在同步数据中...");
-                    if (mService != null)
-                        mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
-                    bleProtoProcess.setIsreqenddatas(false);
-                    bleProtoProcess.setHasrecieved(false);
+                    if (runtype == 0) {
+                        setIsConnectText("正在同步数据中...");
+                        if (mService != null)
+                            mService.writeRXCharacteristic(bleProtoProcess.getRequests((byte) 1, (byte) 0));
+                        bleProtoProcess.setIsreqenddatas(false);
+                        bleProtoProcess.setHasrecieved(false);
+                    }
                 }
             }, 1000);
         } else {
@@ -906,7 +906,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
 
         @Override
         public void run() {
-            Logger.d("计时器开始执行" + "count-->" + timecount);
+            Logger.d(String.format(Locale.getDefault(), "计时器开始执行count:%1$d;runtype:%2$d", timecount, runtype));
             if (runtype == 0) {//非接收数据过程，什么也不执行，//可以释放timer
                 timecount = 0;
                 if (timer != null) {
@@ -961,8 +961,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         bleProtoProcess.setIsreqenddatas(false);
         APIService api = new APIFactory().create(APIService.class);
         String address = currentMacAddress.replaceAll(":", "");
-//        String str = "设备地址：" + address + "-" + "Software：" + bleProtoProcess.getSoftware() + "-" + "Factory：" + bleProtoProcess.getFactory() + "-" + "Model：" + bleProtoProcess.getModel() + "-" + "Power：" + bleProtoProcess.getPower() + "-" + "Time：" + bleProtoProcess.getTime() + "-" + "Hardware：" + bleProtoProcess.getHardware() + "-" + bleProtoProcess.getDatatype() + "-";
-
+        String str = "设备地址：" + address + "-" + "Software：" + bleProtoProcess.getSoftware() + "-" + "Factory：" + bleProtoProcess.getFactory() + "-" + "Model：" + bleProtoProcess.getModel() + "-" + "Power：" + bleProtoProcess.getPower() + "-" + "Time：" + bleProtoProcess.getTime() + "-" + "Hardware：" + bleProtoProcess.getHardware() + "-" + bleProtoProcess.getDatatype() + "-";
+        Logger.d(String.format(Locale.getDefault(), "uploadData:\nstr:%1$s\ntime:%2$s", str, String.valueOf(System.currentTimeMillis())));
         addSubscription(api.uploadData(address,
                 String.valueOf(bleProtoProcess.getSoftware()),
                 String.valueOf(bleProtoProcess.getFactory()),
