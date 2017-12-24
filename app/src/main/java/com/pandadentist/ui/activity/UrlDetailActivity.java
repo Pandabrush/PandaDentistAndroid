@@ -301,7 +301,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 Logger.d("shouldOverrideUrlLoading.url:" + url);
-                return true;
+                return false;
             }
         });
         mWebView.setWebChromeClient(new WebChromeClient());
