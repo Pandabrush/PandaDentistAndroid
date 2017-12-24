@@ -130,6 +130,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private int timecount = 0;
     private int runtype = 0;//0-未运行， 1-接收数据过程， 2-核对丢失帧过程
+    private int checkCount = 0;
     private String currentMacAddress;
     private boolean isBltConnect = false;
 
@@ -789,6 +790,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 }
                 case UartService.ACTION_DATA_AVAILABLE: {
                     timecount = 0;
+                    checkCount = 0;
                     final byte[] txValue = intent.getByteArrayExtra(UartService.EXTRA_DATA);
                     int status = bleProtoProcess.interp(txValue);
 
@@ -929,8 +931,9 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     }
 
     private boolean checkData() {
+        checkCount++;
         try {
-            if (bleProtoProcess.checkMissed()) {
+            if (bleProtoProcess.checkMissed() && this.checkCount <= 10) {
                 Logger.d("丢帧");
                 this.writeRXCharacteristic(bleProtoProcess.getMissedRequests());
                 return false;
