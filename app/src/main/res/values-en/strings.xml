@@ -13,6 +13,7 @@
     <string name="bindWechat">Bind your account to Wechat</string>
     <string name="title_help">Tooth brushing instruction</string>
     <string name="title_toothbrush_setting">Toothbrush setting</string>
+    <string name="title_about">about</string>
     <string name="logout">Exit</string>
     <string name="zhubaofangshilianji">packet capture connection</string>
     <string name="addDevice">Add device</string>

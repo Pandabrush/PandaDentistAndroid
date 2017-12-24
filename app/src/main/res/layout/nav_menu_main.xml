@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="15dp">
+        android:padding="15dp"
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="20dp"
@@ -33,7 +34,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="15dp">
+        android:padding="15dp"
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="20dp"
@@ -80,7 +82,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="15dp">
+        android:padding="15dp"
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="20dp"
@@ -139,6 +142,29 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="23dp"
             android:text="@string/title_toothbrush_setting"
+            android:textColor="#333333"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_about"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="15dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/icon_menu_setting" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="23dp"
+            android:text="@string/title_about"
             android:textColor="#333333"
             android:textSize="15sp" />
 

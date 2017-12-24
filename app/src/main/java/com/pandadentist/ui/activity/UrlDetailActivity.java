@@ -460,11 +460,12 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         return true;
     }
 
-    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss, R.id.ll_helper, R.id.ll_tb_setting})
+    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss, R.id.ll_helper, R.id.ll_tb_setting, R.id.ll_about})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.ll_member_point:
             case R.id.ll_panda_store:
+                break;
             case R.id.ll_wx_friend://绑定公众号
                 JumpToBizProfile.Req req = new JumpToBizProfile.Req();
                 req.toUserName = "gh_3afe6eac55e3"; //公众号原始ID
@@ -497,6 +498,9 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 break;
             case R.id.ll_tb_setting:
                 ToothbrushSettingActivity.start(this, this.isBltConnect);
+                break;
+            case R.id.ll_about:
+                AboutActivity.start(this);
                 break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

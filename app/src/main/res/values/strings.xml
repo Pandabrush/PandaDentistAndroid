@@ -41,6 +41,7 @@
 
     <string name="title_help">刷牙指导</string>
     <string name="title_toothbrush_setting">牙刷个性设置</string>
+    <string name="title_about">关于</string>
     <string name="help_set_indicator_light">如何设置指示灯</string>
     <string name="input_email">请输入邮箱</string>
     <string name="input_password">请输入密码</string>
