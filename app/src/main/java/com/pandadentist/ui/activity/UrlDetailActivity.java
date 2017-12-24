@@ -933,7 +933,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private boolean checkData() {
         checkCount++;
         try {
-            if (bleProtoProcess.checkMissed() && this.checkCount <= 10) {
+            if (bleProtoProcess.checkMissed() && this.checkCount <= 5) {
                 Logger.d("丢帧");
                 this.writeRXCharacteristic(bleProtoProcess.getMissedRequests());
                 return false;
