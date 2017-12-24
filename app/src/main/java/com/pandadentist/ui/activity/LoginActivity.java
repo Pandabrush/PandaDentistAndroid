@@ -156,7 +156,7 @@ public class LoginActivity extends SwipeRefreshBaseActivity {
 
                         if (Constants.SUCCESS == wxEntity.getCode()) {
                             SPUitl.saveToken(wxEntity.getToken());
-                            WXEntity.InfoBean infoBean = new WXEntity.InfoBean();
+                            WXEntity.InfoBean infoBean = wxEntity.getInfo() == null ? new WXEntity.InfoBean() : wxEntity.getInfo();
                             infoBean.setName(username);
                             wxEntity.setInfo(infoBean);
                             SPUitl.saveWXUser(wxEntity);
