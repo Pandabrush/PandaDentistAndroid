@@ -796,6 +796,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                         case BLEProtoProcess.BLE_DATA_START:
                         case BLEProtoProcess.BLE_RESULT_START:
                             Logger.d("BLE_DATA_START  and  BLE_RESULT_START");
+                            setIsConnectText("正在同步数据中...");
                             bleProtoProcess.setHasrecieved(true);
                             runtype = 1;
                             timer = new Timer();
