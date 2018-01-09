@@ -126,6 +126,9 @@
         <activity
             android:name=".ui.activity.AboutActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.AutoTestActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".service.UartService"

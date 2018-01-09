@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +28,12 @@ import butterknife.ButterKnife;
  */
 @SuppressWarnings("unused")
 public abstract class BaseActivity extends AppCompatActivity {
+    private static Handler handler;
+
+    static {
+        handler = new Handler(Looper.getMainLooper());
+    }
+
     protected TopBar topBar;
     protected BaseBroadcastReceiver mReceiver;
 
@@ -150,9 +158,22 @@ public abstract class BaseActivity extends AppCompatActivity {
                     }
                 });
             }
+
         } catch (Exception e) {
             return false;
         }
         return true;
+    }
+
+    public void postDelayed(Runnable action, long delayMillis) {
+        if (handler != null && action != null) {
+            handler.postDelayed(action, delayMillis);
+        }
+    }
+
+    public void removeCallbacks(Runnable action) {
+        if (handler != null && action != null) {
+            handler.removeCallbacks(action);
+        }
     }
 }

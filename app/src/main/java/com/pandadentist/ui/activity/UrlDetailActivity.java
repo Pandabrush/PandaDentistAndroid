@@ -40,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.pandadentist.BuildConfig;
 import com.pandadentist.R;
 import com.pandadentist.config.Constants;
 import com.pandadentist.entity.DeviceListEntity;
@@ -231,6 +232,12 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             service_init();
         }
         loadData();
+
+        this.goneTest();
+    }
+
+    private void goneTest() {
+        findViewById(R.id.ll_auto_test).setVisibility(BuildConfig.DEBUG ? View.VISIBLE : View.GONE);
     }
 
     private void loadData() {
@@ -460,7 +467,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         return true;
     }
 
-    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss, R.id.ll_helper, R.id.ll_tb_setting, R.id.ll_about})
+    @OnClick({R.id.ll_member_point, R.id.ll_panda_store, R.id.ll_typeface, R.id.ll_wx_friend, R.id.btn, R.id.btn_dismiss, R.id.ll_helper, R.id.ll_tb_setting, R.id.ll_about, R.id.ll_auto_test})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.ll_member_point:
@@ -501,6 +508,9 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 break;
             case R.id.ll_about:
                 AboutActivity.start(this);
+                break;
+            case R.id.ll_auto_test:
+                AutoTestActivity.start(this, this.data != null && !this.data.isEmpty(), this.isBltConnect);
                 break;
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

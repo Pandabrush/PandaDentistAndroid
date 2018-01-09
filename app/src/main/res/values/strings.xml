@@ -65,6 +65,12 @@
     <string name="goto_connect_device">去连接牙刷</string>
     <string name="has_reopen_connect_device">已关机重新连接蓝牙</string>
 
+    <string name="title_auto_test">自动化测试</string>
+    <string name="auto_test_setting_open_success">自动测试设置成功</string>
+    <string name="auto_test_setting_open_failed">自动测试设置失败</string>
+    <string name="auto_test_setting_close_success">自动测试取消成功</string>
+    <string name="auto_test_setting_close_failed">自动测试取消失败</string>
+
     <string name="device">Device:</string>
     <string name="no_device">&lt;Select a device&gt;</string>
     <string name="select_device">Select a device</string>
@@ -142,9 +148,10 @@
     <string name="web_hf">http://www.hi-flying.com/</string>
     <string name="wep_password_invalid">The password of WEP is not valid!</string>
     <string name="yes">Yes</string>
-    <string name="hf_profile" formatted="false" >&#160;&#160;&#160;&#160;Shanghai High-Flying Electronics Technology Co., Ltd, found in Dec.2009 by leading experts, is a high-tech enterprises specialized in wireless communication domain and designs, develops, manufacture, markets and sells high quality, robust embedded Wi-Fi modules, and provide total IOT solution (Cloud Servers and APP) to the customer. Through continuous development and endeavor in field edge technology, High Flying developed a series high integrity and high cost effective intelligent hardware product. Now High-Flying’ s Wi-Fi products were broadly applied to Industrial, Smart-Metering, Smart Home, handset devices, medical and industrial instruments, smart grid,M2M field, etc. Based on its stable function and reasonable price, our product have won thousands of customers’ positive feedback and trust over the world.</string>
+    <string name="hf_profile" formatted="false">&#160;&#160;&#160;&#160;Shanghai High-Flying Electronics Technology Co., Ltd, found in Dec.2009 by leading experts, is a high-tech enterprises specialized in wireless communication domain and designs, develops, manufacture, markets and sells high quality, robust embedded Wi-Fi modules, and provide total IOT solution (Cloud Servers and APP) to the customer. Through continuous development and endeavor in field edge technology, High Flying developed a series high integrity and high cost effective intelligent hardware product. Now High-Flying’ s Wi-Fi products were broadly applied to Industrial, Smart-Metering, Smart Home, handset devices, medical and industrial instruments, smart grid,M2M field, etc. Based on its stable function and reasonable price, our product have won thousands of customers’ positive feedback and trust over the world.</string>
 
-    <!-- Wi-Fi Settings --> <skip />
+    <!-- Wi-Fi Settings -->
+    <skip />
     <string name="wifi">WiFi</string>
     <string name="wifi_mudole_params">WiFi Module Parameters</string>
     <!-- Summary text when turning Wi-Fi or bluetooth on -->

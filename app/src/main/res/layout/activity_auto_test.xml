@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/darker_gray"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/title"
+        layout="@layout/layout_appbar" />
+
+    <LinearLayout
+        android:id="@+id/auto_test_tip"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top"
+        android:orientation="vertical"
+        android:padding="16dip"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/auto_test_tip_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dip"
+            android:layout_marginRight="16dip"
+            android:contentDescription="@string/app_name"
+            android:scaleType="centerInside" />
+
+        <TextView
+            android:id="@+id/auto_test_tip_remind"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dip"
+            android:gravity="center" />
+
+        <Button
+            android:id="@+id/auto_test_tip_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dip" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/auto_test_scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ScrollView>
+</LinearLayout>

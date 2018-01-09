@@ -2,6 +2,7 @@ package com.pandadentist.util;
 
 import android.content.Intent;
 
+import com.pandadentist.listener.OnAutoTestListener;
 import com.pandadentist.listener.OnModelChangeListener;
 import com.pandadentist.listener.OnStateListener;
 import com.pandadentist.listener.OnZhenListener;
@@ -27,6 +28,7 @@ public class BLEProtoProcess {
     public static final int BLE_DATA_RECEIVER = 1;
     public static final int BLE_DATA_END = 2;
     public static final int BLE_SET_MODEL = 0x80;
+    public static final int BLE_AUTO_TEST = 0x81;
 
     public static final int BLE_RESULT_START = 10;
     public static final int BLE_RESULT_RECEIVER = 11;
@@ -36,7 +38,7 @@ public class BLEProtoProcess {
     public static final int BLE_MISSED_END = 4;
     public static final int BLE_RUNTIME = 20;
     public static final int BLE_RUNTIME_ACT = 21;
-    public static final int BLE_NO_SYNC = -1;
+    public static final int BLE_NO_SYNC = 0xFF;
 
     private int datatype = -1;   //定义传输的数据类型        1=请求数据帧，2=请求结果帧，3 过程真   其他暂时无效
     //将此发给服务器，用来判断是什么类型的数据， 并相应解析
@@ -64,6 +66,7 @@ public class BLEProtoProcess {
     private OnZhenListener onZhenListener;
     private OnStateListener onStateListener;
     private OnModelChangeListener onModelChangeListener;
+    private OnAutoTestListener onAutoTestListener;
 
     private boolean hasrecieved = false;
     private boolean isreqenddatas = false;
@@ -114,9 +117,26 @@ public class BLEProtoProcess {
         }
     }
 
+    /**
+     * 自动化测试设置
+     * @param enable 1 使能 0 取消使能 
+     * @return byte[]
+     */
+    public byte[] autoRestartMode(boolean enable) {
+        ByteBuffer data = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);
+        data.put((byte) BLE_AUTO_TEST);
+        data.put((byte) 0);
+        data.putShort((short) 1);
+        data.putShort(enable ? (short) 1 : (short) 0);
+        data.putShort((short) 300);//周期 单位s, (>=300(5min)) 
+        data.putShort((short) 30);//唤醒后的运行时间 单位s [30-300]
+        data.putShort((short) 5);//唤醒次数
+        return data.array();
+    }
+
     public byte[] quitRunTime() {
         ByteBuffer data = ByteBuffer.allocate(20).order(ByteOrder.LITTLE_ENDIAN);
-        data.put((byte) 0x21); ///0x81冲突了，改为0x21.【复制过来的忘改它了】
+        data.put((byte) 0x21); //0x81冲突了，改为0x21.【复制过来的忘改它了】
         data.put((byte) 0);
         data.putShort((short) 0);
         return data.array();
@@ -233,6 +253,7 @@ public class BLEProtoProcess {
         ByteBuffer data = ByteBuffer.wrap(response).order(ByteOrder.LITTLE_ENDIAN);
         System.out.println(Bytes.bytes2hexString(data.array()));
         int type = data.get();//response[0];
+        type = type >= 0 ? type : type + 256;
         int pagenum = data.get();//response[1];
         int index = data.getShort();//Bytes.bytes2short(Bytes.copyOf(response, 2, 2, ByteOrder.LITTLE_ENDIAN));
 
@@ -246,6 +267,11 @@ public class BLEProtoProcess {
                     int time = data.getShort();
                     int modelResult = data.getShort();
                     this.onModelChangeListener.onModelChange(pagenum, index, pwm, tClk, time, modelResult);
+                }
+                break;
+            case BLE_AUTO_TEST:
+                if (this.onAutoTestListener != null) {
+                    this.onAutoTestListener.onState(data.getShort() == 1);
                 }
                 break;
             case BLE_DATA_START:    //0
@@ -403,6 +429,14 @@ public class BLEProtoProcess {
 
     public void setOnStateListener(OnStateListener listener) {
         this.onStateListener = listener;
+    }
+
+    public void setOnAutoTestListener(OnAutoTestListener listener) {
+        this.onAutoTestListener = listener;
+    }
+
+    public void removeOnAutoTestListener() {
+        this.onAutoTestListener = null;
     }
 
     public void removeZhenListener() {
