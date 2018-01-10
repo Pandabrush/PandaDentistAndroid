@@ -65,6 +65,9 @@
     <string name="goto_connect_device">去连接牙刷</string>
     <string name="has_reopen_connect_device">已关机重新连接蓝牙</string>
 
+    <string name="no_supported_bluetooth">该设备不支持蓝牙</string>
+    <string name="no_open_bluetooth">未打开蓝牙设备</string>
+
     <string name="title_auto_test">自动化测试</string>
     <string name="auto_test_setting_open_success">自动测试设置成功</string>
     <string name="auto_test_setting_open_failed">自动测试设置失败</string>

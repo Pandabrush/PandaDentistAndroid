@@ -55,6 +55,7 @@ import com.pandadentist.util.DensityUtil;
 import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.Logger;
 import com.pandadentist.util.SPUitl;
+import com.pandadentist.util.ScanBluetooth;
 import com.pandadentist.util.Toasts;
 import com.pandadentist.util.Util;
 import com.pandadentist.widget.RecycleViewDivider;
@@ -677,25 +678,44 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                         }
                                     }
                                     sb.delete(0, 1);
-                                    currentMacAddress = sb.toString();
-                                    mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentMacAddress);
-                                    if (mDevice != null && mService != null && !mService.hasConnected(currentMacAddress)) {
-                                        Logger.d("getDeviceList disconnect");
-                                        mService.disconnect();
-                                    }
-                                    postDelayedOnUIThread(appbar, new Runnable() {
+                                    final String address = sb.toString();
+
+                                    final ScanBluetooth scanBluetooth = ScanBluetooth.create();
+                                    scanBluetooth.startLeScan(UrlDetailActivity.this, new ScanBluetooth.OnLeScanListener() {
                                         @Override
-                                        public void run() {
-                                            if (isBltConnect)
-                                                return;
-                                            sendConnectBluetoothTimeOut();
-                                            setIsConnectText("连接中...");
-                                            if (mService != null) {
-                                                Logger.d("mService.connect672");
-                                                mService.connect(currentMacAddress);
+                                        public void onLeScanStart() {
+                                        }
+
+                                        @Override
+                                        public void onDevice(BluetoothDevice device) {
+                                            if (TextUtils.equals(device.getAddress(), address)) {
+                                                scanBluetooth.stopLeScan();
+                                                currentMacAddress = address;
+                                                mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(currentMacAddress);
+                                                if (mDevice != null && mService != null && !mService.hasConnected(currentMacAddress)) {
+                                                    Logger.d("getDeviceList disconnect");
+                                                    mService.disconnect();
+                                                }
+                                                postDelayedOnUIThread(appbar, new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        if (isBltConnect)
+                                                            return;
+                                                        sendConnectBluetoothTimeOut();
+                                                        setIsConnectText("连接中...");
+                                                        if (mService != null) {
+                                                            Logger.d("mService.connect672");
+                                                            mService.connect(currentMacAddress);
+                                                        }
+                                                    }
+                                                }, 200);
                                             }
                                         }
-                                    }, 200);
+
+                                        @Override
+                                        public void onLeScanStop() {
+                                        }
+                                    });
                                 }
                             } else {
                                 setSwitchDeviceVisibility(false);

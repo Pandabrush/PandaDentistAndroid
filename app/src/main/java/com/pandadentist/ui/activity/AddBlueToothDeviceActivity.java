@@ -10,11 +10,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -33,11 +31,11 @@ import com.pandadentist.listener.OnItemClickListener;
 import com.pandadentist.listener.OnZhenListener;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
-import com.pandadentist.receiver.BlueToothBroadcastReceiver;
 import com.pandadentist.ui.adapter.BlueToothDeviceAdapter;
 import com.pandadentist.util.BLEProtoProcess;
 import com.pandadentist.util.Logger;
 import com.pandadentist.util.SPUitl;
+import com.pandadentist.util.ScanBluetooth;
 import com.pandadentist.util.Toasts;
 import com.pandadentist.util.Util;
 import com.pandadentist.widget.ColorProgressBar;
@@ -55,13 +53,11 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-import static com.pandadentist.ui.activity.UrlDetailActivity.mService;
-
 /**
  * Updated by zhangwy on 2017/11/12
  */
 
-public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity implements BlueToothBroadcastReceiver.Callback, BluetoothAdapter.LeScanCallback {
+public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity implements ScanBluetooth.OnLeScanListener {
 
     private static final String EXTRA_HAS_DEVICE = "extraHasDevice";
 
@@ -71,10 +67,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         context.startActivity(intent);
     }
 
-    //    private static final String BUILD_BRAND_OPPO = "OPPO";
     private static final int REQUEST_SELECT_DEVICE = 1;
-    private static final int REQUEST_ENABLE_BT = 2;
-    private static final long SCAN_PERIOD = 10000; //蓝牙扫描时长10秒
 
     @Bind(R.id.ll_not_found)
     LinearLayout llNotFound;
@@ -100,14 +93,13 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     TextView tvPageSize;
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+    private ScanBluetooth scanBluetooth;
     private BluetoothDevice mDevice = null;
-    private BluetoothAdapter mBtAdapter = null;
     private BlueToothDeviceAdapter mAdapter;
     private HashMap<String, BluetoothDevice> deviceHashMap = new HashMap<>();
     private String macAddress;
     private Animation circle_anim;
-    private List<DeviceListEntity.DevicesBean> data = new ArrayList<>();
-//    private BlueToothBroadcastReceiver blueToothBroadcastReceiver;
+    private List<DeviceListEntity.DevicesBean> remoteDevices = new ArrayList<>();
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -154,19 +146,6 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
             }
         }
-        mBtAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBtAdapter == null) {
-            Toast.makeText(this, "该设备不支持蓝牙", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-        // 打开蓝牙
-        if (!mBtAdapter.isEnabled()) {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        } else {
-            init();
-        }
 
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,7 +154,13 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             }
         });
 
-        getDeviceList();
+        this.initView();
+        this.getDeviceList();
+
+        this.scanBluetooth = ScanBluetooth.create();
+        if (this.scanBluetooth.canScan(this)) {
+            this.scanBlueDevice();
+        }
     }
 
     @Override
@@ -184,7 +169,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void init() {
+    private void initView() {
         // 扫描显示列表
         // 初始化列表
         mAdapter = new BlueToothDeviceAdapter();
@@ -196,40 +181,34 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             public void onItemClick(View v, BluetoothDevice device, int position) {
                 // 先绑定，在连接蓝牙
                 // 绑定蓝牙设备
-                if (data.size() == 0) {
+                if (remoteDevices.size() == 0) {
                     String deviceAddress = device.getAddress();
-                    scanDeviceFinished(false);
+                    stopLeScan();
                     bindDevice(deviceAddress);
                 } else {
                     Toasts.showShort("一个账户只能绑定一个设备，请先解除绑定！");
                 }
             }
         });
-        //扫描
-        scanBlueDevice();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-
             case REQUEST_SELECT_DEVICE:
                 //When the DeviceListActivity return, with the selected device address
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     String deviceAddress = data.getStringExtra(BluetoothDevice.EXTRA_DEVICE);
                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress);
-
-                    Logger.d("... onActivityResultdevice.address==" + mDevice + "mServiceValue" + mService);
                     ((TextView) findViewById(R.id.deviceName)).setText(String.format(Locale.getDefault(), "%s - connecting", mDevice.getName()));
-                    mService.connect(deviceAddress);
+                    UrlDetailActivity.mService.connect(deviceAddress);
                 }
                 break;
-            case REQUEST_ENABLE_BT:
+            case ScanBluetooth.REQUESTCODE_FROM_BLUETOOTH_ENABLE:
                 // When the request to enable Bluetooth returns
                 if (resultCode == Activity.RESULT_OK) {
                     Toast.makeText(this, "蓝牙打开成功", Toast.LENGTH_SHORT).show();
-                    init();
+                    this.scanBlueDevice();
                 } else {
                     // User did not enable Bluetooth or an error occurred
                     Logger.d("BT not enabled");
@@ -263,6 +242,23 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         }
     }
 
+    private void scanBlueDevice() {
+        if (this.scanBluetooth != null) {
+            this.scanBluetooth.startLeScan(this, this);
+        }
+    }
+
+    private void stopLeScan() {
+        if (this.scanBluetooth != null) {
+            this.scanBluetooth.stopLeScan();
+        }
+    }
+
+    @Override
+    public void onLeScanStart() {
+        this.showLoadingView();
+    }
+
     private void showLoadingView() {
         if (rv != null) {
             rv.setEnabled(true);
@@ -271,108 +267,46 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             llLoadingTip.setVisibility(View.VISIBLE);
             llNotFound.setVisibility(View.GONE);
         }
-
-    }
-
-    private Handler mHandler = new Handler();
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void scanBlueDevice() {
-        if (this.mBtAdapter != null) {
-//            if (this.useBroadcastReceiver()) {
-//                if (this.blueToothBroadcastReceiver == null)
-//                    this.blueToothBroadcastReceiver = new BlueToothBroadcastReceiver();
-//                this.blueToothBroadcastReceiver.register(this, this);
-//                this.mBtAdapter.startDiscovery();
-//            } else {
-            this.mBtAdapter.startLeScan(this);
-            this.showLoadingView();
-//            }
-            this.mHandler.postDelayed(scanRunnable, SCAN_PERIOD);
-        }
-    }
-
-    private ScanRunnable scanRunnable = new ScanRunnable();
-
-    @Override
-    public void onDiscoveryStart() {
-        showLoadingView();
     }
 
     @Override
-    public void onDiscoveryFinished() {
-//        this.scanDeviceFinished(true);
-    }
-
-    @Override
-    public void onDeviceFound(BluetoothDevice device) {
-        Logger.d("onDeviceFound");
-        this.addDevices(device);
-    }
-
-    @Override
-    public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
+    public void onDevice(final BluetoothDevice device) {
+        if (device == null)
+            return;
+        Logger.d("addDevices" + device.getName());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Logger.d("onLeScan");
-                addDevices(device);
+                postDelayedOnUIThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String address = device.getAddress();
+                        if (deviceHashMap.containsKey(address))
+                            return;
+                        deviceHashMap.put(address, device);
+                        mAdapter.replace(deviceHashMap.values());
+                        if (hasDevice()) {
+                            showList();
+                        }
+                    }
+                });
             }
         });
     }
 
-    private void addDevices(final BluetoothDevice device) {
-        if (device == null)
-            return;
-
-        postDelayedOnUIThread(new Runnable() {
-            @Override
-            public void run() {
-                Logger.d("addDevices" + device.getName());
-                String address = device.getAddress();
-                String name = device.getName();
-                if (deviceHashMap.containsKey(address) || TextUtils.isEmpty(name) || !name.contains("PBrush"))
-                    return;
-                deviceHashMap.put(address, device);
-                mAdapter.replace(deviceHashMap.values());
-                if (hasDevice()) {
-                    showList();
-                }
-            }
-        });
+    @Override
+    public void onLeScanStop() {
+        this.scanDeviceFinished();
     }
 
-    private class ScanRunnable implements Runnable {
-
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        @Override
-        public void run() {
-            scanDeviceFinished(true);
-        }
-    }
-
-    private void scanDeviceFinished(boolean show) {
+    private void scanDeviceFinished() {
         try {
-//            if (this.useBroadcastReceiver()) {
-//                if (this.blueToothBroadcastReceiver != null)
-//                    this.blueToothBroadcastReceiver.unRegister(this);
-//                this.mBtAdapter.cancelDiscovery();
-//            } else {
-            this.mBtAdapter.stopLeScan(this);
-//            }
-            try {
-                this.mHandler.removeCallbacks(this.scanRunnable);
-            } catch (Exception e) {
-                Logger.e("mHandler.removeCallbacks", e);
+            if (this.hasDevice()) {
+                showList();
+            } else {
+                showNotFound();
             }
-            if (show) {
-                if (this.hasDevice()) {
-                    showList();
-                } else {
-                    showNotFound();
-                }
-                this.mAdapter.replace(this.deviceHashMap.values());
-            }
+            this.mAdapter.replace(this.deviceHashMap.values());
         } catch (Exception e) {
             Logger.e("scanDeviceFinished", e);
         }
@@ -381,16 +315,12 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     private boolean hasDevice() {
         return !Util.isEmpty(this.deviceHashMap);
     }
-//
-//    private boolean useBroadcastReceiver() {
-//        return false;//TextUtils.equals(BUILD_BRAND_OPPO, Build.BRAND);
-//    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.scanDeviceFinished(false);
+        this.stopLeScan();
     }
 
     private void bindDevice(final String mac) {
@@ -441,10 +371,10 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
                         if (Constants.SUCCESS == deviceListEntity.getCode()) {
                             for (DeviceListEntity.DevicesBean db : deviceListEntity.getDevices()) {
                                 if (!db.getDeviceid().contains(":")) {
-                                    data.add(db);
+                                    remoteDevices.add(db);
                                 }
                             }
-                            Logger.d("size-->" + data.size());
+                            Logger.d("size-->" + remoteDevices.size());
                         } else {
                             Toasts.showShort(deviceListEntity.getMessage());
                         }
