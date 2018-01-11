@@ -72,6 +72,7 @@ public class AutoTestActivity extends BaseActivity implements OnAutoTestListener
         } else {
             this.initNone();
         }
+        this.content.setKeepScreenOn(true);
     }
 
     private void initNoDevice() {
@@ -174,4 +175,14 @@ public class AutoTestActivity extends BaseActivity implements OnAutoTestListener
             }
         }
     };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            this.content.setKeepScreenOn(false);
+        } catch (Exception e) {
+            Logger.d("setKeepScreenOn", e);
+        }
+    }
 }

@@ -1,7 +1,6 @@
 package com.pandadentist.util;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -29,6 +28,9 @@ public abstract class ScanBluetooth {
         return new ScanBluetoothImpl();
     }
 
+    public abstract boolean support(Activity activity);
+
+//    public abstract boolean support(Fragment fragment);
     /**
      * 是否能扫描，调用该接口的类需要重写onActivityResult 接收requestCode为REQUESTCODE_FROM_BLUETOOTH_ENABLE参数
      *
@@ -37,11 +39,11 @@ public abstract class ScanBluetooth {
      */
     public abstract boolean canScan(Activity activity);
 
-    public abstract boolean canScan(Fragment fragment);
+//    public abstract boolean canScan(Fragment fragment);
 
     public abstract boolean startLeScan(Activity activity, OnLeScanListener listener);
 
-    public abstract boolean startLeScan(Fragment fragment, OnLeScanListener listener);
+//    public abstract boolean startLeScan(Fragment fragment, OnLeScanListener listener);
 
     public abstract void stopLeScan();
 
@@ -55,7 +57,8 @@ public abstract class ScanBluetooth {
         private OnLeScanListener listener;
         private HashMap<String, BluetoothDevice> deviceHashMap = new HashMap<>();
 
-        private boolean support(Activity activity) {
+        @Override
+        public boolean support(Activity activity) {
             if (this.adapter == null) {
                 this.adapter = BluetoothAdapter.getDefaultAdapter();
             }
@@ -69,6 +72,11 @@ public abstract class ScanBluetooth {
             }
             return support;
         }
+//
+//        @Override
+//        public boolean support(Fragment fragment) {
+//            return this.support(fragment == null ? null : fragment.getActivity());
+//        }
 
         @Override
         public boolean canScan(Activity activity) {
@@ -85,34 +93,34 @@ public abstract class ScanBluetooth {
             }
             return true;
         }
-
-        @Override
-        public boolean canScan(Fragment fragment) {
-            if (!this.support(fragment == null ? null : fragment.getActivity())) {
-                return false;
-            }
-            if (!this.adapter.isEnabled()) {
-                Toasts.showLong(R.string.no_open_bluetooth);
-                if (fragment != null) {
-                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    fragment.startActivityForResult(enableIntent, REQUESTCODE_FROM_BLUETOOTH_ENABLE);
-                }
-                return false;
-            }
-            return true;
-        }
+//
+//        @Override
+//        public boolean canScan(Fragment fragment) {
+//            if (!this.support(fragment == null ? null : fragment.getActivity())) {
+//                return false;
+//            }
+//            if (!this.adapter.isEnabled()) {
+//                Toasts.showLong(R.string.no_open_bluetooth);
+//                if (fragment != null) {
+//                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//                    fragment.startActivityForResult(enableIntent, REQUESTCODE_FROM_BLUETOOTH_ENABLE);
+//                }
+//                return false;
+//            }
+//            return true;
+//        }
 
         @Override
         public boolean startLeScan(Activity activity, OnLeScanListener listener) {
             this.setListener(listener);
             return this.canScan(activity) && this.startLeScan();
         }
-
-        @Override
-        public boolean startLeScan(Fragment fragment, OnLeScanListener listener) {
-            this.setListener(listener);
-            return this.canScan(fragment) && this.startLeScan();
-        }
+//
+//        @Override
+//        public boolean startLeScan(Fragment fragment, OnLeScanListener listener) {
+//            this.setListener(listener);
+//            return this.canScan(fragment) && this.startLeScan();
+//        }
 
         private void setListener(OnLeScanListener listener) {
             this.listener = listener;
@@ -130,12 +138,18 @@ public abstract class ScanBluetooth {
 
         @Override
         public void stopLeScan() {
+            this.finalStopLeScan(false);
+        }
+
+        private void finalStopLeScan(boolean auto) {
             if (this.adapter != null) {
                 this.adapter.stopLeScan(this);
             }
-            this.handler.removeMessages(WHAT_SCAN_TIMEOUT);
+            if (this.handler.hasMessages(WHAT_SCAN_TIMEOUT)) {
+                this.handler.removeMessages(WHAT_SCAN_TIMEOUT);
+            }
             if (this.listener != null) {
-                this.listener.onLeScanStop();
+                this.listener.onLeScanStop(auto);
             }
         }
 
@@ -154,7 +168,7 @@ public abstract class ScanBluetooth {
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case WHAT_SCAN_TIMEOUT:
-                    this.stopLeScan();
+                    this.finalStopLeScan(true);
                     break;
                 case WHAT_ADD_DEVICE:
                     this.addDevice((BluetoothDevice) msg.obj);
@@ -183,6 +197,6 @@ public abstract class ScanBluetooth {
 
         void onDevice(BluetoothDevice device);
 
-        void onLeScanStop();
+        void onLeScanStop(boolean auto);
     }
 }

@@ -295,7 +295,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     }
 
     @Override
-    public void onLeScanStop() {
+    public void onLeScanStop(boolean auto) {
         this.scanDeviceFinished();
     }
 

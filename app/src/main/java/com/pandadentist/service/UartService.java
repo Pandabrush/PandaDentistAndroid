@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.pandadentist.service;
 
 import android.app.Service;
@@ -36,7 +20,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.pandadentist.util.Logger;
+import com.pandadentist.util.ScanBluetooth;
+import com.pandadentist.util.Toasts;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -47,14 +34,18 @@ import java.util.UUID;
  */
 @SuppressWarnings("unused")
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-public class UartService extends Service {
+public class UartService extends Service implements ScanBluetooth.OnLeScanListener {
 
     private boolean isDestroy = false;
-    private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
     private int mConnectionState = STATE_DISCONNECTED;
+
+    private ScanBluetooth scanBluetooth = ScanBluetooth.create();
+    private HashMap<String, BluetoothDevice> devices = new HashMap<>();
+    private String connectRemoteDeviceAddress;
+    private boolean scaning = false;
 
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;
@@ -69,15 +60,10 @@ public class UartService extends Service {
     public final static String DEVICE_DOES_NOT_SUPPORT_UART = "com.nordicsemi.nrfUART.DEVICE_DOES_NOT_SUPPORT_UART";
     public final static String DEVICE_REFRESH_FALG = "com.nordicsemi.nrfUART.DEVICE_REFRESH_FALG";
 
-    //    public static final UUID TX_POWER_UUID = UUID.fromString("00001804-0000-1000-8000-00805f9b34fb");
-    //    public static final UUID TX_POWER_LEVEL_UUID = UUID.fromString("00002a07-0000-1000-8000-00805f9b34fb");
     public static final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-    //    public static final UUID FIRMWARE_REVISON_UUID = UUID.fromString("00002a26-0000-1000-8000-00805f9b34fb");
-    //    public static final UUID DIS_UUID = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
     public static final UUID RX_SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
     public static final UUID RX_CHAR_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
     public static final UUID TX_CHAR_UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
-
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -93,7 +79,7 @@ public class UartService extends Service {
                 mConnectionState = STATE_DISCONNECTED;//TODO:
                 close(); // 防止出现status 133
                 broadcastUpdate(intentAction);
-                connect(address);
+                UartService.this.connect(address);
             } else {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     intentAction = ACTION_GATT_CONNECTED;
@@ -171,6 +157,27 @@ public class UartService extends Service {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    @Override
+    public void onLeScanStart() {
+        this.scaning = true;
+    }
+
+    @Override
+    public void onDevice(BluetoothDevice device) {
+        String address = device.getAddress();
+        if (devices.containsKey(address))
+            return;
+        devices.put(address, device);
+        if (!TextUtils.isEmpty(this.connectRemoteDeviceAddress)) {
+            this.connectRemoteDevice(this.connectRemoteDeviceAddress);
+        }
+    }
+
+    @Override
+    public void onLeScanStop(boolean auto) {
+        this.scaning = false;
+    }
+
     public class LocalBinder extends Binder {
         public UartService getService() {
             return UartService.this;
@@ -207,16 +214,16 @@ public class UartService extends Service {
      */
     public boolean initialize() {
         Logger.d("initialize");
-        // For API level 18 and above, get a reference to BluetoothAdapter through BluetoothManager.
-        if (mBluetoothManager == null) {
-            mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-            if (mBluetoothManager == null) {
-                Logger.e("Unable to initialize BluetoothManager.");
-                return false;
-            }
+        this.scanBluetooth.stopLeScan();
+        this.scanBluetooth.startLeScan(null, this);
+        //For API level 18 and above, get a reference to BluetoothAdapter through BluetoothManager.
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager == null) {
+            Logger.e("Unable to initialize BluetoothManager.");
+            return false;
         }
 
-        mBluetoothAdapter = mBluetoothManager.getAdapter();
+        this.mBluetoothAdapter = bluetoothManager.getAdapter();//BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             Logger.e("Unable to obtain a BluetoothAdapter.");
             return false;
@@ -234,41 +241,59 @@ public class UartService extends Service {
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
      */
-    public boolean connect(final String address) {
+    public void connect(String address) {
         Logger.d("connect");
         if (TextUtils.isEmpty(address)) {
             Logger.w("unspecified address.");
-            return false;
+            return;//failed
         }
-        if (mBluetoothAdapter == null) {
+        if (this.mBluetoothAdapter == null && (this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()) == null) {
             Logger.w("BluetoothAdapter not initialized or unspecified address.");
-            return false;
+            return;//failed
         }
 
         // Previously connected device.  Try to reconnect.
-        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
+        if (!TextUtils.isEmpty(this.mBluetoothDeviceAddress) && TextUtils.equals(address, mBluetoothDeviceAddress) && mBluetoothGatt != null) {
             Logger.d("Trying to use an existing mBluetoothGatt for connection.");
             if (mBluetoothGatt.connect()) {
                 mConnectionState = STATE_CONNECTING;
-                return true;
+                return;
             } else {
-                return false;
+                return;//failed
             }
         }
 
-        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        if (device == null) {
-            Logger.w("Device not found.  Unable to connect.");
-            return false;
+        this.connectRemoteDevice(address);
+    }
+
+    private void connectRemoteDevice(String address) {
+        if (TextUtils.isEmpty(address)) {
+            Logger.w("unspecified address.");
+            return;//failed
         }
-        close();
-        // We want to directly connect to the device, so we are setting the autoConnect
-        // parameter to false.
-        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
-        Logger.d("Trying to create a new connection.");
-        mBluetoothDeviceAddress = address;
-        mConnectionState = STATE_CONNECTING;
-        return true;
+        this.connectRemoteDeviceAddress = address;
+        if (this.devices.containsKey(address)) {
+            Toasts.showShort("取到device，开始连接");
+            BluetoothDevice device = this.devices.get(address);
+            if (device == null) {
+                this.devices.remove(address);
+                Logger.w("Device not found.  Unable to connect.");
+                return;//failed
+            }
+            this.scanBluetooth.stopLeScan();
+            close();
+            // We want to directly connect to the device, so we are setting the autoConnect
+            // parameter to false.
+            mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
+            Logger.d("Trying to create a new connection.");
+            this.mBluetoothDeviceAddress = address;
+            this.connectRemoteDeviceAddress = "";
+            mConnectionState = STATE_CONNECTING;
+            return;
+        }
+        if (!this.scaning) {
+            this.scanBluetooth.startLeScan(null, this);
+        }
     }
 
     public int getState() {
@@ -360,8 +385,8 @@ public class UartService extends Service {
         Logger.d("enableTXNotification");
         if (mBluetoothGatt == null) {
             Logger.d("BluetoothGatt not initialized");
-    		return;
-    	}
+            return;
+        }
 
         BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
         if (RxService == null) {
