@@ -160,6 +160,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
     @Override
     public void onLeScanStart() {
         this.scaning = true;
+        this.devices.clear();
     }
 
     @Override
@@ -176,6 +177,9 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
     @Override
     public void onLeScanStop(boolean auto) {
         this.scaning = false;
+        if (!auto) {
+            this.devices.clear();
+        }
     }
 
     public class LocalBinder extends Binder {
@@ -248,7 +252,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
             return;//failed
         }
         if (this.mBluetoothAdapter == null && (this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()) == null) {
-            Logger.w("BluetoothAdapter not initialized or unspecified address.");
+            Logger.w("BluetoothAdapter not initialized");
             return;//failed
         }
 
@@ -274,10 +278,13 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
         this.connectRemoteDeviceAddress = address;
         if (this.devices.containsKey(address)) {
             Toasts.showShort("取到device，开始连接");
-            BluetoothDevice device = this.devices.get(address);
+            BluetoothDevice device = this.mBluetoothAdapter.getRemoteDevice(address);
             if (device == null) {
                 this.devices.remove(address);
                 Logger.w("Device not found.  Unable to connect.");
+                if (!this.scaning) {
+                    this.scanBluetooth.startLeScan(null, this);
+                }
                 return;//failed
             }
             this.scanBluetooth.stopLeScan();
@@ -308,10 +315,6 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
      */
     public void disconnect() {
         Logger.d("disconnect");
-        if (this.mBluetoothAdapter == null) {
-            Logger.d("BluetoothAdapter not initialized");
-            return;
-        }
         if (this.mBluetoothGatt == null) {
             Logger.d("BluetoothGatt not initialized");
             return;
@@ -348,10 +351,6 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
      */
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         Logger.d("readCharacteristic");
-        if (mBluetoothAdapter == null) {
-            Logger.d("BluetoothAdapter not initialized");
-            return;
-        }
         if (mBluetoothGatt == null) {
             Logger.d("BluetoothGatt not initialized");
             return;
