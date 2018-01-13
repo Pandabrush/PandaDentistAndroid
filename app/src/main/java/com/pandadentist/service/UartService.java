@@ -19,9 +19,11 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import com.pandadentist.log.RunTimeLog;
 import com.pandadentist.util.Logger;
 import com.pandadentist.util.ScanBluetooth;
 import com.pandadentist.util.Toasts;
+import com.pandadentist.util.Util;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +48,9 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
     private HashMap<String, BluetoothDevice> devices = new HashMap<>();
     private String connectRemoteDeviceAddress;
     private boolean scaning = false;
+    private long scanStartTime = 0;
+    private long connectStartTime = 0;
+    private long disConnectStartTime = 0;
 
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;
@@ -82,6 +87,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
                 UartService.this.connect(address);
             } else {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.CONNECT, RunTimeLog.LogAction2.SUCCESS, mBluetoothDeviceAddress, Util.getUseTime(connectStartTime));
                     intentAction = ACTION_GATT_CONNECTED;
                     mConnectionState = STATE_CONNECTED;
                     broadcastUpdate(intentAction);
@@ -90,6 +96,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
                     Logger.i("Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
                     disConnectOnDestroy(gatt);
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                    RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.DISCONNECT, RunTimeLog.LogAction2.SUCCESS, mBluetoothDeviceAddress, Util.getUseTime(disConnectStartTime));
                     intentAction = ACTION_GATT_DISCONNECTED;
                     mConnectionState = STATE_DISCONNECTED;
                     Logger.i("Disconnected from GATT server.");
@@ -159,12 +166,14 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
 
     @Override
     public void onLeScanStart() {
+        this.scanStartTime = System.currentTimeMillis();
         this.scaning = true;
         this.devices.clear();
     }
 
     @Override
     public void onDevice(BluetoothDevice device) {
+        RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.LogAction2.SUCCESS, device.getAddress() + "-" + device.getName(), Util.getUseTime(scanStartTime));
         String address = device.getAddress();
         if (devices.containsKey(address))
             return;
@@ -176,6 +185,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
 
     @Override
     public void onLeScanStop(boolean auto) {
+        RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.LogAction2.END, "", Util.getUseTime(this.scanStartTime));
         this.scaning = false;
         if (!auto) {
             this.devices.clear();
@@ -246,6 +256,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
      * callback.
      */
     public void connect(String address) {
+        connectStartTime = System.currentTimeMillis();
         Logger.d("connect");
         if (TextUtils.isEmpty(address)) {
             Logger.w("unspecified address.");
@@ -278,6 +289,8 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
         this.connectRemoteDeviceAddress = address;
         if (this.devices.containsKey(address)) {
             Toasts.showShort("取到device，开始连接");
+            RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.LogAction2.SUCCESS, "搜索到设备" + address, Util.getUseTime(this.connectStartTime));
+            connectStartTime = System.currentTimeMillis();
             BluetoothDevice device = this.mBluetoothAdapter.getRemoteDevice(address);
             if (device == null) {
                 this.devices.remove(address);
@@ -314,6 +327,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
      * callback.
      */
     public void disconnect() {
+        this.disConnectStartTime = System.currentTimeMillis();
         Logger.d("disconnect");
         if (this.mBluetoothGatt == null) {
             Logger.d("BluetoothGatt not initialized");

@@ -295,4 +295,8 @@ public class Util {
             return "";
         }
     }
+
+    public static long getUseTime(long startTime) {
+        return System.currentTimeMillis() - startTime;
+    }
 }

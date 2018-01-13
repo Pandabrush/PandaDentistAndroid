@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -15,7 +16,91 @@ import java.util.List;
  * Updated by zhangwy on 2017/9/23.
  * Description
  */
+@SuppressWarnings("unused")
 public class FileUtil {
+
+    public static boolean makeDirs(String dir) {
+        return makeDirs(new File(dir));
+    }
+
+    public static boolean makeDirs(File file) {
+        return file.mkdirs();
+    }
+
+    // 去掉path中的反斜线
+    public static String pathRemoveBackslash(String path) {
+        if (path == null)
+            return path;
+        if (path.length() == 0)
+            return path;
+        //
+        char ch = path.charAt(path.length() - 1);
+        if (ch == '/' || ch == '\\')
+            return path.substring(0, path.length() - 1);
+        return path;
+
+    }
+
+    // 在path中添加反斜线
+    public static String pathAddBackslash(String path) {
+        if (path == null)
+            return java.io.File.separator;
+        if (path.length() == 0)
+            return java.io.File.separator;
+        //
+        char ch = path.charAt(path.length() - 1);
+        if (ch == '/' || ch == '\\')
+            return path;
+        return path + java.io.File.separator;
+    }
+
+    /**
+     * clear the files in the directory that match the regex
+     *
+     * @param regex: regex of the file name
+     */
+    public static void clear(String dir, String regex) {
+        try {
+            File[] files = new File(dir).listFiles();
+            if (Util.isEmpty(files))
+                return;
+            for (File file : files) {
+                if (regex != null) {
+                    if (file.getName().matches(regex)) {
+                        file.delete();
+                    }
+                } else {
+                    file.delete();
+                }
+            }
+        } catch (Exception e) {
+            Logger.e("clear(String dir, String regex)", e);
+        }
+    }
+
+    public static void clear(String dir, String regex, long millionSecondsAgo) {
+        try {
+            File[] files = new File(dir).listFiles();
+            if (Util.isEmpty(files))
+                return;
+            for (File file : files) {
+                if (regex != null) {
+                    if (file.getName().matches(regex)) {
+                        if (System.currentTimeMillis() - file.lastModified() > millionSecondsAgo) {
+                            file.delete();
+                        }
+                    }
+                } else {
+                    if (System.currentTimeMillis() - file.lastModified() > millionSecondsAgo) {
+                        file.delete();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Logger.e("clear(String dir, String regex, long millionSecondsAgo)", e);
+        }
+    }
+
     public static List<Elements> readElementsFromAsset(Context context) {
         return readLineFromAsset(context, "013.txt.qq", "    ", new Command<Elements>() {
             @Override

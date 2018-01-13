@@ -5,13 +5,13 @@ import android.content.Context;
 
 import com.pandadentist.download.DownloadConfiguration;
 import com.pandadentist.download.DownloadManager;
+import com.pandadentist.log.RunTimeLog;
 import com.pandadentist.util.DensityUtil;
 import com.pandadentist.util.Logger;
 import com.pandadentist.util.Toasts;
 import com.pandadentist.util.Util;
 import com.tencent.smtt.sdk.QbSdk;
 import com.umeng.analytics.MobclickAgent;
-
 
 /**
  *
@@ -24,6 +24,8 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         Logger.setLevel(Logger.LEVEL_VERBOSE);
+
+        RunTimeLog.getInstance(this);
         this.initUmeng();
         sContext = this;
         Toasts.register(this);
