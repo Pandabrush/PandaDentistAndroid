@@ -59,8 +59,8 @@ public abstract class RunTimeLog {
         private void sendBroadcast(LogAction action, LogAction2 action2, Object content, long time) {
             try {
                 Intent intent = new Intent(RECEIVE_LOG);
-                intent.putExtra(EXTRA_ACTION, action.name());
-                intent.putExtra(EXTRA_ACTION2, action2.name());
+                intent.putExtra(EXTRA_ACTION, action.desc);
+                intent.putExtra(EXTRA_ACTION2, action2.desc);
                 intent.putExtra(EXTRA_DATA, String.valueOf(content));
                 intent.putExtra(EXTRA_TIME, String.valueOf(time));
                 this.context.sendBroadcast(intent, PERMISSION_RECEIVE_LOG);
@@ -71,10 +71,26 @@ public abstract class RunTimeLog {
     }
 
     public enum LogAction {
-        DISCONNECT, CONNECT, SCAN, TRANSMIT,
+        DISCONNECT(0, "disconnect", "断开连接"), CONNECT(0, "connect", "连接"), SCAN(0, "scan", "扫描"), TRANSMIT(0, "transmit", "传输数据"), UPDATE(0, "update", "上传数据");
+        public int code;
+        public String name;
+        public String desc;
+        LogAction(int code, String name, String desc) {
+            this.code = code;
+            this.name = name;
+            this.desc = desc;
+        }
     }
 
     public enum LogAction2 {
-        ERROR, SUCCESS, START,END,
+        FAILED(0, "failed", "失败"), SUCCESS(0, "success", "成功"), START(0, "start", "开始"), END(0, "end", "结束"), ERROR(0, "error", "错误"), ANIM(0, "", "");
+        public int code;
+        public String name;
+        public String desc;
+        LogAction2(int code, String name, String desc) {
+            this.code = code;
+            this.name = name;
+            this.desc = desc;
+        }
     }
 }

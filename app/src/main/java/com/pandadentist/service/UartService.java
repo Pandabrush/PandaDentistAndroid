@@ -48,9 +48,9 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
     private HashMap<String, BluetoothDevice> devices = new HashMap<>();
     private String connectRemoteDeviceAddress;
     private boolean scaning = false;
-    private long scanStartTime = 0;
-    private long connectStartTime = 0;
-    private long disConnectStartTime = 0;
+    private long scanStartTime = -1;
+    private long connectStartTime = -1;
+    private long disConnectStartTime = -1;
 
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;
@@ -96,7 +96,12 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
                     Logger.i("Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
                     disConnectOnDestroy(gatt);
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.DISCONNECT, RunTimeLog.LogAction2.SUCCESS, mBluetoothDeviceAddress, Util.getUseTime(disConnectStartTime));
+                    if (disConnectStartTime == -1) {
+                        RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.DISCONNECT, RunTimeLog.LogAction2.SUCCESS, mBluetoothDeviceAddress + ",被动", 0);
+                    } else {
+                        RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.DISCONNECT, RunTimeLog.LogAction2.SUCCESS, mBluetoothDeviceAddress + ",主动", Util.getUseTime(disConnectStartTime));
+                        disConnectStartTime = -1;
+                    }
                     intentAction = ACTION_GATT_DISCONNECTED;
                     mConnectionState = STATE_DISCONNECTED;
                     Logger.i("Disconnected from GATT server.");

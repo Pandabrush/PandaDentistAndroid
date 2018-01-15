@@ -46,6 +46,7 @@ import com.pandadentist.config.Constants;
 import com.pandadentist.entity.DeviceListEntity;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.listener.OnItemClickListener;
+import com.pandadentist.log.RunTimeLog;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.service.UartService;
@@ -87,7 +88,9 @@ import static com.pandadentist.config.Constants.ACTIVITY_FOR_RESULT_REQUEST_CODE
 
 /**
  * zhangwy
+ *
  */
+@SuppressWarnings("unused")
 public class UrlDetailActivity extends SwipeRefreshBaseActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback {
 
     public static void start(Context context) {
@@ -140,6 +143,9 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     private final static int WHAT_RECONNECT_BLUETOOTH = 101;//重连
     private final static int DELAYMILLIS_CONNECT_BLUETOOTH = 15000;
     private final static int DELAYMILLIS_RECONNECT_BLUETOOTH = 15000;
+
+    private long updateTimeStart = -1;
+    private long transferTimeStart = -1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -811,6 +817,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     switch (status) {
                         case BLEProtoProcess.BLE_DATA_START:
                         case BLEProtoProcess.BLE_RESULT_START:
+                            transferTimeStart = System.currentTimeMillis();
                             Logger.d("BLE_DATA_START  and  BLE_RESULT_START");
                             setIsConnectText("正在同步数据中...");
                             bleProtoProcess.setHasrecieved(true);
@@ -828,6 +835,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                         case BLEProtoProcess.BLE_MISSED_RECEIVER:
                             break;
                         case BLEProtoProcess.BLE_MISSED_END:
+                            RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.SUCCESS, "丢失贞接收完毕", Util.getUseTime(transferTimeStart));
                             Logger.d("丢失帧接受完毕");
                             timecount = 100;
                             break;
@@ -836,11 +844,13 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                 Logger.d("请求动画");
                                 bleProtoProcess.setIsreqenddatas(true);
                                 writeRXCharacteristic(bleProtoProcess.getRequests((byte) 0, (byte) 1));
+                                RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.ANIM, "请求动画", 0);
                             } else {
                                 Logger.d("没有数据同步");
                                 setIsConnectText("已连接");
                                 rlTips.setVisibility(View.VISIBLE);
                                 Toasts.showShort("没有数据同步");
+                                RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.END, "无数据可同步", 0);
                             }
                             break;
                     }
@@ -949,6 +959,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         try {
             if (bleProtoProcess.checkMissed() && this.checkCount <= 5) {
                 Logger.d("丢帧");
+                RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.ERROR, "丢帧，重新获取", Util.getUseTime(transferTimeStart));
                 this.writeRXCharacteristic(bleProtoProcess.getMissedRequests());
                 return false;
             } else {
@@ -957,6 +968,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 this.writeRXCharacteristic(bleProtoProcess.getCompleted());
                 //------------发送数据到服务器
                 if (bleProtoProcess.isreqenddatas()) {
+                    RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.SUCCESS, "接收数据成功，准备发往服务器", Util.getUseTime(transferTimeStart));
                     uploadData();
                 }
                 return true;
@@ -974,6 +986,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
     }
 
     private void uploadData() {
+        this.updateTimeStart = System.currentTimeMillis();
         bleProtoProcess.setHasrecieved(false);
         bleProtoProcess.setIsreqenddatas(false);
         APIService api = new APIFactory().create(APIService.class);
@@ -994,33 +1007,41 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 .subscribe(new Action1<WXEntity>() {
                     @Override
                     public void call(WXEntity wxEntity) {
+                        String msg;
                         if (Constants.SUCCESS == wxEntity.getCode()) {
                             setIsConnectText("已连接");
                             rlTips.setVisibility(View.VISIBLE);
-                            tvUpdateRecord.setText("总共上传数据" + bleProtoProcess.getPagesSize() + "条，成功" + bleProtoProcess.getPagesSize() + "条，失败0条");
+                            msg = "总共上传数据" + bleProtoProcess.getPagesSize() + "条，成功" + bleProtoProcess.getPagesSize() + "条，失败0条";
+                            tvUpdateRecord.setText(msg);
                             bleProtoProcess.setPageSize(0);
                             loadUrl(getUrl(SPUitl.getToken()));
                         } else if (99 == wxEntity.getCode()) {
                             rlTips.setVisibility(View.VISIBLE);
-                            tvUpdateRecord.setText("总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条");
+                            msg = "总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条";
+                            tvUpdateRecord.setText(msg);
                             Toasts.showShort("系统错误");
                         } else if (20002 == wxEntity.getCode()) {
                             rlTips.setVisibility(View.VISIBLE);
-                            tvUpdateRecord.setText("总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条");
+                            msg = "总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条";
+                            tvUpdateRecord.setText(msg);
                             Toasts.showShort("设备版本未找到");
                         } else {
                             Toasts.showShort("未知错误");
                             rlTips.setVisibility(View.VISIBLE);
-                            tvUpdateRecord.setText("总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条");
+                            msg = "总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条";
+                            tvUpdateRecord.setText(msg);
                             Logger.d("错误code ：" + wxEntity.getCode() + "错误信息：" + wxEntity.getMessage());
                         }
+                        RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.UPDATE, RunTimeLog.LogAction2.SUCCESS, msg, Util.getUseTime(updateTimeStart));
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
+                        String msg = "总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条";
+                        RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.UPDATE, RunTimeLog.LogAction2.FAILED, msg, Util.getUseTime(updateTimeStart));
                         Toasts.showShort("数据上传失败，请检查网络！");
                         rlTips.setVisibility(View.VISIBLE);
-                        tvUpdateRecord.setText("总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条");
+                        tvUpdateRecord.setText(msg);
                     }
                 }));
     }
