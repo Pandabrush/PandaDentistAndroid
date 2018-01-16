@@ -1,10 +1,13 @@
 package com.pandadentist.log;
 
 import android.content.Context;
-import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 
 import com.pandadentist.util.DirMgmt;
-import com.pandadentist.util.Logger;
+
+import java.util.ArrayList;
 
 /**
  * Created by zhangwy on 2018/1/13.
@@ -13,11 +16,6 @@ import com.pandadentist.util.Logger;
  */
 @SuppressWarnings("unused")
 public abstract class RunTimeLog {
-    public final static String RECEIVE_LOG = "com.bestfudaye.PRIVATE.RECEIVE.LOG";
-    public final static String EXTRA_ACTION = "com.bestfudaye.PRIVATE.EXTRA.ACTION";
-    public final static String EXTRA_ACTION2 = "com.bestfudaye.PRIVATE.EXTRA.ACTION2";
-    public final static String EXTRA_DATA = "com.bestfudaye.PRIVATE.EXTRA.DATA.CONTENT";
-    public final static String EXTRA_TIME = "com.bestfudaye.PRIVATE.EXTRA.DATA.TIME";
 
     private static RunTimeLog instance;
 
@@ -32,13 +30,18 @@ public abstract class RunTimeLog {
         return instance;
     }
 
-    public abstract void log(LogAction action, LogAction2 action2, Object content, long time);
+    public abstract void log(LogAction action, Result result, Object content, long time);
 
-    static class RunTimeLogImpl extends RunTimeLog {
+    public abstract void register(OnRunTimeLogListener listener);
 
-        private final String PERMISSION_RECEIVE_LOG = "com.android.permission.RECEIVE_LOG";
+    public abstract void unRegister(OnRunTimeLogListener listener);
 
+    private static class RunTimeLogImpl extends RunTimeLog implements Handler.Callback {
+
+        private final int WAIT_LOG_ITEM = 100;
         private Context context;
+        private Handler handler = new Handler(Looper.getMainLooper(), this);
+        private ArrayList<OnRunTimeLogListener> listeners = new ArrayList<>();
 
         private RunTimeLogImpl(Context context) {
             this.context = context.getApplicationContext();
@@ -47,25 +50,47 @@ public abstract class RunTimeLog {
         }
 
         @Override
-        public void log(LogAction action, LogAction2 action2, Object content, long time) {
-            this.sendBroadcast(action, action2, content, time);
+        public void log(LogAction action, Result result, Object content, long time) {
+            this.handler.sendMessage(this.handler.obtainMessage(WAIT_LOG_ITEM, new RunTimeLogItem(action, result, content, time)));
             StringBuffer buffer = new StringBuffer();
-            buffer.append("action:").append(action.name()).append('_').append(action2.name()).append(';');
+            buffer.append("action:").append(action.name()).append('_').append(result.name()).append(';');
             buffer.append("content:").append(String.valueOf(content)).append(';');
             buffer.append("usetime:").append(time);
             FileLog.b(buffer.toString());
         }
 
-        private void sendBroadcast(LogAction action, LogAction2 action2, Object content, long time) {
-            try {
-                Intent intent = new Intent(RECEIVE_LOG);
-                intent.putExtra(EXTRA_ACTION, action.desc);
-                intent.putExtra(EXTRA_ACTION2, action2.desc);
-                intent.putExtra(EXTRA_DATA, String.valueOf(content));
-                intent.putExtra(EXTRA_TIME, String.valueOf(time));
-                this.context.sendBroadcast(intent, PERMISSION_RECEIVE_LOG);
-            } catch (Exception e) {
-                Logger.e("sendBroadcast", e);
+        @Override
+        public void register(OnRunTimeLogListener listener) {
+            if (this.listeners.contains(listener))
+                return;
+            this.listeners.add(listener);
+        }
+
+        @Override
+        public void unRegister(OnRunTimeLogListener listener) {
+            if (listener != null && this.listeners.contains(listener)) {
+                this.listeners.remove(listener);
+            }
+        }
+
+        @Override
+        public boolean handleMessage(Message msg) {
+            if (msg.what == WAIT_LOG_ITEM && msg.obj != null && msg.obj instanceof RunTimeLogItem) {
+                notifyAll((RunTimeLogItem) msg.obj);
+                return true;
+            }
+            return false;
+        }
+
+        private void notifyAll(RunTimeLogItem item) {
+            OnRunTimeLogListener[] arrLocal;
+
+            synchronized (this) {
+                arrLocal = listeners.toArray(new OnRunTimeLogListener[listeners.size()]);
+            }
+
+            for (int i = arrLocal.length-1; i>=0; i--) {
+                arrLocal[i].onLog(item);
             }
         }
     }
@@ -75,6 +100,7 @@ public abstract class RunTimeLog {
         public int code;
         public String name;
         public String desc;
+
         LogAction(int code, String name, String desc) {
             this.code = code;
             this.name = name;
@@ -82,15 +108,36 @@ public abstract class RunTimeLog {
         }
     }
 
-    public enum LogAction2 {
+    public enum Result {
         FAILED(0, "failed", "失败"), SUCCESS(0, "success", "成功"), START(0, "start", "开始"), END(0, "end", "结束"), ERROR(0, "error", "错误"), ANIM(0, "", "");
         public int code;
         public String name;
         public String desc;
-        LogAction2(int code, String name, String desc) {
+
+        Result(int code, String name, String desc) {
             this.code = code;
             this.name = name;
             this.desc = desc;
+        }
+    }
+
+    public interface OnRunTimeLogListener {
+        void onLog(RunTimeLogItem item);
+    }
+
+    public static class RunTimeLogItem {
+        public LogAction action;
+        public Result result;
+        public Object content;
+        public long useTime;
+        public long nowTime;
+
+        RunTimeLogItem(LogAction action, Result result, Object content, long useTime) {
+            this.action = action;
+            this.result = result;
+            this.content = content;
+            this.useTime = useTime;
+            this.nowTime = System.currentTimeMillis();
         }
     }
 }

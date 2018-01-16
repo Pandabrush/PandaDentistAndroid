@@ -1,23 +1,28 @@
 package com.pandadentist.ui.activity;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pandadentist.R;
 import com.pandadentist.listener.OnAutoTestListener;
-import com.pandadentist.service.UartService;
+import com.pandadentist.log.RunTimeLog;
 import com.pandadentist.util.BLEProtoProcess;
 import com.pandadentist.util.Logger;
+import com.pandadentist.util.TimeUtil;
 import com.pandadentist.widget.TopBar;
+import com.pandadentist.widget.recycler.RecyclerAdapter;
+import com.pandadentist.widget.recycler.WRecyclerView;
+
+import java.util.Locale;
 
 /**
  * Created by zhangwy on 2018/1/7.
@@ -25,7 +30,7 @@ import com.pandadentist.widget.TopBar;
  * Description 自动化测试
  */
 
-public class AutoTestActivity extends BaseActivity implements OnAutoTestListener {
+public class AutoTestActivity extends BaseActivity implements OnAutoTestListener, RunTimeLog.OnRunTimeLogListener {
 
     private static final String EXTRA_HAS_DEVICE = "extraHasDevice";
     private static final String EXTRA_BLT_CONNECT = "extraBltConnect";
@@ -41,10 +46,11 @@ public class AutoTestActivity extends BaseActivity implements OnAutoTestListener
     private ImageView tipImage;
     private TextView tipText;
     private Button tipButton;
-    private View content;
+    private WRecyclerView<RunTimeLog.RunTimeLogItem> recyclerView;
     private BLEProtoProcess protoProcess;
     private boolean openAutoTest = true;
     private Runnable outTime;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,18 +71,18 @@ public class AutoTestActivity extends BaseActivity implements OnAutoTestListener
         this.tipImage = (ImageView) findViewById(R.id.auto_test_tip_image);
         this.tipText = (TextView) findViewById(R.id.auto_test_tip_remind);
         this.tipButton = (Button) findViewById(R.id.auto_test_tip_button);
-        this.content = findViewById(R.id.auto_test_scrollView);
+        this.recyclerView = (WRecyclerView<RunTimeLog.RunTimeLogItem>) findViewById(R.id.auto_test_recycle);
         Bundle intent = getIntent().getExtras();
-        if (!intent.getBoolean(EXTRA_BLT_CONNECT)) {
+        if (intent.getBoolean(EXTRA_BLT_CONNECT)) {
             this.initNoDevice();
         } else {
             this.initNone();
         }
-        this.content.setKeepScreenOn(true);
+        this.recyclerView.setKeepScreenOn(true);
     }
 
     private void initNoDevice() {
-        this.content.setVisibility(View.GONE);
+        this.recyclerView.setVisibility(View.GONE);
         this.tipHome.setVisibility(View.VISIBLE);
         this.tipImage.setImageResource(R.drawable.icon_no_device);
         this.tipText.setText(R.string.msg_unconnect_device);
@@ -91,6 +97,26 @@ public class AutoTestActivity extends BaseActivity implements OnAutoTestListener
 
     private void initNone() {
         this.autoTestSetting(true);
+        this.tipHome.setVisibility(View.GONE);
+        this.recyclerView.setVisibility(View.VISIBLE);
+        this.recyclerView.setLinearLayoutManager(WRecyclerView.VERTICAL, false);
+        this.recyclerView.loadData(null, new RecyclerAdapter.OnItemLoading<RunTimeLog.RunTimeLogItem>() {
+            @Override
+            public View onCreateView(ViewGroup parent, int viewType) {
+                return LayoutInflater.from(AutoTestActivity.this).inflate(R.layout.item_auto_test, parent, false);
+            }
+
+            @Override
+            public void onLoadView(View root, int viewType, RunTimeLog.RunTimeLogItem entity, int position) {
+                TextView first = (TextView) root.findViewById(R.id.auto_test_first);
+                TextView second = (TextView) root.findViewById(R.id.auto_test_second);
+                TextView third = (TextView) root.findViewById(R.id.auto_test_third);
+                first.setText(getString(R.string.auto_test_msg, entity.action.desc, entity.result.desc, String.format(Locale.getDefault(), "%.2f", entity.useTime / (float) 1000.0)));
+                second.setText(TimeUtil.dateMilliSecond2String(entity.nowTime, TimeUtil.PATTERN_DATE));
+                third.setText(String.valueOf(entity.content));
+            }
+        });
+        RunTimeLog.getInstance(this).register(this);
     }
 
     @Override
@@ -142,47 +168,19 @@ public class AutoTestActivity extends BaseActivity implements OnAutoTestListener
         }
     }
 
-    private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            if (isDestroyed()) {
-                try {
-                    LocalBroadcastManager.getInstance(context).unregisterReceiver(this);
-                } catch (Exception e) {
-                    Logger.d("unregisterReceiver", e);
-                }
-                return;
-            }
-            switch (intent.getAction()) {
-                case UartService.ACTION_GATT_CONNECTED: {
-                    break;
-                }
-                case UartService.ACTION_GATT_DISCONNECTED: {
-                    break;
-                }
-                case UartService.ACTION_GATT_SERVICES_DISCOVERED: {
-                    break;
-                }
-                case UartService.ACTION_DATA_AVAILABLE: {
-                    break;
-                }
-                case UartService.DEVICE_DOES_NOT_SUPPORT_UART: {
-                    break;
-                }
-                case UartService.DEVICE_REFRESH_FALG: {
-                    break;
-                }
-            }
-        }
-    };
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         try {
-            this.content.setKeepScreenOn(false);
+            this.recyclerView.setKeepScreenOn(false);
         } catch (Exception e) {
             Logger.d("setKeepScreenOn", e);
         }
+        RunTimeLog.getInstance(this).unRegister(this);
+    }
+
+    @Override
+    public void onLog(RunTimeLog.RunTimeLogItem item) {
+        this.recyclerView.add(item);
     }
 }

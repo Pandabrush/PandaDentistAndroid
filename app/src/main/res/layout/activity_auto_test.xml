@@ -42,10 +42,8 @@
             android:layout_marginTop="48dip" />
     </LinearLayout>
 
-    <ScrollView
-        android:id="@+id/auto_test_scrollView"
+    <com.pandadentist.widget.recycler.WRecyclerView
+        android:id="@+id/auto_test_recycle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </ScrollView>
+        android:layout_height="match_parent" />
 </LinearLayout>

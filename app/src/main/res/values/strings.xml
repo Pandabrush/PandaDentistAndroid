@@ -73,6 +73,7 @@
     <string name="auto_test_setting_open_failed">自动测试设置失败</string>
     <string name="auto_test_setting_close_success">自动测试取消成功</string>
     <string name="auto_test_setting_close_failed">自动测试取消失败</string>
+    <string name="auto_test_msg">行为:%1$s&#160;&#160;结果:%2$s&#160;&#160;耗时:%3$s秒</string>
 
     <string name="device">Device:</string>
     <string name="no_device">&lt;Select a device&gt;</string>

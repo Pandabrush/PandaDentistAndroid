@@ -835,7 +835,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                         case BLEProtoProcess.BLE_MISSED_RECEIVER:
                             break;
                         case BLEProtoProcess.BLE_MISSED_END:
-                            RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.SUCCESS, "丢失贞接收完毕", Util.getUseTime(transferTimeStart));
+                            RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.Result.SUCCESS, "丢失贞接收完毕", Util.getUseTime(transferTimeStart));
                             Logger.d("丢失帧接受完毕");
                             timecount = 100;
                             break;
@@ -844,13 +844,13 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                                 Logger.d("请求动画");
                                 bleProtoProcess.setIsreqenddatas(true);
                                 writeRXCharacteristic(bleProtoProcess.getRequests((byte) 0, (byte) 1));
-                                RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.ANIM, "请求动画", 0);
+                                RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.Result.ANIM, "请求动画", 0);
                             } else {
                                 Logger.d("没有数据同步");
                                 setIsConnectText("已连接");
                                 rlTips.setVisibility(View.VISIBLE);
                                 Toasts.showShort("没有数据同步");
-                                RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.END, "无数据可同步", 0);
+                                RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.Result.END, "无数据可同步", 0);
                             }
                             break;
                     }
@@ -959,7 +959,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
         try {
             if (bleProtoProcess.checkMissed() && this.checkCount <= 5) {
                 Logger.d("丢帧");
-                RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.ERROR, "丢帧，重新获取", Util.getUseTime(transferTimeStart));
+                RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.Result.ERROR, "丢帧，重新获取", Util.getUseTime(transferTimeStart));
                 this.writeRXCharacteristic(bleProtoProcess.getMissedRequests());
                 return false;
             } else {
@@ -968,7 +968,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 this.writeRXCharacteristic(bleProtoProcess.getCompleted());
                 //------------发送数据到服务器
                 if (bleProtoProcess.isreqenddatas()) {
-                    RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.LogAction2.SUCCESS, "接收数据成功，准备发往服务器", Util.getUseTime(transferTimeStart));
+                    RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.TRANSMIT, RunTimeLog.Result.SUCCESS, "接收数据成功，准备发往服务器", Util.getUseTime(transferTimeStart));
                     uploadData();
                 }
                 return true;
@@ -1032,13 +1032,13 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                             tvUpdateRecord.setText(msg);
                             Logger.d("错误code ：" + wxEntity.getCode() + "错误信息：" + wxEntity.getMessage());
                         }
-                        RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.UPDATE, RunTimeLog.LogAction2.SUCCESS, msg, Util.getUseTime(updateTimeStart));
+                        RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.UPDATE, RunTimeLog.Result.SUCCESS, msg, Util.getUseTime(updateTimeStart));
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
                         String msg = "总共上传数据" + 0 + "条，成功" + 0 + "条，失败" + bleProtoProcess.getPagesSize() + "条";
-                        RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.UPDATE, RunTimeLog.LogAction2.FAILED, msg, Util.getUseTime(updateTimeStart));
+                        RunTimeLog.getInstance(UrlDetailActivity.this).log(RunTimeLog.LogAction.UPDATE, RunTimeLog.Result.FAILED, msg, Util.getUseTime(updateTimeStart));
                         Toasts.showShort("数据上传失败，请检查网络！");
                         rlTips.setVisibility(View.VISIBLE);
                         tvUpdateRecord.setText(msg);

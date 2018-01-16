@@ -87,7 +87,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
                 UartService.this.connect(address);
             } else {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.CONNECT, RunTimeLog.LogAction2.SUCCESS, mBluetoothDeviceAddress, Util.getUseTime(connectStartTime));
+                    RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.CONNECT, RunTimeLog.Result.SUCCESS, mBluetoothDeviceAddress, Util.getUseTime(connectStartTime));
                     intentAction = ACTION_GATT_CONNECTED;
                     mConnectionState = STATE_CONNECTED;
                     broadcastUpdate(intentAction);
@@ -97,9 +97,9 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
                     disConnectOnDestroy(gatt);
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     if (disConnectStartTime == -1) {
-                        RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.DISCONNECT, RunTimeLog.LogAction2.SUCCESS, mBluetoothDeviceAddress + ",被动", 0);
+                        RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.DISCONNECT, RunTimeLog.Result.SUCCESS, mBluetoothDeviceAddress + ",被动", 0);
                     } else {
-                        RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.DISCONNECT, RunTimeLog.LogAction2.SUCCESS, mBluetoothDeviceAddress + ",主动", Util.getUseTime(disConnectStartTime));
+                        RunTimeLog.getInstance(UartService.this).log(RunTimeLog.LogAction.DISCONNECT, RunTimeLog.Result.SUCCESS, mBluetoothDeviceAddress + ",主动", Util.getUseTime(disConnectStartTime));
                         disConnectStartTime = -1;
                     }
                     intentAction = ACTION_GATT_DISCONNECTED;
@@ -178,7 +178,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
 
     @Override
     public void onDevice(BluetoothDevice device) {
-        RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.LogAction2.SUCCESS, device.getAddress() + "-" + device.getName(), Util.getUseTime(scanStartTime));
+        RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.Result.SUCCESS, device.getAddress() + "-" + device.getName(), Util.getUseTime(scanStartTime));
         String address = device.getAddress();
         if (devices.containsKey(address))
             return;
@@ -190,7 +190,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
 
     @Override
     public void onLeScanStop(boolean auto) {
-        RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.LogAction2.END, "", Util.getUseTime(this.scanStartTime));
+        RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.Result.END, "", Util.getUseTime(this.scanStartTime));
         this.scaning = false;
         if (!auto) {
             this.devices.clear();
@@ -294,7 +294,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
         this.connectRemoteDeviceAddress = address;
         if (this.devices.containsKey(address)) {
             Toasts.showShort("取到device，开始连接");
-            RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.LogAction2.SUCCESS, "搜索到设备" + address, Util.getUseTime(this.connectStartTime));
+            RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.Result.SUCCESS, "搜索到设备" + address, Util.getUseTime(this.connectStartTime));
             connectStartTime = System.currentTimeMillis();
             BluetoothDevice device = this.mBluetoothAdapter.getRemoteDevice(address);
             if (device == null) {
