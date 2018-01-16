@@ -73,7 +73,7 @@ public class AutoTestActivity extends BaseActivity implements OnAutoTestListener
         this.tipButton = (Button) findViewById(R.id.auto_test_tip_button);
         this.recyclerView = (WRecyclerView<RunTimeLog.RunTimeLogItem>) findViewById(R.id.auto_test_recycle);
         Bundle intent = getIntent().getExtras();
-        if (intent.getBoolean(EXTRA_BLT_CONNECT)) {
+        if (!intent.getBoolean(EXTRA_BLT_CONNECT)) {
             this.initNoDevice();
         } else {
             this.initNone();
