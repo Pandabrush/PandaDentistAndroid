@@ -16,6 +16,7 @@
 
 package com.pandadentist.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -33,7 +34,6 @@ import android.support.annotation.DrawableRes;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.VelocityTrackerCompat;
@@ -90,10 +90,12 @@ import java.util.Comparator;
  * <p>Below is a more complicated example of ViewPager, using it in conjunction
  * with {@link android.app.ActionBar} tabs.  You can find other examples of using
  * ViewPager in the API 4+ Support Demos and API 13+ Support Demos sample code.
- *
+ * <p>
  * {@sample development/samples/Support13Demos/src/com/example/android/supportv13/app/ActionBarTabsPager.java
- *      complete}
+ * complete}
  */
+@SuppressLint({"WrongConstant", "ObsoleteSdkInt", "RtlHardcoded", "ClickableViewAccessibility"})
+@SuppressWarnings({"deprecation", "JavaDoc", "FieldCanBeLocal", "unused", "UnnecessaryInterfaceModifier", "DoubleNegation", "RedundantArrayCreation", "NullableProblems", "UnusedAssignment", "ConstantConditions", "WeakerAccess", "ConditionCoveredByFurtherCondition", "UnnecessaryLocalVariable", "SameParameterValue", "SuspiciousNameCombination"})
 public class PinchImageViewPager extends ViewGroup {
     private static final String TAG = "ViewPager";
     private static final boolean DEBUG = false;
@@ -108,7 +110,7 @@ public class PinchImageViewPager extends ViewGroup {
 
     private static final int MIN_FLING_VELOCITY = 400; // dips
 
-    private static final int[] LAYOUT_ATTRS = new int[] {
+    private static final int[] LAYOUT_ATTRS = new int[]{
             android.R.attr.layout_gravity
     };
 
@@ -126,7 +128,7 @@ public class PinchImageViewPager extends ViewGroup {
         float offset;
     }
 
-    private static final Comparator<ItemInfo> COMPARATOR = new Comparator<ItemInfo>(){
+    private static final Comparator<ItemInfo> COMPARATOR = new Comparator<ItemInfo>() {
         @Override
         public int compare(ItemInfo lhs, ItemInfo rhs) {
             return lhs.position - rhs.position;
@@ -140,7 +142,7 @@ public class PinchImageViewPager extends ViewGroup {
         }
     };
 
-    private final ArrayList<ItemInfo> mItems = new ArrayList<ItemInfo>();
+    private final ArrayList<ItemInfo> mItems = new ArrayList<>();
     private final ItemInfo mTempItem = new ItemInfo();
 
     private final Rect mTempRect = new Rect();
@@ -269,9 +271,9 @@ public class PinchImageViewPager extends ViewGroup {
          * This method will be invoked when the current page is scrolled, either as part
          * of a programmatically initiated smooth scroll or a user initiated touch scroll.
          *
-         * @param position Position index of the first page currently being displayed.
-         *                 Page position+1 will be visible if positionOffset is nonzero.
-         * @param positionOffset Value from [0, 1) indicating the offset from the page at position.
+         * @param position             Position index of the first page currently being displayed.
+         *                             Page position+1 will be visible if positionOffset is nonzero.
+         * @param positionOffset       Value from [0, 1) indicating the offset from the page at position.
          * @param positionOffsetPixels Value in pixels indicating the offset from position.
          */
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels);
@@ -332,7 +334,7 @@ public class PinchImageViewPager extends ViewGroup {
         /**
          * Apply a property transformation to the given page.
          *
-         * @param page Apply the transformation to this page
+         * @param page     Apply the transformation to this page
          * @param position Position of page relative to the current front-and-center
          *                 position of the pager. 0 is front and center. 1 is one full
          *                 page position to the right, and -1 is one page position to the left.
@@ -351,7 +353,8 @@ public class PinchImageViewPager extends ViewGroup {
      * Used internally to tag special types of child views that should be added as
      * pager decorations by default.
      */
-    interface Decor {}
+    interface Decor {
+    }
 
     public PinchImageViewPager(Context context) {
         super(context);
@@ -506,7 +509,7 @@ public class PinchImageViewPager extends ViewGroup {
     /**
      * Set the currently selected page.
      *
-     * @param item Item index to select
+     * @param item         Item index to select
      * @param smoothScroll True to smoothly scroll to the new item, false to transition immediately
      */
     public void setCurrentItem(int item, boolean smoothScroll) {
@@ -542,7 +545,7 @@ public class PinchImageViewPager extends ViewGroup {
             // We are doing a jump by more than one page.  To avoid
             // glitches, we want to keep all current pages in the view
             // until the scroll ends.
-            for (int i=0; i<mItems.size(); i++) {
+            for (int i = 0; i < mItems.size(); i++) {
                 mItems.get(i).scrolling = true;
             }
         }
@@ -615,7 +618,7 @@ public class PinchImageViewPager extends ViewGroup {
      *
      * @param reverseDrawingOrder true if the supplied PageTransformer requires page views
      *                            to be drawn from last to first instead of first to last.
-     * @param transformer PageTransformer that will modify each page's animation properties
+     * @param transformer         PageTransformer that will modify each page's animation properties
      */
     public void setPageTransformer(boolean reverseDrawingOrder, PageTransformer transformer) {
         if (Build.VERSION.SDK_INT >= 11) {
@@ -636,8 +639,7 @@ public class PinchImageViewPager extends ViewGroup {
         if (Build.VERSION.SDK_INT >= 7) {
             if (mSetChildrenDrawingOrderEnabled == null) {
                 try {
-                    mSetChildrenDrawingOrderEnabled = ViewGroup.class.getDeclaredMethod(
-                            "setChildrenDrawingOrderEnabled", new Class[] { Boolean.TYPE });
+                    mSetChildrenDrawingOrderEnabled = ViewGroup.class.getDeclaredMethod("setChildrenDrawingOrderEnabled", new Class[]{Boolean.TYPE});
                 } catch (NoSuchMethodException e) {
                     Log.e(TAG, "Can't find setChildrenDrawingOrderEnabled", e);
                 }
@@ -653,8 +655,7 @@ public class PinchImageViewPager extends ViewGroup {
     @Override
     protected int getChildDrawingOrder(int childCount, int i) {
         final int index = mDrawingOrder == DRAW_ORDER_REVERSE ? childCount - 1 - i : i;
-        final int result = ((LayoutParams) mDrawingOrderedChildren.get(index).getLayoutParams()).childIndex;
-        return result;
+        return ((LayoutParams) mDrawingOrderedChildren.get(index).getLayoutParams()).childIndex;
     }
 
     /**
@@ -794,8 +795,8 @@ public class PinchImageViewPager extends ViewGroup {
     /**
      * Like {@link View#scrollBy}, but scroll smoothly instead of immediately.
      *
-     * @param x the number of pixels to scroll by on the X axis
-     * @param y the number of pixels to scroll by on the Y axis
+     * @param x        the number of pixels to scroll by on the X axis
+     * @param y        the number of pixels to scroll by on the Y axis
      * @param velocity the velocity associated with a fling, if applicable. (0 otherwise)
      */
     void smoothScrollTo(int x, int y, int velocity) {
@@ -821,8 +822,7 @@ public class PinchImageViewPager extends ViewGroup {
         final int width = getClientWidth();
         final int halfWidth = width / 2;
         final float distanceRatio = Math.min(1f, 1.0f * Math.abs(dx) / width);
-        final float distance = halfWidth + halfWidth *
-                distanceInfluenceForSnapDuration(distanceRatio);
+        final float distance = halfWidth + halfWidth * distanceInfluenceForSnapDuration(distanceRatio);
 
         int duration = 0;
         velocity = Math.abs(velocity);
@@ -963,7 +963,7 @@ public class PinchImageViewPager extends ViewGroup {
         final int pageLimit = mOffscreenPageLimit;
         final int startPos = Math.max(0, mCurItem - pageLimit);
         final int N = mAdapter.getCount();
-        final int endPos = Math.min(N-1, mCurItem + pageLimit);
+        final int endPos = Math.min(N - 1, mCurItem + pageLimit);
 
         if (N != mExpectedAdapterCount) {
             String resName;
@@ -1014,8 +1014,7 @@ public class PinchImageViewPager extends ViewGroup {
                         mItems.remove(itemIndex);
                         mAdapter.destroyItem(this, pos, ii.object);
                         if (DEBUG) {
-                            Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
-                                    " view: " + ((View) ii.object));
+                            Log.i(TAG, "populate() - destroyItem() with pos: " + pos + " view: " + ii.object);
                         }
                         itemIndex--;
                         curIndex--;
@@ -1048,8 +1047,7 @@ public class PinchImageViewPager extends ViewGroup {
                             mItems.remove(itemIndex);
                             mAdapter.destroyItem(this, pos, ii.object);
                             if (DEBUG) {
-                                Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
-                                        " view: " + ((View) ii.object));
+                                Log.i(TAG, "populate() - destroyItem() with pos: " + pos + " view: " + ii.object);
                             }
                             ii = itemIndex < mItems.size() ? mItems.get(itemIndex) : null;
                         }
@@ -1071,13 +1069,12 @@ public class PinchImageViewPager extends ViewGroup {
 
         if (DEBUG) {
             Log.i(TAG, "Current page list:");
-            for (int i=0; i<mItems.size(); i++) {
+            for (int i = 0; i < mItems.size(); i++) {
                 Log.i(TAG, "#" + i + ": page " + mItems.get(i).position);
             }
         }
 
         mAdapter.setPrimaryItem(this, mCurItem, curItem != null ? curItem.object : null);
-
         mAdapter.finishUpdate(this);
 
         // Check width measurement of current pages and drawing sort order.
@@ -1102,7 +1099,7 @@ public class PinchImageViewPager extends ViewGroup {
             View currentFocused = findFocus();
             ItemInfo ii = currentFocused != null ? infoForAnyChild(currentFocused) : null;
             if (ii == null || ii.position != mCurItem) {
-                for (int i=0; i<getChildCount(); i++) {
+                for (int i = 0; i < getChildCount(); i++) {
                     View child = getChildAt(i);
                     ii = infoForChild(child);
                     if (ii != null && ii.position == mCurItem) {
@@ -1118,7 +1115,7 @@ public class PinchImageViewPager extends ViewGroup {
     private void sortChildDrawingOrder() {
         if (mDrawingOrder != DRAW_ORDER_DEFAULT) {
             if (mDrawingOrderedChildren == null) {
-                mDrawingOrderedChildren = new ArrayList<View>();
+                mDrawingOrderedChildren = new ArrayList<>();
             } else {
                 mDrawingOrderedChildren.clear();
             }
@@ -1288,7 +1285,7 @@ public class PinchImageViewPager extends ViewGroup {
             return;
         }
 
-        SavedState ss = (SavedState)state;
+        SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
 
         if (mAdapter != null) {
@@ -1337,7 +1334,7 @@ public class PinchImageViewPager extends ViewGroup {
     }
 
     ItemInfo infoForChild(View child) {
-        for (int i=0; i<mItems.size(); i++) {
+        for (int i = 0; i < mItems.size(); i++) {
             ItemInfo ii = mItems.get(i);
             if (mAdapter.isViewFromObject(child, ii.object)) {
                 return ii;
@@ -1348,11 +1345,11 @@ public class PinchImageViewPager extends ViewGroup {
 
     ItemInfo infoForAnyChild(View child) {
         ViewParent parent;
-        while ((parent=child.getParent()) != this) {
+        while ((parent = child.getParent()) != this) {
             if (parent == null || !(parent instanceof View)) {
                 return null;
             }
-            child = (View)parent;
+            child = (View) parent;
         }
         return infoForChild(child);
     }
@@ -1589,20 +1586,14 @@ public class PinchImageViewPager extends ViewGroup {
                         // This was added during layout and needs measurement.
                         // Do it now that we know what we're working with.
                         lp.needsMeasure = false;
-                        final int widthSpec = MeasureSpec.makeMeasureSpec(
-                                (int) (childWidth * lp.widthFactor),
-                                MeasureSpec.EXACTLY);
-                        final int heightSpec = MeasureSpec.makeMeasureSpec(
-                                (int) (height - paddingTop - paddingBottom),
-                                MeasureSpec.EXACTLY);
+                        final int widthSpec = MeasureSpec.makeMeasureSpec((int) (childWidth * lp.widthFactor), MeasureSpec.EXACTLY);
+                        final int heightSpec = MeasureSpec.makeMeasureSpec((height - paddingTop - paddingBottom), MeasureSpec.EXACTLY);
                         child.measure(widthSpec, heightSpec);
                     }
-                    if (DEBUG) Log.v(TAG, "Positioning #" + i + " " + child + " f=" + ii.object
-                            + ":" + childLeft + "," + childTop + " " + child.getMeasuredWidth()
-                            + "x" + child.getMeasuredHeight());
-                    child.layout(childLeft, childTop,
-                            childLeft + child.getMeasuredWidth(),
-                            childTop + child.getMeasuredHeight());
+                    if (DEBUG) {
+                        Log.v(TAG, "Positioning #" + i + " " + child + " f=" + ii.object + ":" + childLeft + "," + childTop + " " + child.getMeasuredWidth() + "x" + child.getMeasuredHeight());
+                    }
+                    child.layout(childLeft, childTop, childLeft + child.getMeasuredWidth(), childTop + child.getMeasuredHeight());
                 }
             }
         }
@@ -1676,9 +1667,9 @@ public class PinchImageViewPager extends ViewGroup {
      * (e.g. super.onPageScrolled(position, offset, offsetPixels)) before onPageScrolled
      * returns.
      *
-     * @param position Position index of the first page currently being displayed.
-     *                 Page position+1 will be visible if positionOffset is nonzero.
-     * @param offset Value from [0, 1) indicating the offset from the page at position.
+     * @param position     Position index of the first page currently being displayed.
+     *                     Page position+1 will be visible if positionOffset is nonzero.
+     * @param offset       Value from [0, 1) indicating the offset from the page at position.
      * @param offsetPixels Value in pixels indicating the offset from position.
      */
     protected void onPageScrolled(int position, float offset, int offsetPixels) {
@@ -1761,7 +1752,7 @@ public class PinchImageViewPager extends ViewGroup {
             }
         }
         mPopulatePending = false;
-        for (int i=0; i<mItems.size(); i++) {
+        for (int i = 0; i < mItems.size(); i++) {
             ItemInfo ii = mItems.get(i);
             if (ii.scrolling) {
                 needPopulate = true;
@@ -1791,17 +1782,9 @@ public class PinchImageViewPager extends ViewGroup {
             RectF bound = mMainPinchImageView.getImageBound();
             if (bound != null) {
                 if (dx < 0) {
-                    if (bound.right <= mMainPinchImageView.getMeasuredWidth()) {
-                        return false;
-                    } else {
-                        return true;
-                    }
+                    return !(bound.right <= mMainPinchImageView.getMeasuredWidth());
                 } else if (dx > 0) {
-                    if (bound.left >= 0) {
-                        return false;
-                    } else {
-                        return true;
-                    }
+                    return !(bound.left >= 0);
                 } else {
                     return false;
                 }
@@ -1871,9 +1854,9 @@ public class PinchImageViewPager extends ViewGroup {
                  */
 
                 /*
-                * Locally do absolute value. mLastMotionY is set to the y value
-                * of the down event.
-                */
+                 * Locally do absolute value. mLastMotionY is set to the y value
+                 * of the down event.
+                 */
                 final int activePointerId = mActivePointerId;
                 if (activePointerId == INVALID_POINTER) {
                     // If we don't have a valid id, the touch down wasn't on content.
@@ -1933,8 +1916,7 @@ public class PinchImageViewPager extends ViewGroup {
                 mIsUnableToDrag = false;
 
                 mScroller.computeScrollOffset();
-                if (mScrollState == SCROLL_STATE_SETTLING &&
-                        Math.abs(mScroller.getFinalX() - mScroller.getCurrX()) > mCloseEnough) {
+                if (mScrollState == SCROLL_STATE_SETTLING && Math.abs(mScroller.getFinalX() - mScroller.getCurrX()) > mCloseEnough) {
                     // Let the user 'catch' the pager as it animates.
                     mScroller.abortAnimation();
                     mPopulatePending = false;
@@ -1947,15 +1929,16 @@ public class PinchImageViewPager extends ViewGroup {
                     mIsBeingDragged = false;
                 }
 
-                if (DEBUG) Log.v(TAG, "Down at " + mLastMotionX + "," + mLastMotionY
-                        + " mIsBeingDragged=" + mIsBeingDragged
-                        + "mIsUnableToDrag=" + mIsUnableToDrag);
+                if (DEBUG) {
+                    Log.v(TAG, "Down at " + mLastMotionX + "," + mLastMotionY + " mIsBeingDragged=" + mIsBeingDragged + "mIsUnableToDrag=" + mIsUnableToDrag);
+                }
                 break;
             }
 
-            case MotionEventCompat.ACTION_POINTER_UP:
+            case MotionEventCompat.ACTION_POINTER_UP: {
                 onSecondaryPointerUp(ev);
                 break;
+            }
         }
 
         if (mVelocityTracker == null) {
@@ -2017,7 +2000,8 @@ public class PinchImageViewPager extends ViewGroup {
                     final float xDiff = Math.abs(x - mLastMotionX);
                     final float y = MotionEventCompat.getY(ev, pointerIndex);
                     final float yDiff = Math.abs(y - mLastMotionY);
-                    if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+                    if (DEBUG)
+                        Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
                     if (xDiff > mTouchSlop && xDiff > yDiff) {
                         if (DEBUG) Log.v(TAG, "Starting drag!");
                         mIsBeingDragged = true;
@@ -2152,7 +2136,7 @@ public class PinchImageViewPager extends ViewGroup {
 
     /**
      * @return Info about the page at the current scroll position.
-     *         This can be synthetic for a missing middle page; the 'object' field can be null.
+     * This can be synthetic for a missing middle page; the 'object' field can be null.
      */
     private ItemInfo infoForCurrentScrollPosition() {
         final int width = getClientWidth();
@@ -2222,9 +2206,7 @@ public class PinchImageViewPager extends ViewGroup {
         boolean needsInvalidate = false;
 
         final int overScrollMode = ViewCompat.getOverScrollMode(this);
-        if (overScrollMode == ViewCompat.OVER_SCROLL_ALWAYS ||
-                (overScrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS &&
-                        mAdapter != null && mAdapter.getCount() > 1)) {
+        if (overScrollMode == ViewCompat.OVER_SCROLL_ALWAYS || (overScrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS && mAdapter != null && mAdapter.getCount() > 1)) {
             if (!mLeftEdge.isFinished()) {
                 final int restoreCount = canvas.save();
                 final int height = getHeight() - getPaddingTop() - getPaddingBottom();
@@ -2315,7 +2297,6 @@ public class PinchImageViewPager extends ViewGroup {
      * is already in progress, this method will return false.
      *
      * @return true if the fake drag began successfully, false if it could not be started.
-     *
      * @see #fakeDragBy(float)
      * @see #endFakeDrag()
      */
@@ -2421,7 +2402,6 @@ public class PinchImageViewPager extends ViewGroup {
      * Returns true if a fake drag is in progress.
      *
      * @return true if currently in a fake drag, false otherwise.
-     *
      * @see #beginFakeDrag()
      * @see #fakeDragBy(float)
      * @see #endFakeDrag()
@@ -2489,12 +2469,12 @@ public class PinchImageViewPager extends ViewGroup {
     /**
      * Tests scrollability within child views of v given a delta of dx.
      *
-     * @param v View to test for horizontal scrollability
+     * @param v      View to test for horizontal scrollability
      * @param checkV Whether the view v passed should itself be checked for scrollability (true),
      *               or just its children (false).
-     * @param dx Delta scrolled in pixels
-     * @param x X coordinate of the active touch point
-     * @param y Y coordinate of the active touch point
+     * @param dx     Delta scrolled in pixels
+     * @param x      X coordinate of the active touch point
+     * @param y      Y coordinate of the active touch point
      * @return true if child views of v can be scrolled by delta of dx.
      */
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
@@ -2508,10 +2488,11 @@ public class PinchImageViewPager extends ViewGroup {
                 // TODO: Add versioned support here for transformed views.
                 // This will not work for transformed views in Honeycomb+
                 final View child = group.getChildAt(i);
-                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight() &&
-                        y + scrollY >= child.getTop() && y + scrollY < child.getBottom() &&
-                        canScroll(child, true, dx, x + scrollX - child.getLeft(),
-                                y + scrollY - child.getTop())) {
+                if (x + scrollX >= child.getLeft()
+                        && x + scrollX < child.getRight()
+                        && y + scrollY >= child.getTop()
+                        && y + scrollY < child.getBottom()
+                        && canScroll(child, (true), dx, (x + scrollX - child.getLeft()), (y + scrollY - child.getTop()))) {
                     return true;
                 }
             }
@@ -2538,13 +2519,15 @@ public class PinchImageViewPager extends ViewGroup {
         boolean handled = false;
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (event.getKeyCode()) {
-                case KeyEvent.KEYCODE_DPAD_LEFT:
+                case KeyEvent.KEYCODE_DPAD_LEFT: {
                     handled = arrowScroll(FOCUS_LEFT);
                     break;
-                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                }
+                case KeyEvent.KEYCODE_DPAD_RIGHT: {
                     handled = arrowScroll(FOCUS_RIGHT);
                     break;
-                case KeyEvent.KEYCODE_TAB:
+                }
+                case KeyEvent.KEYCODE_TAB: {
                     if (Build.VERSION.SDK_INT >= 11) {
                         // The focus finder had a bug handling FOCUS_FORWARD and FOCUS_BACKWARD
                         // before Android 3.0. Ignore the tab key on those devices.
@@ -2555,6 +2538,7 @@ public class PinchImageViewPager extends ViewGroup {
                         }
                     }
                     break;
+                }
             }
         }
         return handled;
@@ -2654,15 +2638,15 @@ public class PinchImageViewPager extends ViewGroup {
 
     boolean pageLeft() {
         if (mCurItem > 0) {
-            setCurrentItem(mCurItem-1, true);
+            setCurrentItem(mCurItem - 1, true);
             return true;
         }
         return false;
     }
 
     boolean pageRight() {
-        if (mAdapter != null && mCurItem < (mAdapter.getCount()-1)) {
-            setCurrentItem(mCurItem+1, true);
+        if (mAdapter != null && mCurItem < (mAdapter.getCount() - 1)) {
+            setCurrentItem(mCurItem + 1, true);
             return true;
         }
         return false;
@@ -2847,13 +2831,15 @@ public class PinchImageViewPager extends ViewGroup {
                         setCurrentItem(mCurItem + 1);
                         return true;
                     }
-                } return false;
+                }
+                return false;
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD: {
                     if (canScrollHorizontally(-1)) {
                         setCurrentItem(mCurItem - 1);
                         return true;
                     }
-                } return false;
+                }
+                return false;
             }
             return false;
         }
@@ -2868,6 +2854,7 @@ public class PinchImageViewPager extends ViewGroup {
         public void onChanged() {
             dataSetChanged();
         }
+
         @Override
         public void onInvalidated() {
             dataSetChanged();
