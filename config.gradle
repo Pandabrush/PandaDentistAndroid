@@ -1,0 +1,47 @@
+ext {
+    android = [
+            compileSdkVersion: 28,
+            buildToolsVersion: "28.0.3",
+            minSdkVersion    : 18,
+            targetSdkVersion : 28,
+            versionCode      : 114,
+            versionName      : "1.1.4",
+            packageName      : "com.pandadentist"
+    ]
+
+    dependencies = [
+            junit                 : 'junit:junit:4.12',
+            appcompatV7           : 'com.android.support:appcompat-v7:28.0.0',
+            topsnackbar           : 'com.androidadvance:topsnackbar:1.1.1',
+            loggingInterceptor    : 'com.squareup.okhttp3:logging-interceptor:3.8.1',
+            cardviewV7            : 'com.android.support:cardview-v7:28.0.0',
+            supportDesign         : 'com.android.support:design:28.0.0',
+            recyclerview          : 'com.android.support:recyclerview-v7:28.0.0',
+            converterGson         : 'com.squareup.retrofit2:converter-gson:2.0.2',
+            ahbottomnavigation    : 'com.aurelhubert:ahbottomnavigation:1.2.0',
+            nineoldandroids       : 'com.nineoldandroids:library:2.4.0',
+            picasso               : 'com.squareup.picasso:picasso:2.5.2',
+            photoview             : 'com.github.chrisbanes.photoview:library:1.2.3',
+            numberprogressbar     : 'com.daimajia.numberprogressbar:library:1.2@aar',
+            retrofit              : 'com.squareup.retrofit2:retrofit:2.0.2',
+            rxandroid             : 'io.reactivex:rxandroid:1.1.0',
+            okhttpUrlConnection   : 'com.squareup.okhttp:okhttp-urlconnection:2.0.0',
+            okhttp                : 'com.squareup.okhttp:okhttp:2.0.0',
+            butterknife           : 'com.jakewharton:butterknife:7.0.1',
+            slider                : 'com.daimajia.slider:library:1.1.5@aar',
+            glide                 : 'com.github.bumptech.glide:glide:3.7.0',
+            rxjava                : 'io.reactivex:rxjava:1.1.0',
+            adapterRxjava         : 'com.squareup.retrofit2:adapter-rxjava:2.0.2',
+            cptr                  : 'com.chanven.lib:cptr:1.0.0',
+            staggeredTextGridView : 'com.riontech.staggeredtextgridview:staggeredtextgridview:1.0.1',
+            circleImageView       : 'de.hdodenhof:circleimageview:2.0.0',
+            infiniteCycleVieWpager: 'com.github.devlight:infinitecycleviewpager:1.0.0',
+            takephoto             : 'com.jph.takephoto:takephoto_library:3.0.2',
+            bottomdialog          : 'me.shaohui:bottomdialog:1.1.9',
+            analytics             : 'com.umeng.analytics:analytics:6.1.2',
+            supportV4             : 'com.android.support:support-v4:28.0.0',
+            supportMediaCompat    : 'com.android.support:support-media-compat:28.0.0',
+            runner                : 'com.android.support.test:runner:1.0.2',
+            espressoCore          : 'com.android.support.test.espresso:espresso-core:3.0.2'
+    ]
+}
