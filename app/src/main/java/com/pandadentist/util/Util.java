@@ -16,7 +16,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +27,7 @@ import java.util.Map;
  * 修改时间：2017/4/6 下午4:41
  * Description:
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess", "unchecked"})
 public class Util {
 
     /**
@@ -107,12 +106,7 @@ public class Util {
         ArrayList<Integer> array = string2IntList(text, splitter);
         if (isEmpty(array))
             return null;
-        Collections.sort(array, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return sort ? o1 - o2 : o2 - o1;
-            }
-        });
+        Collections.sort(array, (o1, o2) -> sort ? o1 - o2 : o2 - o1);
         return array;
     }
 
@@ -140,7 +134,7 @@ public class Util {
         if (TextUtils.isEmpty(text))
             text = "";
 
-        String reg = "\\" + Character.toString(splitter);
+        String reg = "\\" + splitter;
         return text.split(reg);
     }
 
@@ -165,14 +159,14 @@ public class Util {
         if (isEmpty(arr))
             return "";
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < arr.size(); i++) {
             if (i > 0) {
-                buffer.append(splitter);
+                builder.append(splitter);
             }
-            buffer.append(arr.get(i) == null ? "" : String.valueOf(arr.get(i)));
+            builder.append(arr.get(i) == null ? "" : String.valueOf(arr.get(i)));
         }
-        return buffer.toString();
+        return builder.toString();
     }
 
     public static String urlEncoder(String params) {

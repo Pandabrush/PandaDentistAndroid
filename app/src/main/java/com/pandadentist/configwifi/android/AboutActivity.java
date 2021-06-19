@@ -10,23 +10,18 @@ import com.pandadentist.R;
 
 public class AboutActivity extends Activity {
 
-	private TextView mVersionTextView;
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.about);
-
-		mVersionTextView = (TextView)findViewById(R.id.textView2);
-		PackageManager packageManager = getPackageManager();
-		try {
-			
-			PackageInfo packageInfo = packageManager.getPackageInfo(
-					AboutActivity.class.getPackage().getName(), PackageManager.GET_ACTIVITIES);
-			mVersionTextView.setText(packageInfo.versionName);
-		} catch (Exception e) {
-			e.printStackTrace();
-			mVersionTextView.setText(R.string.unknown);
-		}
-	}
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.about);
+        TextView versionTextView = findViewById(R.id.textView2);
+        PackageManager packageManager = getPackageManager();
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(AboutActivity.class.getPackage().getName(), PackageManager.GET_ACTIVITIES);
+            versionTextView.setText(packageInfo.versionName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            versionTextView.setText(R.string.unknown);
+        }
+    }
 }

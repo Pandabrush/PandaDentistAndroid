@@ -27,13 +27,14 @@ import butterknife.OnClick;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
+@SuppressWarnings({"NullableProblems", "ConstantConditions", "unused", "ResultOfMethodCallIgnored"})
 public abstract class BaseFragment extends TakePhotoFragment {
 
     private CompositeSubscription mCompositeSubscription;
 
     @Nullable
     @Bind(R.id.tv_toolbar_title)
-    public TextView mToolBarTtitle;
+    public TextView mToolBarTitle;
     @Nullable
     @Bind(R.id.rl_toolbar_func)
     public RelativeLayout mToolbarFuncRl;
@@ -129,9 +130,9 @@ public abstract class BaseFragment extends TakePhotoFragment {
     protected void takePhoto() {
         Uri imageUri = createTempFile();
         configCompress(getTakePhoto());
-        if(AppConfig.TAKE_PIC_CONFIG_IS_CROP){
-            getTakePhoto().onPickFromCaptureWithCrop(imageUri,getCropOptions());
-        }else {
+        if (AppConfig.TAKE_PIC_CONFIG_IS_CROP) {
+            getTakePhoto().onPickFromCaptureWithCrop(imageUri, getCropOptions());
+        } else {
             getTakePhoto().onPickFromCapture(imageUri);
         }
     }
@@ -141,7 +142,9 @@ public abstract class BaseFragment extends TakePhotoFragment {
      */
     private Uri createTempFile() {
         File file = new File(Environment.getExternalStorageDirectory(), "/temp/" + System.currentTimeMillis() + ".jpg");
-        if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
         return Uri.fromFile(file);
     }
 

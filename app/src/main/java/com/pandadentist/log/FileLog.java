@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
 public class FileLog {
     /**
      * default  file size limit

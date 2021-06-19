@@ -30,9 +30,9 @@ public class TodayFragment extends SwipeRefreshBaseFragment {
 
     @Override
     public void createView(ViewGroup container, View parentView, Bundle savedInstanceState) {
-        assert mToolBarTtitle != null;
+        assert mToolBarTitle != null;
         assert mToolBackRl != null;
-        mToolBarTtitle.setText("今日分析");
+        mToolBarTitle.setText("今日分析");
         mToolBackRl.setVisibility(View.GONE);
         mRv.setLayoutManager(new GridLayoutManager(getActivity(), 4));
         myAdapter = new MyAdapter(mData);

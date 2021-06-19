@@ -12,6 +12,7 @@ import com.pandadentist.BuildConfig;
  * Description:
  */
 
+@SuppressWarnings("WeakerAccess")
 public class Logger {
 
     private static final String Tag = "logger";

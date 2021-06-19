@@ -5,7 +5,6 @@ package com.pandadentist.config;
  * <p>
  * aap 配置信息
  */
-@SuppressWarnings("unused")
 public class AppConfig {
 
     //生产环境
