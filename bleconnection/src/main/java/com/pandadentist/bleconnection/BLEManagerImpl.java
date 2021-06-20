@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothDevice;
 
 import com.pandadentist.bleconnection.scan.ScanBluetooth;
 
+import java.util.List;
+
 /**
  * CreateTime 2021/6/20 14:27
  * Author zhangwy
@@ -63,11 +65,38 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     }
 
     @Override
-    public void binding(String deviceId) {
+    public void connect(String deviceId) {
+        //TODO
     }
 
     @Override
-    public void connect() {
+    public void connect(String deviceId, boolean increase) {
+        //TODO
+    }
+
+    @Override
+    public void connect(List<String> devicesId) {
+        //TODO
+    }
+
+    @Override
+    public void connect(List<String> devicesId, boolean increase) {
+        //TODO
+    }
+
+    @Override
+    public void disConnect(String deviceId) {
+        //TODO
+    }
+
+    @Override
+    public void disConnect(List<String> devicesId) {
+        //TODO
+    }
+
+    @Override
+    public void disConnectAll() {
+        //TODO
     }
 
     private void onScanError(int code) {

@@ -3,6 +3,8 @@ package com.pandadentist.bleconnection;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
+import java.util.List;
+
 /**
  * CreateTime 2021/6/20 11:12
  * Author zhangwy
@@ -11,6 +13,7 @@ import android.content.Context;
  * -------------------------------------------------------------------------------------------------
  * use:
  **/
+@SuppressWarnings("unused")
 public abstract class BLEManager {
     private static BLEManager instance;
 
@@ -29,9 +32,54 @@ public abstract class BLEManager {
 
     public abstract void stopScan();
 
-    public abstract void binding(String deviceId);
+    /**
+     * 连接设备默认为增量连接
+     *
+     * @param deviceId 蓝牙设备deviceId
+     */
+    public abstract void connect(String deviceId);
 
-    public abstract void connect();
+    /**
+     * 连接设备
+     *
+     * @param deviceId 蓝牙设备deviceId
+     * @param increase true为增量连接，false为断开之前的连接后在连接现在的连接
+     */
+    public abstract void connect(String deviceId, boolean increase);
+
+    /**
+     * 连接多台设备默认为增量连接
+     *
+     * @param devicesId 多台蓝牙设备deviceId列表
+     */
+    public abstract void connect(List<String> devicesId);
+
+    /**
+     * 连接多台设备默认为增量连接
+     *
+     * @param devicesId 多台蓝牙设备deviceId列表
+     * @param increase  true为增量连接，false为断开之前的连接后在连接现在的连接
+     */
+    public abstract void connect(List<String> devicesId, boolean increase);
+
+    /**
+     * 断开连接单台设备
+     *
+     * @param deviceId 蓝牙设备deviceId
+     */
+    public abstract void disConnect(String deviceId);
+
+    /**
+     * 断开连接多台设备
+     *
+     * @param devicesId 多台蓝牙设备deviceId列表
+     */
+    public abstract void disConnect(List<String> devicesId);
+
+    /**
+     * 断开连接所有设备
+     */
+    public abstract void disConnectAll();
 
     public interface OnScanListener {
         /**
