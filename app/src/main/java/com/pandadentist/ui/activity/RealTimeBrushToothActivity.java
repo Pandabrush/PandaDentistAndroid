@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.pandadentist.R;
-import com.pandadentist.util.Toasts;
 import com.pandadentist.widget.X5ObserWebView;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebSettings;

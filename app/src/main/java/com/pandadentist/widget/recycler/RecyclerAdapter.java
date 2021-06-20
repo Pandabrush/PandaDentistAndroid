@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;

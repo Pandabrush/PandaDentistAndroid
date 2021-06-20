@@ -19,6 +19,9 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Pair;
 
+import com.pandadentist.bleconnection.utils.Logger;
+import com.pandadentist.bleconnection.utils.Util;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;

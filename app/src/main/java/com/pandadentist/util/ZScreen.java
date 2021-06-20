@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import com.pandadentist.bleconnection.utils.Logger;
+
 /**
  * Author: 张维亚
  * File Name: ScreenUtil.java

@@ -3,7 +3,7 @@ package com.pandadentist.log;
 import android.text.TextUtils;
 
 import com.pandadentist.util.FileUtil;
-import com.pandadentist.util.Logger;
+import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.util.TimeUtil;
 
 import java.io.File;

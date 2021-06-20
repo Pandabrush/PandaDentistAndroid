@@ -54,10 +54,9 @@ import com.pandadentist.ui.adapter.PopDeviceAdapter;
 import com.pandadentist.util.BLEProtoProcess;
 import com.pandadentist.util.DensityUtil;
 import com.pandadentist.util.IntentHelper;
-import com.pandadentist.util.Logger;
+import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.util.SPUitl;
-import com.pandadentist.util.Toasts;
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.utils.Util;
 import com.pandadentist.widget.RecycleViewDivider;
 import com.pandadentist.widget.TopBar;
 import com.pandadentist.widget.X5ObserWebView;
@@ -88,9 +87,8 @@ import static com.pandadentist.config.Constants.ACTIVITY_FOR_RESULT_REQUEST_CODE
 
 /**
  * zhangwy
- *
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "Convert2Lambda", "Anonymous2MethodRef"})
 public class UrlDetailActivity extends SwipeRefreshBaseActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback {
 
     public static void start(Context context) {
@@ -175,11 +173,11 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             });
             this.topBar.setCentreContent(R.layout.layout_detail_topbar_centre);
             try {
-                this.mTvDeviceName = (TextView) this.findViewById(R.id.tv_device_name);
-                this.tvIsConnect = (TextView) this.findViewById(R.id.tv_isConnect);
-                this.mToolBarTitle = (TextView) this.findViewById(R.id.tv_toolbar_title);
+                this.mTvDeviceName = this.findViewById(R.id.tv_device_name);
+                this.tvIsConnect = this.findViewById(R.id.tv_isConnect);
+                this.mToolBarTitle = this.findViewById(R.id.tv_toolbar_title);
                 this.mToolBarTitle.setText(R.string.app_name);
-                this.llSwitchDevice = (LinearLayout) this.findViewById(R.id.ll_switch_device);
+                this.llSwitchDevice = this.findViewById(R.id.ll_switch_device);
                 this.llSwitchDevice.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -202,8 +200,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
 
         api = WXAPIFactory.createWXAPI(this, APP_ID);
         api.registerApp(APP_ID);
-        headerIv = (CircleImageView) findViewById(R.id.imageView);
-        usernameTv = (TextView) findViewById(R.id.textView3);
+        headerIv = findViewById(R.id.imageView);
+        usernameTv = findViewById(R.id.textView3);
         mWebView.setOnScrollChangedCallback(new X5ObserWebView.OnScrollChangedCallback() {
             public void onScroll(int l, int t) {
                 Logger.d("We Scrolled etc..." + l + " t =" + t);
@@ -286,7 +284,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     if (TextUtils.isEmpty(userId))
                         return;
                     try {
-                        DeviceListEntity.DevicesBean devicesBean = findDevice(Integer.valueOf(userId));
+                        DeviceListEntity.DevicesBean devicesBean = findDevice(Integer.parseInt(userId));
                         if (devicesBean != null) {
                             try {
                                 data.remove(devicesBean);

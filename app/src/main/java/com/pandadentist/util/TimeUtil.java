@@ -1,5 +1,7 @@
 package com.pandadentist.util;
 
+import com.pandadentist.bleconnection.utils.Logger;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;

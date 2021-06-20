@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.utils.Util;
 
 /**
  * Author: 张维亚

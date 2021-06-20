@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_supported_bluetooth">该设备不支持蓝牙</string>
+    <string name="no_open_bluetooth">未打开蓝牙设备</string>
+</resources>

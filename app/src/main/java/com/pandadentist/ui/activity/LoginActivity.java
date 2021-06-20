@@ -18,7 +18,6 @@ import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.util.IntentHelper;
 import com.pandadentist.util.SPUitl;
-import com.pandadentist.util.Toasts;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;

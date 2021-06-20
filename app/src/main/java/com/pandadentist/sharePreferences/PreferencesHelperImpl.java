@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Pair;
 
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.utils.Util;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
-package com.pandadentist.util;
+package com.pandadentist.bleconnection.utils;
 
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.pandadentist.BuildConfig;
+import com.pandadentist.bleconnection.BuildConfig;
 
 /**
  * Author: zhangwy(张维亚)

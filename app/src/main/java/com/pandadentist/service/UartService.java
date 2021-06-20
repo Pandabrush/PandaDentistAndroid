@@ -20,10 +20,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.pandadentist.log.RunTimeLog;
-import com.pandadentist.util.Logger;
-import com.pandadentist.util.ScanBluetooth;
-import com.pandadentist.util.Toasts;
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.utils.Logger;
+import com.pandadentist.bleconnection.scan.ScanBluetooth;
+import com.pandadentist.bleconnection.utils.Util;
 
 import java.util.HashMap;
 import java.util.List;

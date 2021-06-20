@@ -15,7 +15,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.pandadentist.R;
-import com.pandadentist.util.Logger;
+import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.widget.TopBar;
 import com.umeng.analytics.MobclickAgent;
 

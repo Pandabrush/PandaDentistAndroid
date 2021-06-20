@@ -1,4 +1,4 @@
-package com.pandadentist.util;
+package com.pandadentist.bleconnection.utils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -66,8 +66,9 @@ public class Util {
      * @return String
      */
     public static String map2Json(Map<String, Object> map) {
-        if (isEmpty(map))
+        if (isEmpty(map)) {
             return "{}";
+        }
         return new JSONObject(map).toString();
     }
 

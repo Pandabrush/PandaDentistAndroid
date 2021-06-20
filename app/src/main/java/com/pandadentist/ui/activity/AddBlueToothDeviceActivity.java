@@ -27,20 +27,16 @@ import com.pandadentist.R;
 import com.pandadentist.config.Constants;
 import com.pandadentist.entity.DeviceListEntity;
 import com.pandadentist.entity.WXEntity;
-import com.pandadentist.listener.OnItemClickListener;
-import com.pandadentist.listener.OnZhenListener;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.ui.adapter.BlueToothDeviceAdapter;
 import com.pandadentist.util.BLEProtoProcess;
-import com.pandadentist.util.Logger;
+import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.util.SPUitl;
-import com.pandadentist.util.ScanBluetooth;
-import com.pandadentist.util.Toasts;
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.scan.ScanBluetooth;
+import com.pandadentist.bleconnection.utils.Util;
 import com.pandadentist.widget.ColorProgressBar;
 import com.pandadentist.widget.RecycleViewDivider;
-import com.pandadentist.widget.TopBar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,22 +112,14 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             this.topBar.setCentreText(R.string.connect_bluetooth);
             this.topBar.setRightText(R.string.help, false);
             this.topBar.setRightTextColor(Color.parseColor("#20CBE7"));
-            this.topBar.setOnRightClickListener(new TopBar.OnClickListener() {
-                @Override
-                public void onClick() {
-                    startActivity(new Intent(AddBlueToothDeviceActivity.this, BlueHelperActivity.class));
-                }
-            });
+            this.topBar.setOnRightClickListener(() -> startActivity(new Intent(this, BlueHelperActivity.class)));
         }
 
-        new BLEProtoProcess().setOnZhenListener(new OnZhenListener() {
-            @Override
-            public void onZhen(int zhen, int total) {
-                float percent = zhen / total * 100f;
-                int ip = (int) percent;
-                tvPercent.setText(String.format(Locale.getDefault(), "%1$d%", ip));
-                colorProgressBar.setValue(ip);
-            }
+        new BLEProtoProcess().setOnZhenListener((zhen, total) -> {
+            float percent = zhen / total * 100f;
+            int ip = (int) percent;
+            tvPercent.setText(String.format(Locale.getDefault(), "%1$d%", ip));
+            colorProgressBar.setValue(ip);
         });
         //开启动画
         circle_anim = AnimationUtils.loadAnimation(this, R.anim.blue_tooth_round_rotate);
@@ -147,12 +135,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             }
         }
 
-        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                scanBlueDevice();
-            }
-        });
+        findViewById(R.id.btn).setOnClickListener(v -> scanBlueDevice());
 
         this.initView();
         this.getDeviceList();
@@ -176,18 +159,15 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.addItemDecoration(new RecycleViewDivider(this, LinearLayoutManager.VERTICAL, 1));
         rv.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener(new OnItemClickListener<BluetoothDevice>() {
-            @Override
-            public void onItemClick(View v, BluetoothDevice device, int position) {
-                // 先绑定，在连接蓝牙
-                // 绑定蓝牙设备
-                if (remoteDevices.size() == 0) {
-                    String deviceAddress = device.getAddress();
-                    stopLeScan();
-                    bindDevice(deviceAddress);
-                } else {
-                    Toasts.showShort("一个账户只能绑定一个设备，请先解除绑定！");
-                }
+        mAdapter.setOnItemClickListener((v, device, position) -> {
+            // 先绑定，在连接蓝牙
+            // 绑定蓝牙设备
+            if (remoteDevices.size() == 0) {
+                String deviceAddress = device.getAddress();
+                stopLeScan();
+                bindDevice(deviceAddress);
+            } else {
+                Toasts.showShort("一个账户只能绑定一个设备，请先解除绑定！");
             }
         });
     }
@@ -274,24 +254,16 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         if (device == null)
             return;
         Logger.d("addDevices" + device.getName());
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                postDelayedOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String address = device.getAddress();
-                        if (deviceHashMap.containsKey(address))
-                            return;
-                        deviceHashMap.put(address, device);
-                        mAdapter.replace(deviceHashMap.values());
-                        if (hasDevice()) {
-                            showList();
-                        }
-                    }
-                });
+        runOnUiThread(() -> postDelayedOnUIThread(() -> {
+            String address = device.getAddress();
+            if (deviceHashMap.containsKey(address))
+                return;
+            deviceHashMap.put(address, device);
+            mAdapter.replace(deviceHashMap.values());
+            if (hasDevice()) {
+                showList();
             }
-        });
+        }));
     }
 
     @Override
@@ -364,28 +336,22 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         Subscription s = api.getDeviceList(SPUitl.getToken())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<DeviceListEntity>() {
-                    @Override
-                    public void call(DeviceListEntity deviceListEntity) {
-                        dismiss();
-                        if (Constants.SUCCESS == deviceListEntity.getCode()) {
-                            for (DeviceListEntity.DevicesBean db : deviceListEntity.getDevices()) {
-                                if (!db.getDeviceid().contains(":")) {
-                                    remoteDevices.add(db);
-                                }
+                .subscribe(deviceListEntity -> {
+                    dismiss();
+                    if (Constants.SUCCESS == deviceListEntity.getCode()) {
+                        for (DeviceListEntity.DevicesBean db : deviceListEntity.getDevices()) {
+                            if (!db.getDeviceid().contains(":")) {
+                                remoteDevices.add(db);
                             }
-                            Logger.d("size-->" + remoteDevices.size());
-                        } else {
-                            Toasts.showShort(deviceListEntity.getMessage());
                         }
+                        Logger.d("size-->" + remoteDevices.size());
+                    } else {
+                        Toasts.showShort(deviceListEntity.getMessage());
                     }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Toasts.showShort("请检查网络!");
-                        dismiss();
-                        Logger.d("getDeviceList", throwable);
-                    }
+                }, throwable -> {
+                    Toasts.showShort("请检查网络!");
+                    dismiss();
+                    Logger.d("getDeviceList", throwable);
                 });
         addSubscription(s);
     }

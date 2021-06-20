@@ -2,6 +2,8 @@ package com.pandadentist.util;
 
 import android.text.TextUtils;
 
+import com.pandadentist.bleconnection.utils.Logger;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;

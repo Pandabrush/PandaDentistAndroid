@@ -7,9 +7,8 @@ import com.pandadentist.download.DownloadConfiguration;
 import com.pandadentist.download.DownloadManager;
 import com.pandadentist.log.RunTimeLog;
 import com.pandadentist.util.DensityUtil;
-import com.pandadentist.util.Logger;
-import com.pandadentist.util.Toasts;
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.utils.Logger;
+import com.pandadentist.bleconnection.utils.Util;
 import com.tencent.smtt.sdk.QbSdk;
 import com.umeng.analytics.MobclickAgent;
 

@@ -11,7 +11,6 @@ import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.util.SPUitl;
-import com.pandadentist.util.Toasts;
 import com.pandadentist.widget.RoundProgressBarWidthNumber;
 
 import java.util.Timer;

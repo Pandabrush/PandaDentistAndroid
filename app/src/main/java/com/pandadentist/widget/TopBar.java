@@ -17,7 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.pandadentist.R;
-import com.pandadentist.util.Logger;
+import com.pandadentist.bleconnection.utils.Logger;
 
 /**
  * Created by zhangwy on 2017/11/12.

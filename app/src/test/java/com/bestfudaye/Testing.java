@@ -1,6 +1,6 @@
 package com.bestfudaye;
 
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.utils.Util;
 
 import org.junit.Test;
 

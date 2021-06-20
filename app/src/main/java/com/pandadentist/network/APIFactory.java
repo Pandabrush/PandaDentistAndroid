@@ -2,7 +2,7 @@ package com.pandadentist.network;
 
 
 import com.pandadentist.config.AppConfig;
-import com.pandadentist.util.Logger;
+import com.pandadentist.bleconnection.utils.Logger;
 
 import java.util.concurrent.TimeUnit;
 
@@ -18,11 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class APIFactory {
     public <T> T create(Class c){
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-            @Override public void log(String message) {
-                Logger.d("message-->"+message);
-            }
-        });
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(message -> Logger.d("message-->"+message));
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.addInterceptor(logging);

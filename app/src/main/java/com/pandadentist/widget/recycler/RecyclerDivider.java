@@ -10,7 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.utils.Util;
 
 
 /**

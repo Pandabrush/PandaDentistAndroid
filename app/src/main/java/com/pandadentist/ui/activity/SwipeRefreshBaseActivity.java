@@ -12,7 +12,7 @@ import android.view.View;
 import com.pandadentist.R;
 import com.pandadentist.listener.OnRcvScrollListener;
 import com.pandadentist.ui.base.SwipeRefreshLayer;
-import com.pandadentist.util.Logger;
+import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.widget.MultiSwipeRefreshLayout;
 
 import butterknife.Bind;

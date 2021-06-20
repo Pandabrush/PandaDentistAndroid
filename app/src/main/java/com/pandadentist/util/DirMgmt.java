@@ -3,6 +3,8 @@ package com.pandadentist.util;
 import android.content.Context;
 import android.os.Environment;
 
+import com.pandadentist.bleconnection.utils.Logger;
+import com.pandadentist.bleconnection.utils.Util;
 import com.pandadentist.task.Task;
 
 /**

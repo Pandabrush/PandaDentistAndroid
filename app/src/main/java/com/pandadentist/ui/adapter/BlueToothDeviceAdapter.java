@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.pandadentist.R;
 import com.pandadentist.listener.OnItemClickListener;
-import com.pandadentist.util.Util;
+import com.pandadentist.bleconnection.utils.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;

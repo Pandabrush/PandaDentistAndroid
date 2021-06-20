@@ -1,13 +1,21 @@
-package com.pandadentist.util;
+package com.pandadentist.bleconnection.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.widget.Toast;
 
-
+/**
+ * CreateTime 2021/6/20 11:48
+ * Author zhangwy
+ * desc:
+ * <p>
+ * -------------------------------------------------------------------------------------------------
+ * use:
+ **/
+@SuppressWarnings({"unused"})
+@SuppressLint("StaticFieldLeak")
 public class Toasts {
-
-    public static Context sContext;
-
+    private static Context sContext;
 
     private Toasts() {
     }
@@ -36,7 +44,6 @@ public class Toasts {
         check();
         Toast.makeText(sContext, resId, Toast.LENGTH_LONG).show();
     }
-
 
     public static void showLong(String message) {
         check();

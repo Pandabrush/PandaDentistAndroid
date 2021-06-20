@@ -1,4 +1,4 @@
-package com.pandadentist.util;
+package com.pandadentist.bleconnection.scan;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -9,7 +9,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
-import com.pandadentist.R;
+import com.pandadentist.bleconnection.R;
+import com.pandadentist.bleconnection.utils.Logger;
+import com.pandadentist.bleconnection.utils.Toasts;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -19,7 +21,7 @@ import java.util.Locale;
  * Updated by zhangwy on 2018/1/10 下午12:58.
  * Description 扫描蓝牙
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue", "FieldCanBeLocal"})
 public abstract class ScanBluetooth {
 
     public static final int REQUESTCODE_FROM_BLUETOOTH_ENABLE = Integer.MAX_VALUE;
@@ -30,7 +32,6 @@ public abstract class ScanBluetooth {
 
     public abstract boolean support(Activity activity);
 
-//    public abstract boolean support(Fragment fragment);
     /**
      * 是否能扫描，调用该接口的类需要重写onActivityResult 接收requestCode为REQUESTCODE_FROM_BLUETOOTH_ENABLE参数
      *
@@ -39,23 +40,29 @@ public abstract class ScanBluetooth {
      */
     public abstract boolean canScan(Activity activity);
 
-//    public abstract boolean canScan(Fragment fragment);
+    /**
+     * 是否能扫描，调用该接口的类需要重写onActivityResult
+     *
+     * @param activity    手机不支持蓝牙时关闭界面或者当蓝牙未打开需要去设置界面打开蓝牙
+     * @param requestCode 启动蓝牙打开界面的requestCode
+     * @return true 可以执行搜索 反之不能执行搜索
+     */
+    public abstract boolean canScan(Activity activity, int requestCode);
 
     public abstract boolean startLeScan(Activity activity, OnLeScanListener listener);
-
-//    public abstract boolean startLeScan(Fragment fragment, OnLeScanListener listener);
 
     public abstract void stopLeScan();
 
     private static class ScanBluetoothImpl extends ScanBluetooth implements BluetoothAdapter.LeScanCallback, Handler.Callback {
         private final long DELAYED_SCAN = 10000; //蓝牙扫描时长10秒
 
-        private BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        private Handler handler = new Handler(Looper.getMainLooper(), this);
         private final int WHAT_ADD_DEVICE = 100;
         private final int WHAT_SCAN_TIMEOUT = 101;
-        private OnLeScanListener listener;
+        private BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        private Handler handler = new Handler(Looper.getMainLooper(), this);
         private HashMap<String, BluetoothDevice> deviceHashMap = new HashMap<>();
+        private OnLeScanListener listener;
+        private boolean scaning = false;
 
         @Override
         public boolean support(Activity activity) {
@@ -72,83 +79,68 @@ public abstract class ScanBluetooth {
             }
             return support;
         }
-//
-//        @Override
-//        public boolean support(Fragment fragment) {
-//            return this.support(fragment == null ? null : fragment.getActivity());
-//        }
 
         @Override
         public boolean canScan(Activity activity) {
+            return this.canScan(activity, REQUESTCODE_FROM_BLUETOOTH_ENABLE);
+        }
+
+        @Override
+        public boolean canScan(Activity activity, int requestCode) {
             if (!this.support(activity)) {
                 return false;
             }
-            if (!this.adapter.isEnabled()) {
-                Toasts.showLong(R.string.no_open_bluetooth);
-                if (activity != null) {
-                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    activity.startActivityForResult(enableIntent, REQUESTCODE_FROM_BLUETOOTH_ENABLE);
-                }
+            if (this.adapter.isEnabled()) {
+                return true;
+            }
+            Toasts.showLong(R.string.no_open_bluetooth);
+            if (activity == null) {
                 return false;
             }
-            return true;
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            activity.startActivityForResult(enableIntent, requestCode);
+            return false;
         }
-//
-//        @Override
-//        public boolean canScan(Fragment fragment) {
-//            if (!this.support(fragment == null ? null : fragment.getActivity())) {
-//                return false;
-//            }
-//            if (!this.adapter.isEnabled()) {
-//                Toasts.showLong(R.string.no_open_bluetooth);
-//                if (fragment != null) {
-//                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                    fragment.startActivityForResult(enableIntent, REQUESTCODE_FROM_BLUETOOTH_ENABLE);
-//                }
-//                return false;
-//            }
-//            return true;
-//        }
 
         @Override
         public boolean startLeScan(Activity activity, OnLeScanListener listener) {
             this.setListener(listener);
             return this.canScan(activity) && this.startLeScan();
         }
-//
-//        @Override
-//        public boolean startLeScan(Fragment fragment, OnLeScanListener listener) {
-//            this.setListener(listener);
-//            return this.canScan(fragment) && this.startLeScan();
-//        }
 
         private void setListener(OnLeScanListener listener) {
             this.listener = listener;
         }
 
         private boolean startLeScan() {
+            if (this.scaning) {
+                this.finalStopLeScan(true, false);
+                this.scaning = false;
+            }
             this.deviceHashMap.clear();
             this.adapter.startLeScan(this);
             this.handler.sendEmptyMessageDelayed(WHAT_SCAN_TIMEOUT, DELAYED_SCAN);
-            if (this.listener != null) {
+            if (this.canCallback()) {
                 this.listener.onLeScanStart();
             }
+            this.scaning = true;
             return true;
         }
 
         @Override
         public void stopLeScan() {
-            this.finalStopLeScan(false);
+            this.finalStopLeScan(false, true);
         }
 
-        private void finalStopLeScan(boolean auto) {
+        private void finalStopLeScan(boolean auto, boolean callback) {
+            this.scaning = false;
             if (this.adapter != null) {
                 this.adapter.stopLeScan(this);
             }
             if (this.handler.hasMessages(WHAT_SCAN_TIMEOUT)) {
                 this.handler.removeMessages(WHAT_SCAN_TIMEOUT);
             }
-            if (this.listener != null) {
+            if (this.canCallback() && callback) {
                 this.listener.onLeScanStop(auto);
             }
         }
@@ -168,7 +160,7 @@ public abstract class ScanBluetooth {
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case WHAT_SCAN_TIMEOUT:
-                    this.finalStopLeScan(true);
+                    this.finalStopLeScan(true, true);
                     break;
                 case WHAT_ADD_DEVICE:
                     this.addDevice((BluetoothDevice) msg.obj);
@@ -184,11 +176,14 @@ public abstract class ScanBluetooth {
             if (deviceHashMap.containsKey(address))
                 return;
             deviceHashMap.put(address, device);
-            if (this.listener != null) {
+            if (this.canCallback()) {
                 this.listener.onDevice(device);
             }
         }
 
+        private boolean canCallback() {
+            return this.listener != null;
+        }
     }
 
     public interface OnLeScanListener {
