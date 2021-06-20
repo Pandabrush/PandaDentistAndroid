@@ -1,11 +1,8 @@
-package com.pandadentist.util;
+package com.pandadentist.bleconnection.utils;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
-
-import com.pandadentist.bleconnection.utils.Logger;
-import com.pandadentist.bleconnection.utils.Util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +16,7 @@ import java.util.List;
  * Updated by zhangwy on 2017/9/23.
  * Description
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess", "ResultOfMethodCallIgnored", "Convert2Lambda", "SameParameterValue"})
 public class FileUtil {
 
     public static boolean makeDirs(String dir) {
@@ -32,10 +29,8 @@ public class FileUtil {
 
     // 去掉path中的反斜线
     public static String pathRemoveBackslash(String path) {
-        if (path == null)
-            return path;
-        if (path.length() == 0)
-            return path;
+        if (path == null || path.length() == 0)
+            return "";
         //
         char ch = path.charAt(path.length() - 1);
         if (ch == '/' || ch == '\\')
@@ -176,7 +171,7 @@ public class FileUtil {
 
         public void setTime(String time) {
             if (!TextUtils.isEmpty(time)) {
-                this.time = Float.valueOf(time.replace(" ", ""));
+                this.time = Float.parseFloat(time.replace(" ", ""));
             }
         }
 
@@ -186,7 +181,7 @@ public class FileUtil {
 
         private void setFirst(String first) {
             if (!TextUtils.isEmpty(first)) {
-                this.first = Float.valueOf(first.replace(" ", ""));
+                this.first = Float.parseFloat(first.replace(" ", ""));
             }
         }
 
@@ -196,7 +191,7 @@ public class FileUtil {
 
         private void setSecond(String second) {
             if (!TextUtils.isEmpty(second)) {
-                this.second = Float.valueOf(second.replace(" ", ""));
+                this.second = Float.parseFloat(second.replace(" ", ""));
             }
         }
 
@@ -206,7 +201,7 @@ public class FileUtil {
 
         private void setThird(String third) {
             if (!TextUtils.isEmpty(third)) {
-                this.third = Float.valueOf(third.replace(" ", ""));
+                this.third = Float.parseFloat(third.replace(" ", ""));
             }
         }
 
@@ -216,7 +211,7 @@ public class FileUtil {
 
         private void setFour(String four) {
             if (!TextUtils.isEmpty(four)) {
-                this.four = Float.valueOf(four.replace(" ", ""));
+                this.four = Float.parseFloat(four.replace(" ", ""));
             }
         }
     }
@@ -233,7 +228,7 @@ public class FileUtil {
 
         public void setTime(String time) {
             if (!TextUtils.isEmpty(time)) {
-                this.time = Float.valueOf(time.replace(" ", ""));
+                this.time = Float.parseFloat(time.replace(" ", ""));
             }
         }
 
@@ -243,7 +238,7 @@ public class FileUtil {
 
         private void setX(String x) {
             if (!TextUtils.isEmpty(x)) {
-                this.x = Float.valueOf(x.replace(" ", ""));
+                this.x = Float.parseFloat(x.replace(" ", ""));
             }
         }
 
@@ -253,7 +248,7 @@ public class FileUtil {
 
         private void setY(String y) {
             if (!TextUtils.isEmpty(y)) {
-                this.y = Float.valueOf(y.replace(" ", ""));
+                this.y = Float.parseFloat(y.replace(" ", ""));
             }
         }
 
@@ -263,7 +258,7 @@ public class FileUtil {
 
         private void setZ(String z) {
             if (!TextUtils.isEmpty(z)) {
-                this.z = Float.valueOf(z.replace(" ", ""));
+                this.z = Float.parseFloat(z.replace(" ", ""));
             }
         }
     }

@@ -19,8 +19,8 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import com.pandadentist.bleconnection.utils.RunTimeLog;
 import com.pandadentist.bleconnection.utils.Toasts;
-import com.pandadentist.log.RunTimeLog;
 import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.bleconnection.scan.ScanBluetooth;
 import com.pandadentist.bleconnection.utils.Util;

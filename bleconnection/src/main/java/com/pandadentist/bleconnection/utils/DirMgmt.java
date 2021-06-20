@@ -1,11 +1,10 @@
-package com.pandadentist.util;
+package com.pandadentist.bleconnection.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
 
-import com.pandadentist.bleconnection.utils.Logger;
-import com.pandadentist.bleconnection.utils.Util;
-import com.pandadentist.task.Task;
+import com.pandadentist.bleconnection.task.Task;
 
 /**
  * Author: zhangwy(张维亚)
@@ -13,7 +12,8 @@ import com.pandadentist.task.Task;
  * 修改时间：2017/4/7 下午2:27
  * Description: 目录相关
  */
-@SuppressWarnings("unused")
+@SuppressLint("StaticFieldLeak")
+@SuppressWarnings({"unused", "WeakerAccess", "SameParameterValue", "ConstantConditions", "UnusedReturnValue"})
 public class DirMgmt {
 
     private final String ROOT = "";

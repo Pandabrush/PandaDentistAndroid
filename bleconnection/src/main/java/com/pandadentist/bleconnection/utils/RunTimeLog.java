@@ -1,11 +1,9 @@
-package com.pandadentist.log;
+package com.pandadentist.bleconnection.utils;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-
-import com.pandadentist.util.DirMgmt;
 
 import java.util.ArrayList;
 

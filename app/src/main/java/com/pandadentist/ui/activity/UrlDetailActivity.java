@@ -47,7 +47,7 @@ import com.pandadentist.config.Constants;
 import com.pandadentist.entity.DeviceListEntity;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.listener.OnItemClickListener;
-import com.pandadentist.log.RunTimeLog;
+import com.pandadentist.bleconnection.utils.RunTimeLog;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.service.UartService;

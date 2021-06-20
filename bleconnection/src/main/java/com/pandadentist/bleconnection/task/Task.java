@@ -1,4 +1,4 @@
-package com.pandadentist.task;
+package com.pandadentist.bleconnection.task;
 
 import java.util.concurrent.Future;
 

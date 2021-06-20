@@ -14,10 +14,10 @@ import android.widget.TextView;
 
 import com.pandadentist.R;
 import com.pandadentist.listener.OnAutoTestListener;
-import com.pandadentist.log.RunTimeLog;
+import com.pandadentist.bleconnection.utils.RunTimeLog;
 import com.pandadentist.util.BLEProtoProcess;
 import com.pandadentist.bleconnection.utils.Logger;
-import com.pandadentist.util.TimeUtil;
+import com.pandadentist.bleconnection.utils.TimeUtil;
 import com.pandadentist.widget.TopBar;
 import com.pandadentist.widget.recycler.RecyclerAdapter;
 import com.pandadentist.widget.recycler.WRecyclerView;

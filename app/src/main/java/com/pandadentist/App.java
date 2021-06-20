@@ -6,7 +6,7 @@ import android.content.Context;
 import com.pandadentist.bleconnection.utils.Toasts;
 import com.pandadentist.download.DownloadConfiguration;
 import com.pandadentist.download.DownloadManager;
-import com.pandadentist.log.RunTimeLog;
+import com.pandadentist.bleconnection.utils.RunTimeLog;
 import com.pandadentist.util.DensityUtil;
 import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.bleconnection.utils.Util;
