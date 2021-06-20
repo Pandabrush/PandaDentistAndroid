@@ -54,12 +54,11 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
 
     @Override
     public void stopScan() {
-        if (this.scanBluetooth == null) {
-            this.onScanError(Content.CODE_ERROR_BLE_NONSCAN);
-        } else {
-            if (this.scanCanCallback()) {
-                this.scanListener.onScanEnd();
-            }
+        if (this.scanBluetooth != null) {
+            this.scanBluetooth.stopLeScan();
+        }
+        if (this.scanCanCallback()) {
+            this.scanListener.onScanEnd();
         }
     }
 

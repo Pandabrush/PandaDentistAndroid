@@ -9,7 +9,7 @@ package com.pandadentist.bleconnection;
  * use:
  **/
 public class Content {
-    public static final int CODE_ERROR_BLE_NONSCAN = -103;//扫描中
+    public static final int CODE_ERROR_BLE_NONSCAN = -103;//没有扫描
     public static final int CODE_ERROR_BLE_START_SCAN = -104;//启动蓝牙扫描失败
     public static final int CODE_ERROR_BLE_SCANNING = -102;//扫描中
     public static final int CODE_ERROR_BLE_NONSUPPORT = -100;//设备不支持蓝牙
