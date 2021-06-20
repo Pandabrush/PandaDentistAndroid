@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pandadentist.R;
+import com.pandadentist.bleconnection.utils.Toasts;
 import com.pandadentist.config.Constants;
 import com.pandadentist.entity.DeviceListEntity;
 import com.pandadentist.entity.WXEntity;
@@ -141,7 +142,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         this.getDeviceList();
 
         this.scanBluetooth = ScanBluetooth.create();
-        if (this.scanBluetooth.canScan(this)) {
+        if (this.scanBluetooth.canScan()) {
             this.scanBlueDevice();
         }
     }
@@ -224,7 +225,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
 
     private void scanBlueDevice() {
         if (this.scanBluetooth != null) {
-            this.scanBluetooth.startLeScan(this, this);
+            this.scanBluetooth.startLeScan(this);
         }
     }
 
@@ -250,7 +251,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     }
 
     @Override
-    public void onDevice(final BluetoothDevice device) {
+    public void onLeDevice(final BluetoothDevice device) {
         if (device == null)
             return;
         Logger.d("addDevices" + device.getName());
@@ -300,32 +301,24 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         Subscription s = api.bindDevice(mac.replaceAll(":", ""), SPUitl.getToken())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<WXEntity>() {
+                .subscribe(wxEntity -> postDelayedOnUIThread(new Runnable() {
                     @Override
-                    public void call(WXEntity wxEntity) {
-                        postDelayedOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
-                                macAddress = mac;
-                                Bundle b = new Bundle();
-                                b.putString(BluetoothDevice.EXTRA_DEVICE, macAddress);
+                    public void run() {
+                        mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+                        macAddress = mac;
+                        Bundle b = new Bundle();
+                        b.putString(BluetoothDevice.EXTRA_DEVICE, macAddress);
 
-                                Intent result = new Intent();
-                                result.putExtras(b);
-                                setResult(Activity.RESULT_OK, result);
-                                finish();
-                                // 返回首页更新数据
-                            }
-                        });
+                        Intent result = new Intent();
+                        result.putExtras(b);
+                        setResult(Activity.RESULT_OK, result);
+                        finish();
+                        // 返回首页更新数据
                     }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        dismiss();
-                        Toasts.showShort("服务器连接失败！请检查手机网络！");
-                        Log.d("throwable", "throwable-->" + throwable.toString());
-                    }
+                }), throwable -> {
+                    dismiss();
+                    Toasts.showShort("服务器连接失败！请检查手机网络！");
+                    Log.d("throwable", "throwable-->" + throwable.toString());
                 });
         addSubscription(s);
     }

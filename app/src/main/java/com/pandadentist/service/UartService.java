@@ -19,6 +19,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import com.pandadentist.bleconnection.utils.Toasts;
 import com.pandadentist.log.RunTimeLog;
 import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.bleconnection.scan.ScanBluetooth;
@@ -176,7 +177,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
     }
 
     @Override
-    public void onDevice(BluetoothDevice device) {
+    public void onLeDevice(BluetoothDevice device) {
         RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.Result.SUCCESS, device.getAddress() + "-" + device.getName(), Util.getUseTime(scanStartTime));
         String address = device.getAddress();
         if (devices.containsKey(address))
@@ -233,7 +234,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
     public boolean initialize() {
         Logger.d("initialize");
         this.scanBluetooth.stopLeScan();
-        this.scanBluetooth.startLeScan(null, this);
+        this.scanBluetooth.startLeScan(this);
         //For API level 18 and above, get a reference to BluetoothAdapter through BluetoothManager.
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null) {
@@ -300,7 +301,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
                 this.devices.remove(address);
                 Logger.w("Device not found.  Unable to connect.");
                 if (!this.scaning) {
-                    this.scanBluetooth.startLeScan(null, this);
+                    this.scanBluetooth.startLeScan(this);
                 }
                 return;//failed
             }
@@ -316,7 +317,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
             return;
         }
         if (!this.scaning) {
-            this.scanBluetooth.startLeScan(null, this);
+            this.scanBluetooth.startLeScan(this);
         }
     }
 

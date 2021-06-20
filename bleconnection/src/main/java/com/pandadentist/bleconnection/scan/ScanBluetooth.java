@@ -1,19 +1,22 @@
 package com.pandadentist.bleconnection.scan;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
-import com.pandadentist.bleconnection.R;
+import com.pandadentist.bleconnection.entity.BleTypeEntity;
 import com.pandadentist.bleconnection.utils.Logger;
-import com.pandadentist.bleconnection.utils.Toasts;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -30,118 +33,106 @@ public abstract class ScanBluetooth {
         return new ScanBluetoothImpl();
     }
 
-    public abstract boolean support(Activity activity);
+    public abstract boolean support();
 
     /**
-     * 是否能扫描，调用该接口的类需要重写onActivityResult 接收requestCode为REQUESTCODE_FROM_BLUETOOTH_ENABLE参数
+     * 是否能扫描
      *
-     * @param activity 手机不支持蓝牙时关闭界面或者当蓝牙未打开需要去设置界面打开蓝牙
      * @return true 可以执行搜索 反之不能执行搜索
      */
-    public abstract boolean canScan(Activity activity);
+    public abstract boolean canScan();
 
-    /**
-     * 是否能扫描，调用该接口的类需要重写onActivityResult
-     *
-     * @param activity    手机不支持蓝牙时关闭界面或者当蓝牙未打开需要去设置界面打开蓝牙
-     * @param requestCode 启动蓝牙打开界面的requestCode
-     * @return true 可以执行搜索 反之不能执行搜索
-     */
-    public abstract boolean canScan(Activity activity, int requestCode);
+    public abstract boolean isScanning();
 
-    public abstract boolean startLeScan(Activity activity, OnLeScanListener listener);
+    public abstract void setListener(OnLeScanListener listener);
+
+    public abstract boolean startLeScan(OnLeScanListener listener);
 
     public abstract void stopLeScan();
 
     private static class ScanBluetoothImpl extends ScanBluetooth implements BluetoothAdapter.LeScanCallback, Handler.Callback {
-        private final long DELAYED_SCAN = 10000; //蓝牙扫描时长10秒
+        private final String bleTypeJson = "{\"PBRUSH\":{\"title\":\"熊猫刷牙-智能牙刷(默认)\",\"ischild\":false,\"iscyq\":false,\"type\":1},\"Pbrush\":{\"title\":\"熊猫刷牙-二代智能牙刷\",\"ischild\":false,\"iscyq\":false,\"type\":102},\"PBrush\":{\"title\":\"熊猫刷牙-智能牙刷\",\"ischild\":false,\"iscyq\":false,\"type\":101},\"PBRush\":{\"title\":\"熊猫刷牙-儿童牙刷\",\"ischild\":true,\"iscyq\":false,\"type\":110},\"PBCYQX\":{\"title\":\"熊猫刷牙-智能冲牙器\",\"ischild\":false,\"iscyq\":true,\"type\":201},\"pBrush\":{\"title\":\"熊猫刷牙-智能冲牙器\",\"ischild\":false,\"iscyq\":true,\"type\":202}}";
+        private final List<BleTypeEntity> bleTypeEntities = new ArrayList<>();
 
         private final int WHAT_ADD_DEVICE = 100;
-        private final int WHAT_SCAN_TIMEOUT = 101;
         private BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         private Handler handler = new Handler(Looper.getMainLooper(), this);
         private HashMap<String, BluetoothDevice> deviceHashMap = new HashMap<>();
         private OnLeScanListener listener;
         private boolean scaning = false;
 
+        private ScanBluetoothImpl() {
+            try {
+                JSONObject json = new JSONObject(bleTypeJson);
+                Iterator<String> iterator = json.keys();
+                while (iterator != null && iterator.hasNext()) {
+                    String key = iterator.next();
+                    JSONObject typeJson = json.optJSONObject(key);
+                    if (typeJson == null) {
+                        continue;
+                    }
+                    BleTypeEntity entity = new BleTypeEntity();
+                    entity.setPrefix(key);
+                    entity.setTitle(typeJson.optString("title", ""));
+                    entity.setChild(typeJson.optBoolean("ischild", false));
+                    entity.setCyq(typeJson.optBoolean("iscyq", false));
+                    entity.setType(typeJson.optInt("type", 0));
+                    if (entity.getType() < 0 || TextUtils.isEmpty(entity.getPrefix())) {
+                        continue;
+                    }
+                    bleTypeEntities.add(entity);
+                }
+            } catch (JSONException e) {
+                Logger.e("parseBleTypeJson", e);
+            }
+        }
+
         @Override
-        public boolean support(Activity activity) {
+        public boolean support() {
             if (this.adapter == null) {
                 this.adapter = BluetoothAdapter.getDefaultAdapter();
             }
 
-            boolean support = this.adapter != null;
-            if (!support) {
-                Toasts.showLong(R.string.no_supported_bluetooth);
-                if (activity != null) {
-                    activity.finish();
-                }
-            }
-            return support;
+            return this.adapter != null;
         }
 
         @Override
-        public boolean canScan(Activity activity) {
-            return this.canScan(activity, REQUESTCODE_FROM_BLUETOOTH_ENABLE);
-        }
-
-        @Override
-        public boolean canScan(Activity activity, int requestCode) {
-            if (!this.support(activity)) {
+        public boolean canScan() {
+            if (!this.support()) {
                 return false;
             }
-            if (this.adapter.isEnabled()) {
-                return true;
-            }
-            Toasts.showLong(R.string.no_open_bluetooth);
-            if (activity == null) {
-                return false;
-            }
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            activity.startActivityForResult(enableIntent, requestCode);
-            return false;
+            return this.adapter.isEnabled();
         }
 
         @Override
-        public boolean startLeScan(Activity activity, OnLeScanListener listener) {
+        public boolean isScanning() {
+            return this.scaning;
+        }
+
+        @Override
+        public boolean startLeScan(OnLeScanListener listener) {
             this.setListener(listener);
-            return this.canScan(activity) && this.startLeScan();
+            return this.canScan() && this.startLeScan();
         }
 
-        private void setListener(OnLeScanListener listener) {
+        public void setListener(OnLeScanListener listener) {
             this.listener = listener;
         }
 
         private boolean startLeScan() {
-            if (this.scaning) {
-                this.finalStopLeScan(true, false);
-                this.scaning = false;
-            }
             this.deviceHashMap.clear();
-            this.adapter.startLeScan(this);
-            this.handler.sendEmptyMessageDelayed(WHAT_SCAN_TIMEOUT, DELAYED_SCAN);
-            if (this.canCallback()) {
-                this.listener.onLeScanStart();
-            }
-            this.scaning = true;
-            return true;
+            return (this.scaning = this.adapter.startLeScan(this));
         }
 
         @Override
         public void stopLeScan() {
-            this.finalStopLeScan(false, true);
+            this.finalStopLeScan();
         }
 
-        private void finalStopLeScan(boolean auto, boolean callback) {
+        private void finalStopLeScan() {
             this.scaning = false;
             if (this.adapter != null) {
                 this.adapter.stopLeScan(this);
-            }
-            if (this.handler.hasMessages(WHAT_SCAN_TIMEOUT)) {
-                this.handler.removeMessages(WHAT_SCAN_TIMEOUT);
-            }
-            if (this.canCallback() && callback) {
-                this.listener.onLeScanStop(auto);
             }
         }
 
@@ -151,20 +142,21 @@ public abstract class ScanBluetooth {
                 return;
             String name = device.getName();
             Logger.d(String.format(Locale.getDefault(), "addDevices:%1$s", name));
-            if (TextUtils.isEmpty(name) || !name.contains("PBrush"))
+            if (TextUtils.isEmpty(name)) {
                 return;
-            this.handler.sendMessage(this.handler.obtainMessage(WHAT_ADD_DEVICE, device));
+            }
+            for (BleTypeEntity entity : this.bleTypeEntities) {
+                if (name.startsWith(entity.getPrefix())) {
+                    this.handler.sendMessage(this.handler.obtainMessage(WHAT_ADD_DEVICE, device));
+                    break;
+                }
+            }
         }
 
         @Override
         public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case WHAT_SCAN_TIMEOUT:
-                    this.finalStopLeScan(true, true);
-                    break;
-                case WHAT_ADD_DEVICE:
-                    this.addDevice((BluetoothDevice) msg.obj);
-                    break;
+            if (msg.what == WHAT_ADD_DEVICE) {
+                this.addDevice((BluetoothDevice) msg.obj);
             }
             return false;
         }
@@ -177,7 +169,7 @@ public abstract class ScanBluetooth {
                 return;
             deviceHashMap.put(address, device);
             if (this.canCallback()) {
-                this.listener.onDevice(device);
+                this.listener.onLeDevice(device);
             }
         }
 
@@ -187,11 +179,6 @@ public abstract class ScanBluetooth {
     }
 
     public interface OnLeScanListener {
-
-        void onLeScanStart();
-
-        void onDevice(BluetoothDevice device);
-
-        void onLeScanStop(boolean auto);
+        void onLeDevice(BluetoothDevice device);
     }
 }
