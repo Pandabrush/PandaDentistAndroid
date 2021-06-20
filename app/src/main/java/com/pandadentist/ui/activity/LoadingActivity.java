@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.pandadentist.R;
+import com.pandadentist.bleconnection.utils.Toasts;
 import com.pandadentist.config.Constants;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;

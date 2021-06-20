@@ -34,7 +34,7 @@ import java.util.UUID;
  * Service for managing connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "SameParameterValue", "StatementWithEmptyBody"})
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class UartService extends Service implements ScanBluetooth.OnLeScanListener {
 
@@ -80,8 +80,8 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
             if (status == 133) {
                 String address = mBluetoothDeviceAddress;
                 Logger.d("onConnectionStateChange received: " + status);
-                intentAction = ACTION_GATT_STATE133;//TODO:
-                mConnectionState = STATE_DISCONNECTED;//TODO:
+                intentAction = ACTION_GATT_STATE133;//TO DO
+                mConnectionState = STATE_DISCONNECTED;//TO DO
                 close(); // 防止出现status 133
                 broadcastUpdate(intentAction);
                 UartService.this.connect(address);
@@ -170,13 +170,6 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
     }
 
     @Override
-    public void onLeScanStart() {
-        this.scanStartTime = System.currentTimeMillis();
-        this.scaning = true;
-        this.devices.clear();
-    }
-
-    @Override
     public void onLeDevice(BluetoothDevice device) {
         RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.Result.SUCCESS, device.getAddress() + "-" + device.getName(), Util.getUseTime(scanStartTime));
         String address = device.getAddress();
@@ -185,15 +178,6 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
         devices.put(address, device);
         if (!TextUtils.isEmpty(this.connectRemoteDeviceAddress)) {
             this.connectRemoteDevice(this.connectRemoteDeviceAddress);
-        }
-    }
-
-    @Override
-    public void onLeScanStop(boolean auto) {
-        RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.Result.END, "", Util.getUseTime(this.scanStartTime));
-        this.scaning = false;
-        if (!auto) {
-            this.devices.clear();
         }
     }
 
@@ -234,7 +218,14 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
     public boolean initialize() {
         Logger.d("initialize");
         this.scanBluetooth.stopLeScan();
-        this.scanBluetooth.startLeScan(this);
+        this.onLeScanStop();
+        if (this.scanBluetooth.startLeScan(this)) {
+            this.scanStartTime = System.currentTimeMillis();
+            this.scaning = true;
+            this.devices.clear();
+        } else {
+            //TODO
+        }
         //For API level 18 and above, get a reference to BluetoothAdapter through BluetoothManager.
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null) {
@@ -251,12 +242,16 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
         return true;
     }
 
+    public void onLeScanStop() {
+        RunTimeLog.getInstance(this).log(RunTimeLog.LogAction.SCAN, RunTimeLog.Result.END, "", Util.getUseTime(this.scanStartTime));
+        this.scaning = false;
+        this.devices.clear();
+    }
+
     /**
      * Connects to the GATT server hosted on the Bluetooth LE device.
      *
      * @param address The device address of the destination device.
-     * @return Return true if the connection is initiated successfully. The connection result
-     * is reported asynchronously through the
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
      */
@@ -306,6 +301,7 @@ public class UartService extends Service implements ScanBluetooth.OnLeScanListen
                 return;//failed
             }
             this.scanBluetooth.stopLeScan();
+            this.onLeScanStop();
             close();
             // We want to directly connect to the device, so we are setting the autoConnect
             // parameter to false.

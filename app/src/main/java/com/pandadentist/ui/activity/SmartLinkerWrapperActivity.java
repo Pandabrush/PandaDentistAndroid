@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import com.hiflying.smartlink.SmartLinkedModule;
 import com.hiflying.smartlink.v7.MulticastSmartLinkerActivity;
 import com.pandadentist.R;
+import com.pandadentist.bleconnection.utils.Toasts;
 import com.pandadentist.config.Constants;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;

@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.pandadentist.R;
+import com.pandadentist.bleconnection.utils.Toasts;
 import com.pandadentist.config.Constants;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;

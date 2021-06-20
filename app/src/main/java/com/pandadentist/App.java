@@ -3,6 +3,7 @@ package com.pandadentist;
 import android.app.Application;
 import android.content.Context;
 
+import com.pandadentist.bleconnection.utils.Toasts;
 import com.pandadentist.download.DownloadConfiguration;
 import com.pandadentist.download.DownloadManager;
 import com.pandadentist.log.RunTimeLog;

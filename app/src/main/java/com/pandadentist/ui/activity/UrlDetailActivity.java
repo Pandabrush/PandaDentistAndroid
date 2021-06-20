@@ -42,6 +42,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.pandadentist.BuildConfig;
 import com.pandadentist.R;
+import com.pandadentist.bleconnection.utils.Toasts;
 import com.pandadentist.config.Constants;
 import com.pandadentist.entity.DeviceListEntity;
 import com.pandadentist.entity.WXEntity;

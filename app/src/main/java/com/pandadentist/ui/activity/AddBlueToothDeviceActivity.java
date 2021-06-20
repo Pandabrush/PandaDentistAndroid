@@ -24,18 +24,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pandadentist.R;
+import com.pandadentist.bleconnection.BLEManager;
+import com.pandadentist.bleconnection.scan.ScanBluetooth;
+import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.bleconnection.utils.Toasts;
+import com.pandadentist.bleconnection.utils.Util;
 import com.pandadentist.config.Constants;
 import com.pandadentist.entity.DeviceListEntity;
-import com.pandadentist.entity.WXEntity;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.ui.adapter.BlueToothDeviceAdapter;
 import com.pandadentist.util.BLEProtoProcess;
-import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.util.SPUitl;
-import com.pandadentist.bleconnection.scan.ScanBluetooth;
-import com.pandadentist.bleconnection.utils.Util;
 import com.pandadentist.widget.ColorProgressBar;
 import com.pandadentist.widget.RecycleViewDivider;
 
@@ -47,14 +47,14 @@ import java.util.Locale;
 import butterknife.Bind;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
  * Updated by zhangwy on 2017/11/12
  */
 
-public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity implements ScanBluetooth.OnLeScanListener {
+@SuppressWarnings("IntegerDivisionInFloatingPointContext")
+public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity implements BLEManager.OnScanListener {
 
     private static final String EXTRA_HAS_DEVICE = "extraHasDevice";
 
@@ -90,7 +90,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     TextView tvPageSize;
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-    private ScanBluetooth scanBluetooth;
+    private BLEManager bleManager;
     private BluetoothDevice mDevice = null;
     private BlueToothDeviceAdapter mAdapter;
     private HashMap<String, BluetoothDevice> deviceHashMap = new HashMap<>();
@@ -119,7 +119,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         new BLEProtoProcess().setOnZhenListener((zhen, total) -> {
             float percent = zhen / total * 100f;
             int ip = (int) percent;
-            tvPercent.setText(String.format(Locale.getDefault(), "%1$d%", ip));
+            tvPercent.setText(String.format(Locale.getDefault(), "%1$d%%", ip));
             colorProgressBar.setValue(ip);
         });
         //开启动画
@@ -141,10 +141,8 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         this.initView();
         this.getDeviceList();
 
-        this.scanBluetooth = ScanBluetooth.create();
-        if (this.scanBluetooth.canScan()) {
-            this.scanBlueDevice();
-        }
+        this.bleManager = BLEManager.getInstance(this);
+        this.scanBlueDevice();
     }
 
     @Override
@@ -224,37 +222,27 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     }
 
     private void scanBlueDevice() {
-        if (this.scanBluetooth != null) {
-            this.scanBluetooth.startLeScan(this);
+        if (this.bleManager != null) {
+            this.bleManager.scan(this);
         }
     }
 
     private void stopLeScan() {
-        if (this.scanBluetooth != null) {
-            this.scanBluetooth.stopLeScan();
+        if (this.bleManager != null) {
+            this.bleManager.stopScan();
         }
     }
 
     @Override
-    public void onLeScanStart() {
+    public void onScanStart() {
         this.showLoadingView();
     }
 
-    private void showLoadingView() {
-        if (rv != null) {
-            rv.setEnabled(true);
-            ivLoading.startAnimation(circle_anim);
-            llLoading.setVisibility(View.VISIBLE);
-            llLoadingTip.setVisibility(View.VISIBLE);
-            llNotFound.setVisibility(View.GONE);
-        }
-    }
-
     @Override
-    public void onLeDevice(final BluetoothDevice device) {
+    public void onScanDevice(BluetoothDevice device) {
         if (device == null)
             return;
-        Logger.d("addDevices" + device.getName());
+        Logger.d("onScanDevice:" + device.getName());
         runOnUiThread(() -> postDelayedOnUIThread(() -> {
             String address = device.getAddress();
             if (deviceHashMap.containsKey(address))
@@ -268,11 +256,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     }
 
     @Override
-    public void onLeScanStop(boolean auto) {
-        this.scanDeviceFinished();
-    }
-
-    private void scanDeviceFinished() {
+    public void onScanEnd() {
         try {
             if (this.hasDevice()) {
                 showList();
@@ -282,6 +266,23 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             this.mAdapter.replace(this.deviceHashMap.values());
         } catch (Exception e) {
             Logger.e("scanDeviceFinished", e);
+        }
+    }
+
+    @Override
+    public void onScanError(int code) {
+        String message = String.format(Locale.getDefault(), "error code = %d", code);
+        Logger.d(message);
+        Toasts.showLong(message);
+    }
+
+    private void showLoadingView() {
+        if (rv != null) {
+            rv.setEnabled(true);
+            ivLoading.startAnimation(circle_anim);
+            llLoading.setVisibility(View.VISIBLE);
+            llLoadingTip.setVisibility(View.VISIBLE);
+            llNotFound.setVisibility(View.GONE);
         }
     }
 
@@ -301,20 +302,17 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         Subscription s = api.bindDevice(mac.replaceAll(":", ""), SPUitl.getToken())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(wxEntity -> postDelayedOnUIThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
-                        macAddress = mac;
-                        Bundle b = new Bundle();
-                        b.putString(BluetoothDevice.EXTRA_DEVICE, macAddress);
+                .subscribe(wxEntity -> postDelayedOnUIThread(() -> {
+                    mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
+                    macAddress = mac;
+                    Bundle b = new Bundle();
+                    b.putString(BluetoothDevice.EXTRA_DEVICE, macAddress);
 
-                        Intent result = new Intent();
-                        result.putExtras(b);
-                        setResult(Activity.RESULT_OK, result);
-                        finish();
-                        // 返回首页更新数据
-                    }
+                    Intent result = new Intent();
+                    result.putExtras(b);
+                    setResult(Activity.RESULT_OK, result);
+                    finish();
+                    // 返回首页更新数据
                 }), throwable -> {
                     dismiss();
                     Toasts.showShort("服务器连接失败！请检查手机网络！");
