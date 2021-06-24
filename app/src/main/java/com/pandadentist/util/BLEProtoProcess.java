@@ -21,7 +21,7 @@ import java.util.Vector;
  * Created by maya on 17/6/21.
  * Updated by zhangwy on17/11/15
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnnecessaryLocalVariable", "PointlessBitwiseExpression", "StatementWithEmptyBody", "unchecked", "UnusedAssignment", "ManualMinMaxCalculation", "deprecation", "WeakerAccess"})
 public class BLEProtoProcess {
 
     public static final int BLE_DATA_START = 0;
@@ -43,7 +43,7 @@ public class BLEProtoProcess {
     private int datatype = -1;   //定义传输的数据类型        1=请求数据帧，2=请求结果帧，3 过程真   其他暂时无效
     //将此发给服务器，用来判断是什么类型的数据， 并相应解析
 
-    private Map<Integer, byte[]> buffer = Collections.synchronizedMap(new TreeMap<Integer, byte[]>());
+    private Map<Integer, byte[]> buffer = Collections.synchronizedMap(new TreeMap<>());
     private Vector<byte[]> result = new Vector<>();
     private Vector<Integer> missIndex = null;
     private int missedCheckLimit = 0;
@@ -119,7 +119,8 @@ public class BLEProtoProcess {
 
     /**
      * 自动化测试设置
-     * @param enable 1 使能 0 取消使能 
+     *
+     * @param enable true 使能 false 取消使能
      * @return byte[]
      */
     public byte[] autoRestartMode(boolean enable) {

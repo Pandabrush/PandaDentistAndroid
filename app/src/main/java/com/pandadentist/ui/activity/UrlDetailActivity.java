@@ -89,7 +89,7 @@ import static com.pandadentist.config.Constants.ACTIVITY_FOR_RESULT_REQUEST_CODE
 /**
  * zhangwy
  */
-@SuppressWarnings({"unused", "Convert2Lambda", "Anonymous2MethodRef"})
+@SuppressWarnings({"unused", "Convert2Lambda", "Anonymous2MethodRef", "ConstantConditions", "deprecation", "DuplicateBranchesInSwitch"})
 public class UrlDetailActivity extends SwipeRefreshBaseActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback {
 
     public static void start(Context context) {
@@ -282,8 +282,9 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                     if (Util.isEmpty(queries) && !queries.containsKey(USER_KEY))
                         return;
                     String userId = queries.get(USER_KEY);
-                    if (TextUtils.isEmpty(userId))
+                    if (TextUtils.isEmpty(userId)) {
                         return;
+                    }
                     try {
                         DeviceListEntity.DevicesBean devicesBean = findDevice(Integer.parseInt(userId));
                         if (devicesBean != null) {
@@ -438,7 +439,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -467,7 +468,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 break;
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -518,13 +519,14 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 AutoTestActivity.start(this, this.data != null && !this.data.isEmpty(), this.isBltConnect);
                 break;
         }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }
 
     /**
      * 右上角选择菜单
      */
+    @SuppressLint("RtlHardcoded")
     public void popUpMyOverflow() {
         //获取状态栏高度
         Rect frame = new Rect();
@@ -593,8 +595,8 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 mDevicePop.showAtLocation(appbar, Gravity.TOP, 0, yOffset);
             }
             //设置点击事件
-            RecyclerView rv = (RecyclerView) popView.findViewById(R.id.rv);
-            LinearLayout llOutView = (LinearLayout) popView.findViewById(R.id.ll_out_view);
+            RecyclerView rv = popView.findViewById(R.id.rv);
+            LinearLayout llOutView = popView.findViewById(R.id.ll_out_view);
             llOutView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

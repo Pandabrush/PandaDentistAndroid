@@ -14,14 +14,13 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.pandadentist.R;
+import com.pandadentist.bleconnection.utils.Logger;
+import com.pandadentist.bleconnection.utils.Util;
 import com.pandadentist.entity.WXEntity;
 import com.pandadentist.listener.OnModelChangeListener;
 import com.pandadentist.util.BLEProtoProcess;
-import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.util.SPUitl;
-import com.pandadentist.bleconnection.utils.Util;
 import com.pandadentist.widget.ScaleSeekBar;
-import com.pandadentist.widget.TopBar;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import java.util.Locale;
  * Description
  */
 
+@SuppressWarnings("deprecation")
 public class ToothbrushSettingActivity extends BaseActivity implements Handler.Callback, OnModelChangeListener, TabLayout.OnTabSelectedListener {
 
     private static final String EXTRA_BLUE_CONNECT = "blue_connect";
@@ -85,12 +85,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         if (this.hasTopBar()) {
             this.topBar.setLeftVisibility(true);
             this.topBar.setRightVisibility(false);
-            this.topBar.setOnLeftClickListener(new TopBar.OnClickListener() {
-                @Override
-                public void onClick() {
-                    finish();
-                }
-            });
+            this.topBar.setOnLeftClickListener(this::finish);
             this.topBar.setCentreText(R.string.title_toothbrush_setting);
             this.topBar.setCentreTextColor(getResources().getColor(R.color.font_color_toothbrush_default));
         }
@@ -120,12 +115,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         findViewById(R.id.toothbrush_setting_models).setVisibility(View.GONE);
 
         findViewById(R.id.toothbrush_setting_no_device).setVisibility(View.VISIBLE);
-        findViewById(R.id.toothbrush_setting_no_device_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        findViewById(R.id.toothbrush_setting_no_device_button).setOnClickListener(v -> finish());
     }
 
     @Override
@@ -134,8 +124,8 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     }
 
     private void initUserInfo() {
-        ImageView icon = (ImageView) findViewById(R.id.toothbrush_setting_icon);
-        TextView name = (TextView) findViewById(R.id.toothbrush_setting_name);
+        ImageView icon = findViewById(R.id.toothbrush_setting_icon);
+        TextView name = findViewById(R.id.toothbrush_setting_name);
         WXEntity wxEntity = SPUitl.getWXUser();
         if (wxEntity != null) {
             Glide.with(this).load(wxEntity.getInfo().getIcon()).into(icon);
@@ -147,7 +137,7 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     }
 
     private void initTabLayout() {
-        this.tabLayout = (TabLayout) findViewById(R.id.toothbrush_setting_tablayout);
+        this.tabLayout = findViewById(R.id.toothbrush_setting_tablayout);
         this.tabLayout.setOnTabSelectedListener(this);
     }
 
@@ -176,54 +166,44 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     }
 
     private void initTimeSeekBar() {
-        this.timeSeekBar = (ScaleSeekBar) findViewById(R.id.toothbrush_setting_time);
+        this.timeSeekBar = findViewById(R.id.toothbrush_setting_time);
         this.refreshSeekBarDesc(this.timeSeekBar, getString(R.string.toothbrush_time_desc));
         this.timeSeekBarArray = getArray(this.TIME_MIN, this.TIME_MAX, this.TIME_INTERVAL, true);
         this.timeSeekBar.setSections(this.timeSeekBarArray);
         this.timeSeekBar.setProgress(0);
         this.timeSeekBar.canActiveMove(false);
-        this.timeSeekBarListener = new OnSettingSeekBarChangeListener(new SeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress) {
-                timeSeekBarProgress = progress;
-                refreshSeekBarValue(false);
-                requestModelForUser(true);
-            }
+        this.timeSeekBarListener = new OnSettingSeekBarChangeListener((seekBar, progress) -> {
+            timeSeekBarProgress = progress;
+            refreshSeekBarValue(false);
+            requestModelForUser(true);
         });
         this.timeSeekBar.setOnSeekBarChangeListener(this.timeSeekBarListener);
     }
 
     private void initAmplitudeSeekBar() {
-        this.amplitudeSeekBar = (ScaleSeekBar) findViewById(R.id.toothbrush_setting_amplitude);
+        this.amplitudeSeekBar = findViewById(R.id.toothbrush_setting_amplitude);
         this.refreshSeekBarDesc(this.amplitudeSeekBar, getString(R.string.toothbrush_amplitude_desc));
         this.amplitudeSeekBarArray = getArray(this.AMPLITUDE_MIN, this.AMPLITUDE_MAX, this.AMPLITUDE_INTERVAL, false);
         this.amplitudeSeekBar.setSections(this.amplitudeSeekBarArray);
         this.amplitudeSeekBar.setProgress(0);
-        this.amplitudeSeekBarListener = new OnSettingSeekBarChangeListener(new SeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress) {
-                amplitudeSeekBarProgress = progress;
-                refreshSeekBarValue(false);
-                requestModelForUser(false);
-            }
+        this.amplitudeSeekBarListener = new OnSettingSeekBarChangeListener((seekBar, progress) -> {
+            amplitudeSeekBarProgress = progress;
+            refreshSeekBarValue(false);
+            requestModelForUser(false);
         });
         this.amplitudeSeekBar.setOnSeekBarChangeListener(this.amplitudeSeekBarListener);
     }
 
     private void initIntensitySeekBar() {
-        this.intensitySeekBar = (ScaleSeekBar) findViewById(R.id.toothbrush_setting_intensity);
+        this.intensitySeekBar = findViewById(R.id.toothbrush_setting_intensity);
         this.refreshSeekBarDesc(this.intensitySeekBar, getString(R.string.toothbrush_intensity_desc));
         this.intensitySeekBarArray = getArray(this.INTENSITY_MIN, this.INTENSITY_MAX, this.INTENSITY_INTERVAL, true);
         this.intensitySeekBar.setSections(this.intensitySeekBarArray);
         this.intensitySeekBar.setProgress(0);
-        this.intensitySeekBarListener = new OnSettingSeekBarChangeListener(new SeekBarChangeListener() {
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress) {
-                intensitySeekBarProgress = progress;
-                refreshSeekBarValue(false);
-                requestModelForUser(false);
-            }
+        this.intensitySeekBarListener = new OnSettingSeekBarChangeListener((seekBar, progress) -> {
+            intensitySeekBarProgress = progress;
+            refreshSeekBarValue(false);
+            requestModelForUser(false);
         });
         this.intensitySeekBar.setOnSeekBarChangeListener(this.intensitySeekBarListener);
     }
@@ -309,10 +289,8 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
 
     @Override
     public boolean handleMessage(Message msg) {
-        switch (msg.what) {
-            case WHAT_OUT_TIME:
-                this.clearModelChangeListener();
-                break;
+        if (msg.what == WHAT_OUT_TIME) {
+            this.clearModelChangeListener();
         }
         return false;
     }
