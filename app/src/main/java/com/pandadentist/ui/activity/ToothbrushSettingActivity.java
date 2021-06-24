@@ -17,8 +17,8 @@ import com.pandadentist.R;
 import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.bleconnection.utils.Util;
 import com.pandadentist.entity.WXEntity;
-import com.pandadentist.listener.OnModelChangeListener;
-import com.pandadentist.util.BLEProtoProcess;
+import com.pandadentist.bleconnection.listener.OnModelChangeListener;
+import com.pandadentist.bleconnection.utils.BLEProtoProcess;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.widget.ScaleSeekBar;
 

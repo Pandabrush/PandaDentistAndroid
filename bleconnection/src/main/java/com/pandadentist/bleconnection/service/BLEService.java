@@ -45,15 +45,13 @@ import static com.pandadentist.bleconnection.entity.ConnectState.DISCONNECTED;
  * -------------------------------------------------------------------------------------------------
  * use:
  **/
-@SuppressWarnings({"FieldCanBeLocal", "SameParameterValue", "unused", "DanglingJavadoc"})
+@SuppressWarnings({"FieldCanBeLocal", "SameParameterValue", "unused", "DanglingJavadoc", "MismatchedQueryAndUpdateOfCollection"})
 public class BLEService extends Service {
 
     private boolean isDestroy = false;
     private final ScanBluetooth scanBluetooth = ScanBluetooth.create();
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallbackImpl(this);
     private final IBinder mBinder = new LocalBinder(this);
-    private final UUID TX_CHAR_UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
-    private final String EXTRA_DATA = "com.nordicsemi.nrfUART.EXTRA_DATA";
     private final HashMap<String, BluetoothEntity> devices = new HashMap<>();
     private final HashSet<String> connectedDevices = new HashSet<>();
     private final HashSet<String> connectingDevices = new HashSet<>();
@@ -63,12 +61,20 @@ public class BLEService extends Service {
     private long connectStartTime = -1;
     private long disConnectStartTime = -1;
 
-    private String DEVICE_DOES_NOT_SUPPORT_UART = "com.nordicsemi.nrfUART.DEVICE_DOES_NOT_SUPPORT_UART";
-    private String DEVICE_REFRESH_FALG = "com.nordicsemi.nrfUART.DEVICE_REFRESH_FALG";
+    private final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+    private final UUID RX_SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+    private final UUID RX_CHAR_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+    private final UUID TX_CHAR_UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
 
-    private UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-    private UUID RX_SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-    private UUID RX_CHAR_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+    public static final String ACTION_GATT_STATE133 = "com.nordicsemi.nrfUART.ACTION_GATT_STATE133";
+    public static final String ACTION_GATT_DISCONNECTED = "com.nordicsemi.nrfUART.ACTION_GATT_DISCONNECTED";
+    public static final String ACTION_GATT_SERVICES_DISCOVERED = "com.nordicsemi.nrfUART.ACTION_GATT_SERVICES_DISCOVERED";
+    public static final String ACTION_DATA_AVAILABLE = "com.nordicsemi.nrfUART.ACTION_DATA_AVAILABLE";
+    public static final String ACTION_GATT_CONNECTED = "com.nordicsemi.nrfUART.ACTION_GATT_CONNECTED";
+    public static final String EXTRA_DATA = "com.nordicsemi.nrfUART.EXTRA_DATA";
+    public static final String EXTRA_ADDRESS = "com.nordicsemi.nrfUART.EXTRA_ADDRESS";
+    public static final String DEVICE_DOES_NOT_SUPPORT_UART = "com.nordicsemi.nrfUART.DEVICE_DOES_NOT_SUPPORT_UART";
+//    public static final String DEVICE_REFRESH_FALG = "com.nordicsemi.nrfUART.DEVICE_REFRESH_FALG";
 
     @Nullable
     @Override
@@ -304,13 +310,14 @@ public class BLEService extends Service {
         }
     }
 
-    private void broadcastUpdate(final String action) {
+    private void broadcastUpdate(final String action, final String address) {
         Logger.d("broadcastUpdate(final String action)");
         final Intent intent = new Intent(action);
+        intent.putExtra(EXTRA_ADDRESS, address);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
+    private void broadcastUpdate(final String action, final String address, final BluetoothGattCharacteristic characteristic) {
         Logger.d("broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic)");
         final Intent intent = new Intent(action);
 
@@ -320,6 +327,7 @@ public class BLEService extends Service {
         if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
             intent.putExtra(EXTRA_DATA, characteristic.getValue());
         }
+        intent.putExtra(EXTRA_ADDRESS, address);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -355,13 +363,13 @@ public class BLEService extends Service {
         BluetoothGattService RxService = entity.getGatt().getService(RX_SERVICE_UUID);
         if (RxService == null) {
             Logger.e("Rx service not found!");
-            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART, address);
             return;
         }
         BluetoothGattCharacteristic TxChar = RxService.getCharacteristic(TX_CHAR_UUID);
         if (TxChar == null) {
             Logger.e("Tx charateristic not found!");
-            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART, address);
             return;
         }
         entity.getGatt().setCharacteristicNotification(TxChar, true);
@@ -382,13 +390,13 @@ public class BLEService extends Service {
         Logger.e("mBluetoothGatt null" + entity.getGatt());
         if (RxService == null) {
             Logger.e("Rx service not found!");
-            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART, address);
             return;
         }
         BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(RX_CHAR_UUID);
         if (RxChar == null) {
             Logger.e("Rx charateristic not found!");
-            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART, address);
             return;
         }
         RxChar.setValue(value);
@@ -435,11 +443,6 @@ public class BLEService extends Service {
 
     private static class BluetoothGattCallbackImpl extends BluetoothGattCallback {
 
-        private final String ACTION_GATT_STATE133 = "com.nordicsemi.nrfUART.ACTION_GATT_STATE133";
-        private final String ACTION_GATT_DISCONNECTED = "com.nordicsemi.nrfUART.ACTION_GATT_DISCONNECTED";
-        private final String ACTION_GATT_SERVICES_DISCOVERED = "com.nordicsemi.nrfUART.ACTION_GATT_SERVICES_DISCOVERED";
-        private final String ACTION_DATA_AVAILABLE = "com.nordicsemi.nrfUART.ACTION_DATA_AVAILABLE";
-        private final String ACTION_GATT_CONNECTED = "com.nordicsemi.nrfUART.ACTION_GATT_CONNECTED";
         private final int STATUS_133 = 133;
         private final BLEService service;
 
@@ -457,7 +460,7 @@ public class BLEService extends Service {
                 intentAction = ACTION_GATT_STATE133;//TO DO
                 this.service.setState(address, DISCONNECTED);
                 this.service.close(address); //TODO 防止出现status 133
-                this.service.broadcastUpdate(intentAction);
+                this.service.broadcastUpdate(intentAction, address);
                 this.service.connect(address);
                 return;
             }
@@ -465,7 +468,7 @@ public class BLEService extends Service {
                 RunTimeLog.getInstance(this.service).log(RunTimeLog.LogAction.CONNECT, RunTimeLog.Result.SUCCESS, address, Util.getUseTime(this.service.connectStartTime));
                 intentAction = ACTION_GATT_CONNECTED;
                 this.service.setState(address, CONNECTED);
-                this.service.broadcastUpdate(intentAction);
+                this.service.broadcastUpdate(intentAction, address);
                 Logger.i("Connected to GATT server.");
                 // Attempts to discover services after successful connection.
                 Logger.i("Attempting to start service discovery:" + gatt.discoverServices());
@@ -481,16 +484,17 @@ public class BLEService extends Service {
                 this.service.setState(address, DISCONNECTED);
                 Logger.i("Disconnected from GATT server.");
                 this.service.close(address);
-                this.service.broadcastUpdate(intentAction);
+                this.service.broadcastUpdate(intentAction, address);
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             Logger.d("onServicesDiscovered");
+            String address = gatt.getDevice().getAddress();
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Logger.e("mBluetoothGatt = " + gatt);
-                this.service.broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+                this.service.broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED, address);
             } else {
                 Logger.e("onServicesDiscovered received: " + status);
             }
@@ -500,14 +504,16 @@ public class BLEService extends Service {
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Logger.d(String.format(Locale.getDefault(), "onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status = %d)", status));
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                this.service.broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                String address = gatt.getDevice().getAddress();
+                this.service.broadcastUpdate(ACTION_DATA_AVAILABLE, address, characteristic);
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Logger.d("onCharacteristicChanged");
-            this.service.broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+            String address = gatt.getDevice().getAddress();
+            this.service.broadcastUpdate(ACTION_DATA_AVAILABLE, address, characteristic);
         }
 
         @Override

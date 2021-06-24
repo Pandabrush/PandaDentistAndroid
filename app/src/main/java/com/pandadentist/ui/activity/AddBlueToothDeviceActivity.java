@@ -34,7 +34,7 @@ import com.pandadentist.entity.DeviceListEntity;
 import com.pandadentist.network.APIFactory;
 import com.pandadentist.network.APIService;
 import com.pandadentist.ui.adapter.BlueToothDeviceAdapter;
-import com.pandadentist.util.BLEProtoProcess;
+import com.pandadentist.bleconnection.utils.BLEProtoProcess;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.widget.ColorProgressBar;
 import com.pandadentist.widget.RecycleViewDivider;

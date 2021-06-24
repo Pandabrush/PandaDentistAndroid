@@ -14,9 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pandadentist.R;
-import com.pandadentist.listener.OnStateListener;
-import com.pandadentist.listener.OnZhenListener;
-import com.pandadentist.util.BLEProtoProcess;
+import com.pandadentist.bleconnection.listener.OnStateListener;
+import com.pandadentist.bleconnection.listener.OnZhenListener;
+import com.pandadentist.bleconnection.utils.BLEProtoProcess;
 import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.widget.TopBar;
 

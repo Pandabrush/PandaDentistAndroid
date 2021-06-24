@@ -1,11 +1,11 @@
-package com.pandadentist.util;
+package com.pandadentist.bleconnection.utils;
 
 import android.content.Intent;
 
-import com.pandadentist.listener.OnAutoTestListener;
-import com.pandadentist.listener.OnModelChangeListener;
-import com.pandadentist.listener.OnStateListener;
-import com.pandadentist.listener.OnZhenListener;
+import com.pandadentist.bleconnection.listener.OnAutoTestListener;
+import com.pandadentist.bleconnection.listener.OnModelChangeListener;
+import com.pandadentist.bleconnection.listener.OnStateListener;
+import com.pandadentist.bleconnection.listener.OnZhenListener;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

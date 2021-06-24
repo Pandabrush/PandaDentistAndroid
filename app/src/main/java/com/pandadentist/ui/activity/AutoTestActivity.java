@@ -13,9 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pandadentist.R;
-import com.pandadentist.listener.OnAutoTestListener;
+import com.pandadentist.bleconnection.listener.OnAutoTestListener;
 import com.pandadentist.bleconnection.utils.RunTimeLog;
-import com.pandadentist.util.BLEProtoProcess;
+import com.pandadentist.bleconnection.utils.BLEProtoProcess;
 import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.bleconnection.utils.TimeUtil;
 import com.pandadentist.widget.TopBar;

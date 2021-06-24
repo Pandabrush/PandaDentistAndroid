@@ -1,4 +1,6 @@
-package com.pandadentist.util;
+package com.pandadentist.bleconnection.utils;
+
+import android.annotation.SuppressLint;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +22,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 
+@SuppressWarnings({"unused", "WeakerAccess", "MismatchedReadAndWriteOfArray", "PointlessArithmeticExpression", "PointlessBitwiseExpression", "UnusedAssignment", "RedundantThrows", "TryFinallyCanBeTryWithResources", "StringBufferMayBeStringBuilder", "UnnecessaryLocalVariable", "ConstantConditions", "SameParameterValue"})
 public class Bytes {
     private static final String C64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_/="; //default base64.
 
@@ -29,9 +32,9 @@ public class Bytes {
 
     private static final int MASK4 = 0x0f, MASK6 = 0x3f, MASK8 = 0xff;
 
-    private static final Map<Integer, byte[]> DECODE_TABLE_MAP = new ConcurrentHashMap<Integer, byte[]>();
+    private static final Map<Integer, byte[]> DECODE_TABLE_MAP = new ConcurrentHashMap<>();
 
-    private static ThreadLocal<MessageDigest> MD = new ThreadLocal<MessageDigest>();
+    private static ThreadLocal<MessageDigest> MD = new ThreadLocal<>();
 
     static {
         for (int i = 0; i < PRINTCHAR.length; i++) {
@@ -510,15 +513,19 @@ public class Bytes {
      * @return base64 string.
      */
     public static String bytes2base64(final byte[] bs, final int off, final int len, final char[] code) {
-        if (off < 0)
+        if (off < 0) {
             throw new IndexOutOfBoundsException("bytes2base64: offset < 0, offset is " + off);
-        if (len < 0)
+        }
+        if (len < 0) {
             throw new IndexOutOfBoundsException("bytes2base64: length < 0, length is " + len);
-        if (off + len > bs.length)
+        }
+        if (off + len > bs.length) {
             throw new IndexOutOfBoundsException("bytes2base64: offset + length > array length.");
+        }
 
-        if (code.length < 64)
+        if (code.length < 64) {
             throw new IllegalArgumentException("Base64 code length < 64.");
+        }
 
         boolean pad = code.length > 64; // has pad char.
         int num = len / 3, rem = len % 3, r = off, w = 0;
@@ -736,7 +743,7 @@ public class Bytes {
      *
      * @param bytes source.
      * @return compressed byte array.
-     * @throws IOException
+     * @throws IOException "
      */
     public static byte[] zip(byte[] bytes) throws IOException {
         return null;
@@ -747,7 +754,7 @@ public class Bytes {
      *
      * @param bytes compressed byte array.
      * @return byte uncompressed array.
-     * @throws IOException
+     * @throws IOException "
      */
     public static byte[] unzip(byte[] bytes) throws IOException {
         return null;
@@ -856,20 +863,15 @@ public class Bytes {
                     tmp = String.format("%02x", val);
                     s.append(tmp);
                     s.append(" ");
-                    if (val >= 32 && val <= 127)
-                    {
+                    if (val >= 32 && val <= 127) {
                         //char t[32];
                         //snprintf(t, sizeof(t), "%c", val);
                         tmp = String.format("%c", val);
                         text.append(tmp);
-                    }
-                    else
-                    {
+                    } else {
                         text.append(".");
                     }
-                }
-                else
-                {
+                } else {
                     s.append("   ");
                     text.append(" ");
                 }
@@ -892,8 +894,9 @@ public class Bytes {
                 if ((crc & 0x0001) != 0) {
                     crc >>= 1;
                     crc ^= 0xA001;
-                } else
+                } else {
                     crc >>= 1;
+                }
             }
         }
         return (crc);
@@ -905,16 +908,16 @@ public class Bytes {
      * @param key 密钥
      * @param data 明文
      * @return Base64编码的密文
-     * @throws Exception
+     * @throws Exception “
      */
-    public static byte[] des3EncodeECB(String key, byte[] data)
-            throws Exception {
+    public static byte[] des3EncodeECB(String key, byte[] data) throws Exception {
 
         Key deskey = null;
         DESedeKeySpec spec = new DESedeKeySpec(key.getBytes());
         SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("desede");
         deskey = keyfactory.generateSecret(spec);
 
+        @SuppressLint("GetInstance")
         Cipher cipher = Cipher.getInstance("desede" + "/ECB/PKCS5Padding");
 
         cipher.init(Cipher.ENCRYPT_MODE, deskey);
@@ -929,16 +932,16 @@ public class Bytes {
      * @param key 密钥
      * @param data 密文
      * @return 明文
-     * @throws Exception
+     * @throws Exception ”
      */
-    public static byte[] ees3DecodeECB(String key, byte[] data)
-            throws Exception {
+    public static byte[] ees3DecodeECB(String key, byte[] data) throws Exception {
 
         Key deskey = null;
         DESedeKeySpec spec = new DESedeKeySpec(key.getBytes());
         SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("desede");
         deskey = keyfactory.generateSecret(spec);
 
+        @SuppressLint("GetInstance")
         Cipher cipher = Cipher.getInstance("desede" + "/ECB/PKCS5Padding");
 
         cipher.init(Cipher.DECRYPT_MODE, deskey);
@@ -1031,6 +1034,7 @@ public class Bytes {
     }
 
     public static String getFormatDateTime(Date date, String format) {
+        @SuppressLint("SimpleDateFormat")
         DateFormat sdf = new SimpleDateFormat(format);
         try {
             return sdf.format(date);

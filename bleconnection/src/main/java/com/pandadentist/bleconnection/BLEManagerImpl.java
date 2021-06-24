@@ -1,8 +1,19 @@
 package com.pandadentist.bleconnection;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 
+import com.pandadentist.bleconnection.entity.ToothbrushEntity;
 import com.pandadentist.bleconnection.scan.ScanBluetooth;
+import com.pandadentist.bleconnection.service.BLEService;
+import com.pandadentist.bleconnection.utils.Logger;
 
 import java.util.List;
 
@@ -14,10 +25,112 @@ import java.util.List;
  * -------------------------------------------------------------------------------------------------
  * use:
  **/
-public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScanListener {
+public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScanListener, ServiceConnection, BLEBroadcastReceiver.OnReceiverCallback {
 
     private ScanBluetooth scanBluetooth;
     private OnScanListener scanListener;
+    private Context bindContext;
+//    private List<String> connectDevices = new ArrayList<>();
+    private BLEService bleService;
+    private BLEBroadcastReceiver receiver = new BLEBroadcastReceiver(this);
+
+    @Override
+    public void create(Context context) {
+        this.bindContext = context;
+        Intent intent = new Intent(this.bindContext, BLEService.class);
+        context.bindService(intent, this, Context.BIND_AUTO_CREATE);
+        {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(BLEService.ACTION_GATT_CONNECTED);
+            intentFilter.addAction(BLEService.ACTION_GATT_DISCONNECTED);
+            intentFilter.addAction(BLEService.ACTION_GATT_SERVICES_DISCOVERED);
+            intentFilter.addAction(BLEService.ACTION_DATA_AVAILABLE);
+            intentFilter.addAction(BLEService.DEVICE_DOES_NOT_SUPPORT_UART);
+            LocalBroadcastManager.getInstance(this.bindContext).registerReceiver(this.receiver, intentFilter);
+        }
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder binder) {
+        Logger.d("onServiceConnected：" + name.getShortClassName());
+        this.bleService = ((BLEService.LocalBinder) binder).getService();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        Logger.d("onServiceDisconnected：" + name.getShortClassName());
+        this.bleService = null;
+    }
+
+    @Override
+    public void onDisconnected(String address) {
+        //TODO 通知到外面
+    }
+
+    @Override
+    public void onServicesDiscovered(String address) {
+        if (this.invalidService()) {
+            return;
+        }
+        this.bleService.enableTXNotification(address);
+    }
+
+    @Override
+    public void onBleNonSupport(String address) {
+        //TODO
+    }
+
+    @Override
+    public void onReadStart(String address) {
+        //TODO
+    }
+
+    @Override
+    public void onRead(String address, ToothbrushEntity entity) {
+        //TODO
+    }
+
+    @Override
+    public void onWrite(String address, byte[] bytes) {
+        if (this.invalidService()) {
+            return;
+        }
+        this.bleService.writeRXCharacteristic(address, bytes);
+    }
+
+    @Override
+    public void onNoData(String address) {
+        //TODO
+    }
+
+    private boolean invalidService() {
+        return this.bleService == null;
+    }
+
+    @Override
+    public void destroy() {
+//        this.connectDevices.clear();
+        if (!this.invalidService()) {
+            this.bleService.destroy();
+            this.bleService.stopSelf();
+            this.bindContext.unbindService(this);
+        }
+
+        try {
+            LocalBroadcastManager.getInstance(this.bindContext).unregisterReceiver(this.receiver);
+            this.receiver.destroy();
+            this.receiver = null;
+        } catch (Exception e) {
+            Logger.e("unregisterReceiver", e);
+        }
+        this.bindContext = null;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        return adapter != null && adapter.isEnabled();
+    }
 
     @Override
     public void scan(OnScanListener listener) {
@@ -65,38 +178,69 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     }
 
     @Override
-    public void connect(String deviceId) {
-        //TODO
+    public boolean connect(String deviceId) {
+        return this.connect(deviceId, true);
     }
 
     @Override
-    public void connect(String deviceId, boolean increase) {
-        //TODO
+    public boolean connect(String deviceId, boolean increase) {
+        if (!increase) {
+            this.disConnectAll();
+        }
+        if (this.invalidService()) {
+            return false;
+        }
+        return this.bleService.connect(deviceId);
     }
 
     @Override
     public void connect(List<String> devicesId) {
-        //TODO
+        this.connect(devicesId, true);
     }
 
     @Override
     public void connect(List<String> devicesId, boolean increase) {
-        //TODO
+        if (!increase) {
+            this.disConnectAll();
+        }
+        if (this.invalidService()) {
+            return;
+        }
+        for (String deviceId : devicesId) {
+            this.bleService.connect(deviceId);
+        }
     }
 
     @Override
     public void disConnect(String deviceId) {
-        //TODO
+        if (this.invalidService()) {
+            return;
+        }
+        this.bleService.disconnect(deviceId);
     }
 
     @Override
     public void disConnect(List<String> devicesId) {
-        //TODO
+        if (this.invalidService()) {
+            return;
+        }
+        this.bleService.disConnect(devicesId);
     }
 
     @Override
     public void disConnectAll() {
-        //TODO
+        if (this.invalidService()) {
+            return;
+        }
+        this.bleService.disConnectAll();
+    }
+
+    @Override
+    public void syncData(String deviceId) {
+        if (this.receiver == null) {
+            return;
+        }
+        this.receiver.sync(deviceId);
     }
 
     private void onScanError(int code) {
