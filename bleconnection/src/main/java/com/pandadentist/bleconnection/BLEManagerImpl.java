@@ -77,17 +77,17 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
 
     @Override
     public void onBleNonSupport(String address) {
-        //TODO
+        //TODO 通知到外面
     }
 
     @Override
     public void onReadStart(String address) {
-        //TODO
+        //TODO 通知到外面
     }
 
     @Override
     public void onRead(String address, ToothbrushEntity entity) {
-        //TODO
+        //TODO 通知到外面
     }
 
     @Override
@@ -100,7 +100,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
 
     @Override
     public void onNoData(String address) {
-        //TODO
+        //TODO 通知到外面
     }
 
     private boolean invalidService() {
