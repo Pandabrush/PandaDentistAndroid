@@ -141,7 +141,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         this.initView();
         this.getDeviceList();
 
-        this.bleManager = BLEManager.getInstance(this);
+        this.bleManager = BLEManager.getInstance();
         this.scanBlueDevice();
     }
 
