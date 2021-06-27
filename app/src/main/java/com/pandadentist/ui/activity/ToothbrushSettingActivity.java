@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.pandadentist.R;
 import com.pandadentist.bleconnection.BLEManager;
 import com.pandadentist.bleconnection.entity.ToothbrushModeType;
+import com.pandadentist.bleconnection.entity.ToothbrushSettingConfigEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushSettingEntity;
 import com.pandadentist.bleconnection.listener.OnModelChangeListener;
 import com.pandadentist.bleconnection.utils.Logger;
@@ -36,7 +37,7 @@ import java.util.Locale;
  */
 
 @SuppressWarnings("deprecation")
-public class ToothbrushSettingActivity extends BaseActivity implements Handler.Callback, OnModelChangeListener, TabLayout.OnTabSelectedListener, BLEManager.OnToothbrushSettingInfoListener {
+public class ToothbrushSettingActivity extends BaseActivity implements Handler.Callback, OnModelChangeListener, TabLayout.OnTabSelectedListener, BLEManager.OnToothbrushSettingListener {
 
     private static final String EXTRA_BLUE_CONNECT = "blue_connect";
     private static final String EXTRA_BLUE_ADDRESS = "blue_address";
@@ -100,11 +101,8 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         this.initIntensitySeekBar();
         this.refreshSeekBarValue(false);
         this.setSeekBarVisibility(false);
-        BLEManager.getInstance().setToothbrushSettingInfoListener(this);
-        BLEManager.getInstance().getToothbrushSettingConfig(this.address, (deviceId, entity) -> {
-            String json = new Gson().toJson(entity);
-            Logger.d(String.format("setting data : %s", json));
-        });
+        BLEManager.getInstance().setToothbrushSettingListener(this);
+        BLEManager.getInstance().getToothbrushSettingConfig(this.address);
         this.requestModel(0xff, 0, 0, 0, 0);
     }
 
@@ -419,6 +417,12 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
             }
         }
         return min;
+    }
+
+    @Override
+    public void onToothbrushSettingConfig(String deviceId, ToothbrushSettingConfigEntity entity) {
+        String json = new Gson().toJson(entity);
+        Logger.d(String.format("setting data : %s", json));
     }
 
     @Override
