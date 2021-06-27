@@ -8,14 +8,13 @@ import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.pandadentist.bleconnection.entity.ToothbrushEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushInfoEntity;
+import com.pandadentist.bleconnection.parse.Send2Buffer;
+import com.pandadentist.bleconnection.parse.Transfer;
 import com.pandadentist.bleconnection.service.BLEService;
-import com.pandadentist.bleconnection.utils.BLEProtoProcess;
 import com.pandadentist.bleconnection.utils.Logger;
 
 import java.util.HashMap;
-import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * CreateTime 2021/6/24 23:09
@@ -26,16 +25,11 @@ import java.util.TimerTask;
  * use:
  **/
 @SuppressWarnings({"SameParameterValue", "unused"})
-public class BLEBroadcastReceiver extends BroadcastReceiver {
-
+public class BLEBroadcastReceiver extends BroadcastReceiver implements Transfer.OnTransferCallback {
     private boolean destroy = false;
     private OnReceiverCallback callback;
     private Handler handler = new Handler(Looper.getMainLooper());
-    private HashMap<String, BLEProtoProcess> processMap = new HashMap<>();
-    private Timer timer = null;
-    private int timecount = 0;
-    private int runtype = 0;//0-未运行， 1-接收数据过程， 2-核对丢失帧过程
-    private int checkCount = 0;
+    private HashMap<String, Transfer> processMap = new HashMap<>();
 
     public BLEBroadcastReceiver(OnReceiverCallback callback) {
         this.callback = callback;
@@ -77,47 +71,8 @@ public class BLEBroadcastReceiver extends BroadcastReceiver {
             }
 
             case BLEService.ACTION_DATA_AVAILABLE: {
-                timecount = 0;
-                checkCount = 0;
                 final byte[] txValue = intent.getByteArrayExtra(BLEService.EXTRA_DATA);
-                BLEProtoProcess process = process(address);
-                int status = process.interp(txValue);
-                switch (status) {
-                    case BLEProtoProcess.BLE_DATA_START:
-                    case BLEProtoProcess.BLE_RESULT_START:
-                        Logger.d("BLE_DATA_START  and  BLE_RESULT_START");
-                        this.callback.onReadStart(address);
-                        process.setHasrecieved(true);
-                        runtype = 1;
-                        timer = new Timer();
-                        timer.schedule(new DataProcessTimer(address), 0, 200);
-                        break;
-                    case BLEProtoProcess.BLE_DATA_RECEIVER:
-                        break;
-                    case BLEProtoProcess.BLE_DATA_END:
-                    case BLEProtoProcess.BLE_RESULT_END:
-                        Logger.d("BLE_DATA_END  and  BLE_RESULT_END");
-                        runtype = 2;
-                        timecount = 100;
-                        break;
-                    case BLEProtoProcess.BLE_MISSED_RECEIVER:
-                        Logger.d("BLE_MISSED_RECEIVER");
-                        break;
-                    case BLEProtoProcess.BLE_MISSED_END:
-                        Logger.d("丢失帧接受完毕");
-                        timecount = 100;
-                        break;
-                    case BLEProtoProcess.BLE_NO_SYNC://没有同步数据
-                        if (process.isHasrecieved()) {
-                            Logger.d("请求动画");
-                            process.setIsreqenddatas(true);
-                            this.write(address, process.getRequests((byte) 0, (byte) 1));
-                        } else {
-                            Logger.d("没有数据同步");
-                            this.callback.onNoData(address);
-                        }
-                        break;
-                }
+                process(address).transfer(txValue);
                 break;
             }
         }
@@ -136,10 +91,7 @@ public class BLEBroadcastReceiver extends BroadcastReceiver {
     }
 
     public void sync(String address) {
-        BLEProtoProcess process = process(address);
-        this.write(address, process.getRequests((byte) 1, (byte) 0));
-        process.setIsreqenddatas(false);
-        process.setHasrecieved(false);
+        this.write(address, Send2Buffer.dataReq());
     }
 
     public void destroy() {
@@ -154,52 +106,16 @@ public class BLEBroadcastReceiver extends BroadcastReceiver {
     }
 
     private boolean checkData(String address) {
-        checkCount++;
-        try {
-            BLEProtoProcess process = process(address);
-            if (process.checkMissed() && this.checkCount <= 5) {
-                Logger.d("丢帧");
-                this.write(address, process.getMissedRequests());
-                return false;
-            } else {
-                //1.发送请求成功帧  2.把数据交给后台处理
-                Logger.d("数据接收完毕!");
-                this.write(address, process.getCompleted());
-                //------------发送数据到服务器
-                if (process(address).isreqenddatas()) {
-                    if (this.callback != null) {
-                        process.setHasrecieved(false);
-                        process.setIsreqenddatas(false);
-                        ToothbrushEntity entity = ToothbrushEntity.create()
-                                .setDeviceid(address)
-                                .setSoftware(process.getSoftware())
-                                .setFactory(process.getFactory())
-                                .setModel(process.getModel())
-                                .setPower(process.getPower())
-                                .setTime(process.getTime())
-                                .setHardware(process.getHardware())
-                                .setContent(process.getBuffer())
-                                .setDataTyp(process.getDatatype())
-                                .setPageSize(process.getPagesSize()).build();
-                        this.callback.onRead(address, entity);
-                        process.setPageSize(0);
-                    }
-                }
-                return true;
-            }
-        } catch (Exception e) {
-            Logger.e("checkData", e);
-        }
         return true;
     }
 
-    private BLEProtoProcess process(String address) {
-        BLEProtoProcess process = this.processMap.get(address);
-        if (process == null) {
-            process = new BLEProtoProcess();
-            this.processMap.put(address, process);
+    private Transfer process(String address) {
+        Transfer transfer = this.processMap.get(address);
+        if (transfer == null) {
+            transfer = new Transfer(address, this);
+            this.processMap.put(address, transfer);
         }
-        return process;
+        return transfer;
     }
 
     private void write(String address, byte[] value) {
@@ -221,6 +137,21 @@ public class BLEBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
+    @Override
+    public void onSend2BLE(String deviceId, byte[] bytes) {
+        this.write(deviceId, bytes);
+    }
+
+    @Override
+    public void onComplete(String deviceId, ToothbrushInfoEntity tbInfo, ToothbrushEntity tbData) {
+        this.postOnMainThread(() -> {
+            if (callback == null) {
+                return;
+            }
+            callback.onRead(deviceId, tbInfo, tbData);
+        });
+    }
+
     public interface OnReceiverCallback {
 
         void onDisconnected(String address);
@@ -231,42 +162,10 @@ public class BLEBroadcastReceiver extends BroadcastReceiver {
 
         void onReadStart(String address);
 
-        void onRead(String address, ToothbrushEntity entity);
+        void onRead(String address, ToothbrushInfoEntity infoEntity, ToothbrushEntity dataEntity);
 
         void onWrite(String address, byte[] bytes);
 
         void onNoData(String address);
-    }
-
-    private class DataProcessTimer extends TimerTask {
-
-        private final String address;
-
-        private DataProcessTimer(String address) {
-            this.address = address;
-        }
-
-        @Override
-        public void run() {
-            Logger.d(String.format(Locale.getDefault(), "计时器开始执行count:%1$d;runtype:%2$d", timecount, runtype));
-            if (runtype == 0) {//非接收数据过程，什么也不执行，//可以释放timer
-                timecount = 0;
-                if (timer != null) {
-                    timer.cancel();
-                }
-            } else {
-                //1 接收数据    2-核对数据
-                if ((runtype == 1 && timecount >= 10) || (runtype == 2 && timecount >= 4)) {
-                    timecount = 0;
-                    if (checkData(this.address)) {
-                        runtype = 0;
-                        if (timer != null) {
-                            timer.cancel();
-                        }
-                    }
-                }
-                timecount++;
-            }
-        }
     }
 }

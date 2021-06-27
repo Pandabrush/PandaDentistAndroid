@@ -3,8 +3,10 @@ package com.pandadentist.bleconnection;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
-import com.pandadentist.bleconnection.entity.MotorConfigEntity;
-import com.pandadentist.bleconnection.entity.MotorSettingEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushInfoEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushModeType;
+import com.pandadentist.bleconnection.entity.ToothbrushSettingConfigEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushSettingEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushEntity;
 
 import java.util.List;
@@ -95,9 +97,13 @@ public abstract class BLEManager {
 
     public abstract void setConnectListener(OnConnectListener listener);
 
+    public abstract void setToothbrushSettingListener(OnToothbrushSettingListener listener);
+
     public abstract void setToothbrushListener(OnToothbrushDataListener listener);
 
-    public abstract void setMotorListener(OnMotorListener listener);
+    public abstract void getToothbrushSettingConfig(String address);
+
+    public abstract void setToothbrush(String address, ToothbrushModeType modeType, int mode, int pwm, int tclk, int time);
 
     public interface OnScanListener {
         /**
@@ -136,14 +142,26 @@ public abstract class BLEManager {
     public interface OnToothbrushDataListener {
         void onReadStart(String address);
 
-        void onData(String address, ToothbrushEntity entity);
+        void onData(String address, ToothbrushInfoEntity infoEntity, ToothbrushEntity dataEntity);
 
         void onNoData(String address);
     }
 
-    public interface OnMotorListener {
-        void onMotorConfigInfo(String address, MotorConfigEntity entity);
+    public interface OnToothbrushSettingListener {
+        /**
+         * 牙刷设置配置信息
+         *
+         * @param address 牙刷地址
+         * @param entity  设置配置对象
+         */
+        void onToothbrushSettingConfig(String address, ToothbrushSettingConfigEntity entity);
 
-        void onMotorSettingInfo(String address, MotorSettingEntity entity);
+        /**
+         * 牙刷设置信息
+         *
+         * @param address 牙刷地址
+         * @param entity  牙刷设置对象
+         */
+        void onToothbrushSettingInfo(String address, ToothbrushSettingEntity entity);
     }
 }

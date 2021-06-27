@@ -9,7 +9,7 @@ package com.pandadentist.bleconnection.entity;
  * use:
  **/
 @SuppressWarnings("unused")
-public class MotorConfigEntity extends BaseEntity {
+public class ToothbrushSettingConfigEntity extends BaseEntity {
     private String deviceId;
     private boolean standardBash;//电机异常振动警告
     private boolean standardGb;//电机异常振动警告
@@ -64,6 +64,10 @@ public class MotorConfigEntity extends BaseEntity {
 
     public int getMinTime() {
         return minTime;
+    }
+
+    public static Builder create() {
+        return new Builder();
     }
 
     public static class Builder {
@@ -134,8 +138,8 @@ public class MotorConfigEntity extends BaseEntity {
             return this;
         }
 
-        public MotorConfigEntity build() {
-            MotorConfigEntity entity = new MotorConfigEntity();
+        public ToothbrushSettingConfigEntity build() {
+            ToothbrushSettingConfigEntity entity = new ToothbrushSettingConfigEntity();
             entity.deviceId = this.deviceId;
             entity.standardBash = this.standardBash;
             entity.standardGb = this.standardGb;

@@ -11,6 +11,8 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.pandadentist.bleconnection.entity.ToothbrushEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushInfoEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushModeType;
 import com.pandadentist.bleconnection.scan.ScanBluetooth;
 import com.pandadentist.bleconnection.service.BLEService;
 import com.pandadentist.bleconnection.utils.Logger;
@@ -32,7 +34,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     private OnScanListener scanListener;
     private OnConnectListener connectListener;
     private OnToothbrushDataListener dataListener;
-    private OnMotorListener motorListener;
+    private OnToothbrushSettingListener settingListener;
     //    private List<String> connectDevices = new ArrayList<>();
     private BLEService bleService;
     private BLEBroadcastReceiver receiver = new BLEBroadcastReceiver(this);
@@ -99,11 +101,11 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     }
 
     @Override
-    public void onRead(String address, ToothbrushEntity entity) {
+    public void onRead(String address, ToothbrushInfoEntity infoEntity, ToothbrushEntity dataEntity) {
         if (this.dataListener == null) {
             return;
         }
-        this.dataListener.onData(address, entity);
+        this.dataListener.onData(address, infoEntity, dataEntity);
     }
 
     @Override
@@ -146,7 +148,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
         this.bindContext = null;
         this.setConnectListener(null);
         this.setToothbrushListener(null);
-        this.setMotorListener(null);
+        this.setToothbrushSettingListener(null);
     }
 
     @Override
@@ -278,8 +280,18 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     }
 
     @Override
-    public void setMotorListener(OnMotorListener listener) {
-        this.motorListener = listener;
+    public void getToothbrushSettingConfig(String address) {
+        //TODO
+    }
+
+    @Override
+    public void setToothbrush(String address, ToothbrushModeType modeType, int mode, int pwm, int tclk, int time) {
+        //TODO
+    }
+
+    @Override
+    public void setToothbrushSettingListener(OnToothbrushSettingListener listener) {
+        this.settingListener = listener;
     }
 
     private void onScanError(int code) {

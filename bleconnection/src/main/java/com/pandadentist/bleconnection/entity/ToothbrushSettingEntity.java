@@ -9,7 +9,7 @@ package com.pandadentist.bleconnection.entity;
  * use:
  **/
 @SuppressWarnings({"unused"})
-public class MotorSettingEntity extends BaseEntity {
+public class ToothbrushSettingEntity extends BaseEntity {
     private int modeType;
     private int mode;
     private int pwm;
@@ -17,8 +17,8 @@ public class MotorSettingEntity extends BaseEntity {
     private int time;
     private int status;//0:设置成功，1：tclk超出范围；2：pwm超出范围；3：Time超出范围；4：pwm>tclk/2；0xf0：不支持自定义设置
 
-    public MotorModeType getModeType() {
-        return MotorModeType.find(this.modeType);
+    public ToothbrushModeType getModeType() {
+        return ToothbrushModeType.find(this.modeType);
     }
 
     public int getMode() {
@@ -41,6 +41,10 @@ public class MotorSettingEntity extends BaseEntity {
         return status;
     }
 
+    public static Builder create() {
+        return new Builder();
+    }
+
     public static class Builder {
         private int modeType;
         private int mode;
@@ -49,7 +53,7 @@ public class MotorSettingEntity extends BaseEntity {
         private int time;
         private int status;
 
-        public Builder setModeType(MotorModeType modeType) {
+        public Builder setModeType(ToothbrushModeType modeType) {
             this.modeType = modeType.code;
             return this;
         }
@@ -84,8 +88,8 @@ public class MotorSettingEntity extends BaseEntity {
             return this;
         }
 
-        public MotorSettingEntity build() {
-            MotorSettingEntity entity = new MotorSettingEntity();
+        public ToothbrushSettingEntity build() {
+            ToothbrushSettingEntity entity = new ToothbrushSettingEntity();
             entity.modeType = this.modeType;
             entity.mode = this.mode;
             entity.pwm = this.pwm;
