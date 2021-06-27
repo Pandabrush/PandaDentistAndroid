@@ -106,11 +106,9 @@ public abstract class BLEManager {
 
     public abstract void reqData(String deviceId);
 
-    public abstract void setToothbrushSettingInfoListener(OnToothbrushSettingInfoListener listener);
+    public abstract void setToothbrushSettingListener(OnToothbrushSettingListener listener);
 
-    public abstract void getToothbrushSettingConfig(String deviceId, OnToothbrushSettingConfigListener listener);
-
-    public abstract void getToothbrushSettingInfo(String deviceId, OnToothbrushSettingInfoListener listener);
+    public abstract void getToothbrushSettingConfig(String deviceId);
 
     public abstract void getToothbrushSettingInfo(String deviceId);
 
@@ -168,7 +166,7 @@ public abstract class BLEManager {
         void onNoData(String deviceId);
     }
 
-    public interface OnToothbrushSettingConfigListener {
+    public interface OnToothbrushSettingListener {
         /**
          * 牙刷设置配置信息
          *
@@ -176,9 +174,6 @@ public abstract class BLEManager {
          * @param entity   设置配置对象
          */
         void onToothbrushSettingConfig(String deviceId, ToothbrushSettingConfigEntity entity);
-    }
-
-    public interface OnToothbrushSettingInfoListener {
 
         /**
          * 牙刷设置信息

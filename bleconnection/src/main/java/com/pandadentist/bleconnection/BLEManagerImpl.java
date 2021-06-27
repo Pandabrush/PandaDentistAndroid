@@ -40,8 +40,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     private OnScanListener scanListener;
     private OnConnectListener connectListener;
     private OnToothbrushDataListener dataListener;
-    private OnToothbrushSettingConfigListener settingConfigListener;
-    private OnToothbrushSettingInfoListener settingInfoListener;
+    private OnToothbrushSettingListener settingListener;
     private OnToothbrushSetErrorAlertListener errorAlertListener;
     private OnToothbrushRuntimeListener runtimeListener;
     private String lastRuntimeDevice;
@@ -156,10 +155,10 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
 
     @Override
     public void onSettingInfo(String deviceId, ToothbrushSettingEntity settingEntity) {
-        if (this.settingInfoListener == null) {
+        if (this.settingListener == null) {
             return;
         }
-        this.settingInfoListener.onToothbrushSettingInfo(deviceId, settingEntity);
+        this.settingListener.onToothbrushSettingInfo(deviceId, settingEntity);
     }
 
     /**
@@ -173,10 +172,10 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
         if (this.errorAlertListener != null) {
             this.errorAlertListener.onErrorAlertValue(deviceId, configEntity.isStandardBash(), configEntity.isStandardGb());
             this.errorAlertListener = null;
+            return;
         }
-        if (this.settingConfigListener != null) {
-            this.settingConfigListener.onToothbrushSettingConfig(deviceId, configEntity);
-            this.errorAlertListener = null;
+        if (this.settingListener != null) {
+            this.settingListener.onToothbrushSettingConfig(deviceId, configEntity);
         }
     }
 
@@ -206,7 +205,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
         this.setConnectListener(null);
         this.errorAlertListener = null;
         this.setToothbrushListener(null);
-        this.settingConfigListener = null;
+        this.settingListener = null;
     }
 
     @Override
@@ -335,20 +334,13 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     }
 
     @Override
-    public void getToothbrushSettingConfig(String deviceId, OnToothbrushSettingConfigListener listener) {
-        this.settingConfigListener = listener;
+    public void getToothbrushSettingConfig(String deviceId) {
         this.write(deviceId, Command.SETTING_CONFIG);
     }
 
     @Override
-    public void setToothbrushSettingInfoListener(OnToothbrushSettingInfoListener listener) {
-        this.settingInfoListener = listener;
-    }
-
-    @Override
-    public void getToothbrushSettingInfo(String deviceId, OnToothbrushSettingInfoListener listener) {
-        this.setToothbrushSettingInfoListener(listener);
-        this.getToothbrushSettingInfo(deviceId);
+    public void setToothbrushSettingListener(OnToothbrushSettingListener listener) {
+        this.settingListener = listener;
     }
 
     @Override
@@ -370,8 +362,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     @Override
     public void settingFinish(String deviceId) {
         this.write(deviceId, Command.CALLBACK);
-        this.settingInfoListener = null;
-        this.settingConfigListener = null;
+        this.settingListener = null;
         this.errorAlertListener = null;
     }
 
