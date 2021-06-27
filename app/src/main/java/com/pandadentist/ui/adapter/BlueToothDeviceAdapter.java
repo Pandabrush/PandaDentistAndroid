@@ -14,6 +14,7 @@ import com.pandadentist.bleconnection.utils.Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.Bind;
@@ -24,9 +25,11 @@ import butterknife.ButterKnife;
  * Updated by zhangwy on 2017/12/02.
  */
 
+@SuppressWarnings("ConstantConditions")
 public class BlueToothDeviceAdapter extends RecyclerView.Adapter<BlueToothDeviceAdapter.ViewHolder> {
 
     private List<BluetoothDevice> devices = new ArrayList<>();
+    private HashMap<String, Boolean> connected = new HashMap<>();
     private OnItemClickListener<BluetoothDevice> onItemClickListener;
 
     public BlueToothDeviceAdapter() {
@@ -41,14 +44,38 @@ public class BlueToothDeviceAdapter extends RecyclerView.Adapter<BlueToothDevice
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final BluetoothDevice device = devices.get(position);
         holder.tv.setText(device.getName());
-        holder.btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+
+        if (connected.get(device.getAddress())) {
+            holder.req.setVisibility(View.VISIBLE);
+            holder.setting.setVisibility(View.VISIBLE);
+            holder.req.setOnClickListener(v -> {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(v, device, holder.getAdapterPosition());
+                    onItemClickListener.onItemClick(v, device, holder.getAdapterPosition(), 1);
                 }
-            }
-        });
+            });
+            holder.btn.setText("断开连接");
+            holder.btn.setOnClickListener(v -> {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(v, device, holder.getAdapterPosition(), 2);
+                }
+            });
+            holder.setting.setOnClickListener(v -> {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(v, device, holder.getAdapterPosition(), 4);
+                }
+            });
+        } else {
+            holder.req.setVisibility(View.GONE);
+            holder.setting.setVisibility(View.GONE);
+            holder.req.setOnClickListener(null);
+            holder.setting.setOnClickListener(null);
+            holder.btn.setText(R.string.addToothBrush);
+            holder.btn.setOnClickListener(v -> {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onItemClick(v, device, holder.getAdapterPosition(), 3);
+                }
+            });
+        }
     }
 
     @Override
@@ -61,6 +88,10 @@ public class BlueToothDeviceAdapter extends RecyclerView.Adapter<BlueToothDevice
         TextView tv;
         @Bind(R.id.btn_add)
         Button btn;
+        @Bind(R.id.btn_reqData)
+        Button req;
+        @Bind(R.id.btn_setting)
+        Button setting;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -68,12 +99,14 @@ public class BlueToothDeviceAdapter extends RecyclerView.Adapter<BlueToothDevice
         }
     }
 
-    public void replace(Collection<BluetoothDevice> collection) {
-        if (Util.isEmpty(collection)) {
-            return;
-        }
-        this.devices.clear();
-        this.devices.addAll(collection);
+    public void put(BluetoothDevice device) {
+        this.devices.add(device);
+        this.connected.put(device.getAddress(), false);
+        this.notifyDataSetChanged();
+    }
+
+    public void connected(String deviceId, boolean connected) {
+        this.connected.put(deviceId, connected);
         this.notifyDataSetChanged();
     }
 

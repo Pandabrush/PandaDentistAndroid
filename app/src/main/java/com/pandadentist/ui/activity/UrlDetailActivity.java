@@ -510,7 +510,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
                 HelperActivity.start(this, this.data != null && !this.data.isEmpty(), this.isBltConnect);
                 break;
             case R.id.ll_tb_setting:
-                ToothbrushSettingActivity.start(this, this.isBltConnect);
+//                ToothbrushSettingActivity.start(this, this.isBltConnect);
                 break;
             case R.id.ll_about:
                 AboutActivity.start(this);
@@ -608,7 +608,7 @@ public class UrlDetailActivity extends SwipeRefreshBaseActivity implements Navig
             PopDeviceAdapter popDeviceAdapter = new PopDeviceAdapter(data);
             popDeviceAdapter.setOnItemClickListener(new OnItemClickListener<DeviceListEntity.DevicesBean>() {
                 @Override
-                public void onItemClick(View v, DeviceListEntity.DevicesBean bean, int position) {
+                public void onItemClick(View v, DeviceListEntity.DevicesBean bean, int position, int code) {
                     if (bean == null || (!TextUtils.isEmpty(currentMacAddress) && currentMacAddress.replaceAll(":", "").equals(bean.getDeviceid()))) {
                         mDevicePop.dismiss();
                         return;

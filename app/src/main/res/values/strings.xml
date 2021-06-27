@@ -194,6 +194,7 @@
     <!--连接蓝牙-->
     <string name="connect_bluetooth">连接蓝牙</string>
     <string name="help">帮助</string>
+    <string name="stop_scan">停止扫描</string>
     <string name="addToothBrush">绑定</string>
     <string name="bleSentence1">正在搜索附近蓝牙设备</string>
     <string name="bleSentence2">请保持牙刷有电 放在手机附近</string>

@@ -107,4 +107,5 @@ dependencies {
     implementation library.supportV4
     implementation library.supportMediaCompat
     implementation project(path: ':bleconnection')
+    implementation 'com.alibaba:fastjson:1.2.75'
 }

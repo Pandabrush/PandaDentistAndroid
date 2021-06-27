@@ -45,7 +45,7 @@ public class PopDeviceAdapter extends RecyclerView.Adapter<PopDeviceAdapter.View
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(v, db, holder.getAdapterPosition());
+                    onItemClickListener.onItemClick(v, db, holder.getAdapterPosition(), 3);
                 }
             }
         });

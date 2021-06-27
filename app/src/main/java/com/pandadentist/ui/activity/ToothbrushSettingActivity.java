@@ -13,12 +13,15 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 import com.pandadentist.R;
+import com.pandadentist.bleconnection.BLEManager;
+import com.pandadentist.bleconnection.entity.ToothbrushModeType;
+import com.pandadentist.bleconnection.entity.ToothbrushSettingEntity;
+import com.pandadentist.bleconnection.listener.OnModelChangeListener;
 import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.bleconnection.utils.Util;
 import com.pandadentist.entity.WXEntity;
-import com.pandadentist.bleconnection.listener.OnModelChangeListener;
-import com.pandadentist.bleconnection.utils.BLEProtoProcess;
 import com.pandadentist.util.SPUitl;
 import com.pandadentist.widget.ScaleSeekBar;
 
@@ -33,12 +36,14 @@ import java.util.Locale;
  */
 
 @SuppressWarnings("deprecation")
-public class ToothbrushSettingActivity extends BaseActivity implements Handler.Callback, OnModelChangeListener, TabLayout.OnTabSelectedListener {
+public class ToothbrushSettingActivity extends BaseActivity implements Handler.Callback, OnModelChangeListener, TabLayout.OnTabSelectedListener, BLEManager.OnToothbrushSettingInfoListener {
 
     private static final String EXTRA_BLUE_CONNECT = "blue_connect";
+    private static final String EXTRA_BLUE_ADDRESS = "blue_address";
 
-    public static void start(Context context, boolean connect) {
+    public static void start(Context context, String address, boolean connect) {
         Intent intent = new Intent(context, ToothbrushSettingActivity.class);
+        intent.putExtra(EXTRA_BLUE_ADDRESS, address);
         intent.putExtra(EXTRA_BLUE_CONNECT, connect);
         context.startActivity(intent);
     }
@@ -51,7 +56,6 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     private OnSettingSeekBarChangeListener timeSeekBarListener;
     private OnSettingSeekBarChangeListener amplitudeSeekBarListener;
     private OnSettingSeekBarChangeListener intensitySeekBarListener;
-    private BLEProtoProcess bleProtoProcess;
     private OnSettingModelChangeListener onChangeListener;
     private Handler handler = new Handler(this);
     private int timeSeekBarProgress = 0;
@@ -72,15 +76,11 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
     private final int INTENSITY_MIN = 200;
     private final int INTENSITY_MAX = 1800;
     private final int INTENSITY_INTERVAL = 100;
+    private String address;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (UrlDetailActivity.mService != null && !UrlDetailActivity.mService.initialize()) {
-            this.showMessage(R.string.toast_msg_un_initialized_service);
-            finish();
-            return;
-        }
 
         if (this.hasTopBar()) {
             this.topBar.setLeftVisibility(true);
@@ -100,12 +100,18 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
         this.initIntensitySeekBar();
         this.refreshSeekBarValue(false);
         this.setSeekBarVisibility(false);
+        BLEManager.getInstance().setToothbrushSettingInfoListener(this);
+        BLEManager.getInstance().getToothbrushSettingConfig(this.address, (deviceId, entity) -> {
+            String json = new Gson().toJson(entity);
+            Logger.d(String.format("setting data : %s", json));
+        });
         this.requestModel(0xff, 0, 0, 0, 0);
     }
 
     private boolean isConnect() {
         Intent intent = getIntent();
-        return intent != null && intent.hasExtra(EXTRA_BLUE_CONNECT) && intent.getBooleanExtra(EXTRA_BLUE_CONNECT, false);
+        this.address = intent.getStringExtra(EXTRA_BLUE_ADDRESS);
+        return intent.hasExtra(EXTRA_BLUE_CONNECT) && intent.getBooleanExtra(EXTRA_BLUE_CONNECT, false);
     }
 
     private void showNoDevice() {
@@ -265,12 +271,9 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
      */
     private void requestModel(int modelType, int model, int pwm, int tClk, int time) {
 //        this.showMessage(String.format(Locale.getDefault(), "requestModel(modelType:%1$d, model:%2$d, pwm:%3$d, tClk:%4$d, time:%5$d)", modelType, model, pwm, tClk, time));
-        if (this.bleProtoProcess == null)
-            bleProtoProcess = UrlDetailActivity.bleProtoProcess == null ? new BLEProtoProcess() : UrlDetailActivity.bleProtoProcess;
         this.clearModelChangeListener();
+        BLEManager.getInstance().setToothbrush(this.address, ToothbrushModeType.find(modelType), model, pwm, tClk, time);
         this.onChangeListener = new OnSettingModelChangeListener(this);
-        bleProtoProcess.setOnModelChangeListener(this.onChangeListener);
-        UrlDetailActivity.mService.writeRXCharacteristic(bleProtoProcess.getModel((byte) modelType, (short) model, (short) pwm, (short) tClk, (short) time));
         this.sendOutTime();
     }
 
@@ -416,6 +419,12 @@ public class ToothbrushSettingActivity extends BaseActivity implements Handler.C
             }
         }
         return min;
+    }
+
+    @Override
+    public void onToothbrushSettingInfo(String deviceId, ToothbrushSettingEntity entity) {
+        String json = new Gson().toJson(entity);
+        Logger.d(String.format("setting info data : %s", json));
     }
 
     private static class OnSettingModelChangeListener implements OnModelChangeListener {

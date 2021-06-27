@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -25,17 +24,15 @@ import android.widget.Toast;
 
 import com.pandadentist.R;
 import com.pandadentist.bleconnection.BLEManager;
+import com.pandadentist.bleconnection.entity.ToothbrushEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushInfoEntity;
 import com.pandadentist.bleconnection.scan.ScanBluetooth;
+import com.pandadentist.bleconnection.utils.BLEProtoProcess;
 import com.pandadentist.bleconnection.utils.Logger;
 import com.pandadentist.bleconnection.utils.Toasts;
 import com.pandadentist.bleconnection.utils.Util;
-import com.pandadentist.config.Constants;
 import com.pandadentist.entity.DeviceListEntity;
-import com.pandadentist.network.APIFactory;
-import com.pandadentist.network.APIService;
 import com.pandadentist.ui.adapter.BlueToothDeviceAdapter;
-import com.pandadentist.bleconnection.utils.BLEProtoProcess;
-import com.pandadentist.util.SPUitl;
 import com.pandadentist.widget.ColorProgressBar;
 import com.pandadentist.widget.RecycleViewDivider;
 
@@ -45,16 +42,13 @@ import java.util.List;
 import java.util.Locale;
 
 import butterknife.Bind;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Updated by zhangwy on 2017/11/12
  */
 
 @SuppressWarnings("IntegerDivisionInFloatingPointContext")
-public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity implements BLEManager.OnScanListener {
+public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity implements BLEManager.OnScanListener, BLEManager.OnConnectListener, BLEManager.OnToothbrushDataListener {
 
     private static final String EXTRA_HAS_DEVICE = "extraHasDevice";
 
@@ -94,9 +88,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     private BluetoothDevice mDevice = null;
     private BlueToothDeviceAdapter mAdapter;
     private HashMap<String, BluetoothDevice> deviceHashMap = new HashMap<>();
-    private String macAddress;
     private Animation circle_anim;
-    private List<DeviceListEntity.DevicesBean> remoteDevices = new ArrayList<>();
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -111,9 +103,9 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             this.topBar.setLeftVisibility(true);
             this.setOnLeftClickListener();
             this.topBar.setCentreText(R.string.connect_bluetooth);
-            this.topBar.setRightText(R.string.help, false);
+            this.topBar.setRightText(R.string.stop_scan, false);
             this.topBar.setRightTextColor(Color.parseColor("#20CBE7"));
-            this.topBar.setOnRightClickListener(() -> startActivity(new Intent(this, BlueHelperActivity.class)));
+            this.topBar.setOnRightClickListener(() -> bleManager.stopScan());
         }
 
         new BLEProtoProcess().setOnZhenListener((zhen, total) -> {
@@ -142,8 +134,10 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
 //        this.getDeviceList();
 
         this.bleManager = BLEManager.getInstance();
-        this.bleManager.init(this);
+        this.bleManager.initialize(this);
         this.scanBlueDevice();
+        this.bleManager.setConnectListener(this);
+        this.bleManager.setToothbrushListener(this);
     }
 
     @Override
@@ -159,15 +153,23 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.addItemDecoration(new RecycleViewDivider(this, LinearLayoutManager.VERTICAL, 1));
         rv.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener((v, device, position) -> {
+        mAdapter.setOnItemClickListener((v, device, position, code) -> {
+            String deviceAddress = device.getAddress();
             // 先绑定，在连接蓝牙
             // 绑定蓝牙设备
-            if (remoteDevices.size() == 0) {
-                String deviceAddress = device.getAddress();
-                stopLeScan();
-                bindDevice(deviceAddress);
-            } else {
-                Toasts.showShort("一个账户只能绑定一个设备，请先解除绑定！");
+            switch (code) {
+                case 1:
+                    bleManager.reqData(deviceAddress);
+                    break;
+                case 2:
+                    bleManager.disConnect(deviceAddress);
+                    break;
+                case 3:
+                    bindDevice(deviceAddress);
+                    break;
+                case 4:
+                    ToothbrushSettingActivity.start(AddBlueToothDeviceActivity.this, deviceAddress, true);
+                    break;
             }
         });
     }
@@ -249,7 +251,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             if (deviceHashMap.containsKey(address))
                 return;
             deviceHashMap.put(address, device);
-            mAdapter.replace(deviceHashMap.values());
+            mAdapter.put(device);
             if (hasDevice()) {
                 showList();
             }
@@ -264,7 +266,6 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
             } else {
                 showNotFound();
             }
-            this.mAdapter.replace(this.deviceHashMap.values());
         } catch (Exception e) {
             Logger.e("scanDeviceFinished", e);
         }
@@ -302,29 +303,33 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         this.bleManager.connect(mac);
     }
 
-    private void getDeviceList() {
-        showProgress();
-        APIService api = new APIFactory().create(APIService.class);
-        Subscription s = api.getDeviceList(SPUitl.getToken())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(deviceListEntity -> {
-                    dismiss();
-                    if (Constants.SUCCESS == deviceListEntity.getCode()) {
-                        for (DeviceListEntity.DevicesBean db : deviceListEntity.getDevices()) {
-                            if (!db.getDeviceid().contains(":")) {
-                                remoteDevices.add(db);
-                            }
-                        }
-                        Logger.d("size-->" + remoteDevices.size());
-                    } else {
-                        Toasts.showShort(deviceListEntity.getMessage());
-                    }
-                }, throwable -> {
-                    Toasts.showShort("请检查网络!");
-                    dismiss();
-                    Logger.d("getDeviceList", throwable);
-                });
-        addSubscription(s);
+    @Override
+    public void onConnected(String deviceId) {
+        this.mAdapter.connected(deviceId, true);
+    }
+
+    @Override
+    public void onDisConnected(String deviceId) {
+        this.mAdapter.connected(deviceId, false);
+    }
+
+    @Override
+    public void onConnectError(String deviceId, int errorCode) {
+        Logger.d(String.format(Locale.getDefault(), "deviceId:%s;errorCode:%d", deviceId, errorCode));
+    }
+
+    @Override
+    public void onReadStart(String deviceId) {
+        Logger.d(String.format("read data start for device %s", deviceId));
+    }
+
+    @Override
+    public void onData(String deviceId, ToothbrushInfoEntity infoEntity, ToothbrushEntity dataEntity) {
+        Logger.d(String.format("read data end for device %s, and data = %s", deviceId, dataEntity.getContent()));
+    }
+
+    @Override
+    public void onNoData(String deviceId) {
+        Logger.d(String.format("no data for device %s", deviceId));
     }
 }
