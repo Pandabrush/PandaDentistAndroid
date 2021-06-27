@@ -6,6 +6,7 @@ import com.pandadentist.bleconnection.entity.ToothbrushInfoEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushSettingConfigEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushSettingEntity;
 import com.pandadentist.bleconnection.utils.Bytes;
+import com.pandadentist.bleconnection.utils.Logger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -45,11 +46,11 @@ public class Transfer {
     public static final int DEV_MSG_RESULT_END = 12; //结果包结束帧
     public static final int DEV_MSG_RUNTIME_DATA = 20; //实时数据
     public static final int DEV_MSG_RUNTIME_ACK = 21; //实时应答
-    public static final int DEV_MSG_MOTOR_TYPE = 0x80; //电机参数
-    public static final int DEV_MSG_MOTOR_INFO = 0x83; //电机配置
-    public static final int DEV_MSG_INTO = 0xa0; //设备信息
-    public static final int DEV_MSG_ADJUST = 0xb0; //设备校准
-    public static final int DEV_MSG_NO_DATA = 0xff; //无数据返回
+    public static final int DEV_MSG_MOTOR_TYPE = (byte) 0x80; //电机参数
+    public static final int DEV_MSG_MOTOR_INFO = (byte) 0x83; //电机配置
+    public static final int DEV_MSG_INTO = (byte) 0xa0; //设备信息
+    public static final int DEV_MSG_ADJUST = (byte) 0xb0; //设备校准
+    public static final int DEV_MSG_NO_DATA = (byte) 0xff; //无数据返回
 
     ///以下这部分数据，可以开放给外面 供显示传输处理用。
     public UpdateStatus status = new UpdateStatus();
@@ -100,6 +101,9 @@ public class Transfer {
                 this.status.timer = new Timer();  //启动定时器
                 this.status.timer.schedule(new DataProcessTimer(), 0, 200);
                 this.copy2buffer(0, bytes); //放首条内容
+                if (this.callback != null) {
+                    this.callback.onReadStart(this.deviceId);
+                }
                 break;
             case DEV_MSG_DATA_DATA:     //1   数据帧，中间的内容部分
             case DEV_MSG_RESULT_DATA:
@@ -120,8 +124,12 @@ public class Transfer {
                 this.tbInfo.setHardware(data.getShort());     //
                 this.tbInfo.setFactory(data.getShort());
                 this.tbInfo.setModel(data.getShort());
-                if (this.status.result.length > 0 || this.status.resultList.size() > 0) { //如果有数据
+                if (this.status.usableResult() || this.status.usableResultList()) { //如果有数据
                     this.complete();
+                } else {
+                    if (this.callback != null) {
+                        this.callback.onNoData(this.deviceId);
+                    }
                 }
                 break;
             case DEV_MSG_RUNTIME_DATA:   //实时数据
@@ -219,7 +227,6 @@ public class Transfer {
         }
     }
 
-
     //将获取到的结果转为 base64 格式 ，
     private String result2base64() {
         int len = this.status.resultList.size();
@@ -260,6 +267,14 @@ public class Transfer {
         public List<Integer> missIndex = new ArrayList<>();
         public List<byte[]> resultList = new ArrayList<>();
         public byte[] result;
+
+        public boolean usableResult() {
+            return this.result != null && this.result.length > 0;
+        }
+
+        public boolean usableResultList() {
+            return this.resultList != null && this.resultList.size() > 0;
+        }
     }
 
     //定时器部分，定时器100ms执行， 根据当前传输的状态 判断超时时间执行相应的流程
@@ -304,12 +319,12 @@ public class Transfer {
                         status.runType = UP_STA_COMPLETE;    //当前这条同步完成
                         status.timeout = 0;
                         status.remainRecordCount = 0;
+                    } else {    //数据不完整则进入重传
+                        status.runType = UP_STA_RESEND;
+                        status.timeout = 0;
+                        this.resetCount++;
+                        sendBLE(Send2Buffer.dataRemap(status.missIndex));
                     }
-                } else {    //数据不完整则进入重传
-                    status.runType = UP_STA_RESEND;
-                    status.timeout = 0;
-                    this.resetCount++;
-                    sendBLE(Send2Buffer.dataRemap(status.missIndex));
                 }
             }
             status.timeout++;
@@ -319,7 +334,11 @@ public class Transfer {
     public interface OnTransferCallback {
         void onSend2BLE(String deviceId, byte[] bytes);
 
+        void onReadStart(String deviceId);
+
         void onComplete(String deviceId, ToothbrushInfoEntity tbInfo, ToothbrushEntity tbData);
+
+        void onNoData(String deviceId);
 
         void onRuntime(String deviceId, RunTimeEntity runTimeEntity);
 

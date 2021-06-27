@@ -146,12 +146,32 @@ public class BLEBroadcastReceiver extends BroadcastReceiver implements Transfer.
     }
 
     @Override
+    public void onReadStart(String deviceId) {
+        this.postOnMainThread(() -> {
+            if (callback == null) {
+                return;
+            }
+            callback.onReadStart(deviceId);
+        });
+    }
+
+    @Override
     public void onComplete(String deviceId, ToothbrushInfoEntity tbInfo, ToothbrushEntity tbData) {
         this.postOnMainThread(() -> {
             if (callback == null) {
                 return;
             }
             callback.onRead(deviceId, tbInfo, tbData);
+        });
+    }
+
+    @Override
+    public void onNoData(String deviceId) {
+        this.postOnMainThread(() -> {
+            if (callback == null) {
+                return;
+            }
+            callback.onNoData(deviceId);
         });
     }
 

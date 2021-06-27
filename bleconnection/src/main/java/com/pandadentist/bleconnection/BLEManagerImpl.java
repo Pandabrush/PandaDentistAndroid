@@ -160,7 +160,6 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
             return;
         }
         this.settingInfoListener.onToothbrushSettingInfo(deviceId, settingEntity);
-        this.settingInfoListener = null;
     }
 
     /**
