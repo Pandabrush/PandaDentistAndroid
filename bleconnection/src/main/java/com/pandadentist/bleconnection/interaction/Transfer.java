@@ -6,7 +6,6 @@ import com.pandadentist.bleconnection.entity.ToothbrushInfoEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushSettingConfigEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushSettingEntity;
 import com.pandadentist.bleconnection.utils.Bytes;
-import com.pandadentist.bleconnection.utils.Logger;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -108,12 +107,18 @@ public class Transfer {
             case DEV_MSG_DATA_DATA:     //1   数据帧，中间的内容部分
             case DEV_MSG_RESULT_DATA:
             case DEV_MSG_CYQ_DATA:
+                if (this.status.result == null) {
+                    break;
+                }
                 status.timeout = status.runType == UP_STA_RESEND ? 2 : 0;  //如果是重传可以快速进入定时判断
                 this.copy2buffer(index + 1, bytes);   //按位置放各条数据的内容
                 break;
             case DEV_MSG_DATA_END:      //2 数据结束
             case DEV_MSG_RESULT_END:
             case DEV_MSG_CYQ_END:
+                if (this.status.result == null) {
+                    break;
+                }
                 this.copy2buffer(this.status.totalFrame + 1, bytes);  //放最后一条的内容
                 this.status.timeout = 100;              //下一时刻立即进入重传模式判断
                 this.status.runType = UP_STA_RESEND;    //转到重传模式
@@ -236,10 +241,8 @@ public class Transfer {
             totalBytes += this.status.resultList.get(i).length;
         }
         ByteBuffer data = ByteBuffer.allocate(totalBytes).order(ByteOrder.LITTLE_ENDIAN);
-        for (int i = 0; i < len; i++) {   //按每一条
-            for (byte[] item : this.status.resultList) {    //按每一个字节总复制到 data里面
-                data.put(item);
-            }
+        for (byte[] item : this.status.resultList) {    //按每一个字节总复制到 data里面
+            data.put(item);
         }
         return Bytes.bytes2base64(data.array());
     }
