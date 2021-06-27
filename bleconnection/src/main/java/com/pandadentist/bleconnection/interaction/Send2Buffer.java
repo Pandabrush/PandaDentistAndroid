@@ -1,4 +1,4 @@
-package com.pandadentist.bleconnection.parse;
+package com.pandadentist.bleconnection.interaction;
 
 import com.pandadentist.bleconnection.entity.ToothbrushModeType;
 

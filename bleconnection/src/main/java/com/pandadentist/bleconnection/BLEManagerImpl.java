@@ -9,10 +9,16 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 
+import com.pandadentist.bleconnection.entity.RunTimeEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushInfoEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushModeType;
+import com.pandadentist.bleconnection.entity.ToothbrushSettingConfigEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushSettingEntity;
+import com.pandadentist.bleconnection.interaction.Command;
+import com.pandadentist.bleconnection.interaction.Send2Buffer;
 import com.pandadentist.bleconnection.scan.ScanBluetooth;
 import com.pandadentist.bleconnection.service.BLEService;
 import com.pandadentist.bleconnection.utils.Logger;
@@ -34,7 +40,11 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     private OnScanListener scanListener;
     private OnConnectListener connectListener;
     private OnToothbrushDataListener dataListener;
-    private OnToothbrushSettingListener settingListener;
+    private OnToothbrushSettingConfigListener settingConfigListener;
+    private OnToothbrushSettingInfoListener settingInfoListener;
+    private OnToothbrushSetErrorAlertListener errorAlertListener;
+    private OnToothbrushRuntimeListener runtimeListener;
+    private String lastRuntimeDevice;
     //    private List<String> connectDevices = new ArrayList<>();
     private BLEService bleService;
     private BLEBroadcastReceiver receiver = new BLEBroadcastReceiver(this);
@@ -69,59 +79,106 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     }
 
     @Override
-    public void onDisconnected(String address) {
+    public void onConnected(String address) {
         if (this.connectListener == null) {
             return;
         }
-        this.connectListener.onDisConnected(address);
+        this.connectListener.onConnected(address);
     }
 
     @Override
-    public void onServicesDiscovered(String address) {
-        if (this.invalidService()) {
-            return;
-        }
-        this.bleService.enableTXNotification(address);
-    }
-
-    @Override
-    public void onBleNonSupport(String address) {
+    public void onDisconnected(String deviceId) {
         if (this.connectListener == null) {
             return;
         }
-        this.connectListener.onConnectError(address, Content.CODE_ERROR_BLE_NONSUPPORT);
+        this.connectListener.onDisConnected(deviceId);
     }
 
     @Override
-    public void onReadStart(String address) {
-        if (this.dataListener == null) {
-            return;
-        }
-        this.dataListener.onReadStart(address);
-    }
-
-    @Override
-    public void onRead(String address, ToothbrushInfoEntity infoEntity, ToothbrushEntity dataEntity) {
-        if (this.dataListener == null) {
-            return;
-        }
-        this.dataListener.onData(address, infoEntity, dataEntity);
-    }
-
-    @Override
-    public void onWrite(String address, byte[] bytes) {
+    public void onServicesDiscovered(String deviceId) {
         if (this.invalidService()) {
             return;
         }
-        this.bleService.writeRXCharacteristic(address, bytes);
+        this.bleService.enableTXNotification(deviceId);
     }
 
     @Override
-    public void onNoData(String address) {
+    public void onBleNonSupport(String deviceId) {
+        if (this.connectListener == null) {
+            return;
+        }
+        this.connectListener.onConnectError(deviceId, Content.CODE_ERROR_BLE_NONSUPPORT);
+    }
+
+    @Override
+    public void onReadStart(String deviceId) {
         if (this.dataListener == null) {
             return;
         }
-        this.dataListener.onNoData(address);
+        this.dataListener.onReadStart(deviceId);
+    }
+
+    @Override
+    public void onRead(String deviceId, ToothbrushInfoEntity infoEntity, ToothbrushEntity dataEntity) {
+        if (this.dataListener == null) {
+            return;
+        }
+        this.dataListener.onData(deviceId, infoEntity, dataEntity);
+    }
+
+    private void write(String deviceId, Command command) {
+        this.onWrite(deviceId, command.command);
+    }
+
+    @Override
+    public void onWrite(String deviceId, byte[] bytes) {
+        if (this.invalidService()) {
+            return;
+        }
+        this.bleService.writeRXCharacteristic(deviceId, bytes);
+    }
+
+    @Override
+    public void onNoData(String deviceId) {
+        if (this.dataListener == null) {
+            return;
+        }
+        this.dataListener.onNoData(deviceId);
+    }
+
+    @Override
+    public void onRuntime(String deviceId, RunTimeEntity runTimeEntity) {
+        if (this.runtimeListener == null) {
+            return;
+        }
+        this.runtimeListener.onToothbrushRuntime(deviceId, runTimeEntity);
+    }
+
+    @Override
+    public void onSettingInfo(String deviceId, ToothbrushSettingEntity settingEntity) {
+        if (this.settingInfoListener == null) {
+            return;
+        }
+        this.settingInfoListener.onToothbrushSettingInfo(deviceId, settingEntity);
+        this.settingInfoListener = null;
+    }
+
+    /**
+     * 设置错误警告牙刷返回配置信息，所以该回调的逻辑同时处理错误警告的回调，
+     *
+     * @param deviceId     牙刷地址
+     * @param configEntity 牙刷设置配置对象
+     */
+    @Override
+    public void onSettingConfig(String deviceId, ToothbrushSettingConfigEntity configEntity) {
+        if (this.errorAlertListener != null) {
+            this.errorAlertListener.onErrorAlertValue(deviceId, configEntity.isStandardBash(), configEntity.isStandardGb());
+            this.errorAlertListener = null;
+        }
+        if (this.settingConfigListener != null) {
+            this.settingConfigListener.onToothbrushSettingConfig(deviceId, configEntity);
+            this.errorAlertListener = null;
+        }
     }
 
     private boolean invalidService() {
@@ -131,6 +188,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     @Override
     public void destroy() {
         this.stopScan();
+        this.stopRuntime(this.lastRuntimeDevice);
         if (!this.invalidService()) {
             this.bleService.destroy();
             this.bleService.stopSelf();
@@ -144,11 +202,12 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
         } catch (Exception e) {
             Logger.e("unregisterReceiver", e);
         }
-        this.scanListener = null;
         this.bindContext = null;
+        this.scanListener = null;
         this.setConnectListener(null);
+        this.errorAlertListener = null;
         this.setToothbrushListener(null);
-        this.setToothbrushSettingListener(null);
+        this.settingConfigListener = null;
     }
 
     @Override
@@ -262,11 +321,8 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     }
 
     @Override
-    public void syncData(String deviceId) {
-        if (this.receiver == null) {
-            return;
-        }
-        this.receiver.sync(deviceId);
+    public void reqData(String deviceId) {
+        this.write(deviceId, Command.REQ_DATA);
     }
 
     @Override
@@ -280,18 +336,66 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     }
 
     @Override
-    public void getToothbrushSettingConfig(String address) {
-        //TODO
+    public void getToothbrushSettingConfig(String deviceId, OnToothbrushSettingConfigListener listener) {
+        this.settingConfigListener = listener;
+        this.write(deviceId, Command.SETTING_CONFIG);
     }
 
     @Override
-    public void setToothbrush(String address, ToothbrushModeType modeType, int mode, int pwm, int tclk, int time) {
-        //TODO
+    public void setToothbrushSettingInfoListener(OnToothbrushSettingInfoListener listener) {
+        this.settingInfoListener = listener;
     }
 
     @Override
-    public void setToothbrushSettingListener(OnToothbrushSettingListener listener) {
-        this.settingListener = listener;
+    public void getToothbrushSettingInfo(String deviceId, OnToothbrushSettingInfoListener listener) {
+        this.setToothbrushSettingInfoListener(listener);
+        this.getToothbrushSettingInfo(deviceId);
+    }
+
+    @Override
+    public void getToothbrushSettingInfo(String deviceId) {
+        this.write(deviceId, Command.SETTING_VALUE);
+    }
+
+    @Override
+    public void setToothbrush(String deviceId, ToothbrushModeType modeType, int mode, int pwm, int tclk, int time) {
+        this.onWrite(deviceId, Send2Buffer.setting(modeType, mode, pwm, tclk, time));
+    }
+
+    @Override
+    public void setErrorAlert(String deviceId, boolean bash, boolean gb, OnToothbrushSetErrorAlertListener listener) {
+        this.errorAlertListener = listener;
+        this.write(deviceId, Command.ERROR_ALERT.errorAlert(bash, gb));
+    }
+
+    @Override
+    public void settingFinish(String deviceId) {
+        this.write(deviceId, Command.CALLBACK);
+        this.settingInfoListener = null;
+        this.settingConfigListener = null;
+        this.errorAlertListener = null;
+    }
+
+    @Override
+    public void startRuntime(String deviceId, OnToothbrushRuntimeListener listener) {
+        this.stopRuntime(this.lastRuntimeDevice);
+        this.lastRuntimeDevice = deviceId;
+        this.write(deviceId, Command.RUNTIME);
+    }
+
+    @Override
+    public void stopRuntime(String deviceId) {
+        if (TextUtils.isEmpty(deviceId) || !TextUtils.equals(deviceId, this.lastRuntimeDevice)) {
+            return;
+        }
+        this.write(deviceId, Command.CALLBACK);
+        this.runtimeListener = null;
+        this.lastRuntimeDevice = null;
+    }
+
+    @Override
+    public void adjusting(String deviceId) {
+        this.write(deviceId, Command.ADJUSTING);
     }
 
     private void onScanError(int code) {

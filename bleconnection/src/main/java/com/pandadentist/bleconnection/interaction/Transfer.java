@@ -1,5 +1,6 @@
-package com.pandadentist.bleconnection.parse;
+package com.pandadentist.bleconnection.interaction;
 
+import com.pandadentist.bleconnection.entity.RunTimeEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushInfoEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushSettingConfigEntity;
@@ -21,7 +22,7 @@ import java.util.TimerTask;
  * -------------------------------------------------------------------------------------------------
  * use:
  **/
-@SuppressWarnings({"ConstantConditions", "DuplicateBranchesInSwitch", "FieldCanBeLocal", "WeakerAccess", "PointlessBitwiseExpression", "IncompatibleBitwiseMaskOperation", "SwitchStatementWithoutDefaultBranch", "unused"})
+@SuppressWarnings({"ConstantConditions", "DuplicateBranchesInSwitch", "FieldCanBeLocal", "WeakerAccess", "PointlessBitwiseExpression", "IncompatibleBitwiseMaskOperation", "SwitchStatementWithoutDefaultBranch", "unused", "DanglingJavadoc", "UnusedReturnValue"})
 public class Transfer {
     private final int LEN_FRAME = 20;
     //传输的状态
@@ -53,7 +54,6 @@ public class Transfer {
     ///以下这部分数据，可以开放给外面 供显示传输处理用。
     public UpdateStatus status = new UpdateStatus();
     public ToothbrushInfoEntity.Builder tbInfo = ToothbrushInfoEntity.create();   //当前设备信息
-    public RunData runtimeData;    //定义实时过程数据
     public ToothbrushSettingConfigEntity.Builder settingConfigEntity = ToothbrushSettingConfigEntity.create();   //电机配置范围等
     public ToothbrushSettingEntity.Builder settingEntity = ToothbrushSettingEntity.create();    //当前配置内容
     public String deviceId;
@@ -124,14 +124,17 @@ public class Transfer {
                     this.complete();
                 }
                 break;
-
             case DEV_MSG_RUNTIME_DATA:   //实时数据
-                this.runtimeData.rtIndex = index;                   //帧号    由此判断刷牙时间
-                this.runtimeData.rtAngle = (pagenum & (1 << 0)) == 1;   //角度是否正确 0正确 1错误
-                this.runtimeData.rtRange = (pagenum & (1 << 1)) == 1;   //幅度是否正确 0正确 1错误
-                this.runtimeData.rtPressOk = (pagenum & (1 << 2)) == 1; //压力是否正确 0正确 1错误
+                RunTimeEntity runTimeEntity = new RunTimeEntity();
+                runTimeEntity.rtIndex = index;                   //帧号    由此判断刷牙时间
+                runTimeEntity.rtAngle = (pagenum & (1 << 0)) == 1;   //角度是否正确 0正确 1错误
+                runTimeEntity.rtRange = (pagenum & (1 << 1)) == 1;   //幅度是否正确 0正确 1错误
+                runTimeEntity.rtPressOk = (pagenum & (1 << 2)) == 1; //压力是否正确 0正确 1错误
                 for (int i = 0; i < 4; i++) {     //四元数，发给动画
-                    this.runtimeData.rt[i] = data.getFloat();
+                    runTimeEntity.rt[i] = data.getFloat();
+                }
+                if (this.callback != null) {
+                    this.callback.onRuntime(deviceId, runTimeEntity);
                 }
                 break;
             case DEV_MSG_RUNTIME_ACK:
@@ -142,6 +145,9 @@ public class Transfer {
                 this.settingEntity.setTclk(data.getShort());
                 this.settingEntity.setTime(data.getShort());
                 this.settingEntity.setStatus(data.getShort());
+                if (this.callback != null) {
+                    this.callback.onSettingInfo(deviceId, this.settingEntity.build());
+                }
                 break;
             case DEV_MSG_MOTOR_INFO:
                 this.settingConfigEntity.setStandardBash(((pagenum & 0x1) == 1));
@@ -154,6 +160,9 @@ public class Transfer {
                 this.settingConfigEntity.setMinPwn(data.getShort());
                 this.settingConfigEntity.setMaxTime(data.getShort());
                 this.settingConfigEntity.setMinTime(data.getShort());
+                if (this.callback != null) {
+                    this.callback.onSettingConfig(deviceId, this.settingConfigEntity.build());
+                }
                 break;
             case DEV_MSG_INTO:
                 break;
@@ -236,11 +245,6 @@ public class Transfer {
     }
 
     /**********************************************************************************************/
-    public static class RunData {
-        public float[] rt = new float[4];
-        public int rtIndex = -1;
-        public boolean rtPressOk, rtRange, rtAngle;
-    }
 
     /**
      * 上传数据的状态
@@ -316,5 +320,11 @@ public class Transfer {
         void onSend2BLE(String deviceId, byte[] bytes);
 
         void onComplete(String deviceId, ToothbrushInfoEntity tbInfo, ToothbrushEntity tbData);
+
+        void onRuntime(String deviceId, RunTimeEntity runTimeEntity);
+
+        void onSettingInfo(String deviceId, ToothbrushSettingEntity settingEntity);
+
+        void onSettingConfig(String deviceId, ToothbrushSettingConfigEntity configEntity);
     }
 }

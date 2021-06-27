@@ -7,10 +7,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.pandadentist.bleconnection.entity.RunTimeEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushEntity;
 import com.pandadentist.bleconnection.entity.ToothbrushInfoEntity;
-import com.pandadentist.bleconnection.parse.Send2Buffer;
-import com.pandadentist.bleconnection.parse.Transfer;
+import com.pandadentist.bleconnection.entity.ToothbrushSettingConfigEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushSettingEntity;
+import com.pandadentist.bleconnection.interaction.Send2Buffer;
+import com.pandadentist.bleconnection.interaction.Transfer;
 import com.pandadentist.bleconnection.service.BLEService;
 import com.pandadentist.bleconnection.utils.Logger;
 
@@ -56,7 +59,7 @@ public class BLEBroadcastReceiver extends BroadcastReceiver implements Transfer.
             }
             case BLEService.ACTION_GATT_CONNECTED: {
                 Logger.d("writeRXCharacteristic.writeRXCharacteristic");
-                this.postDelayedOnMainThread(() -> this.sync(address), 1000);
+                callback.onConnected(address);
                 break;
             }
 
@@ -152,7 +155,39 @@ public class BLEBroadcastReceiver extends BroadcastReceiver implements Transfer.
         });
     }
 
+    @Override
+    public void onRuntime(String deviceId, RunTimeEntity runTimeEntity) {
+        this.postOnMainThread(() -> {
+            if (callback == null) {
+                return;
+            }
+            callback.onRuntime(deviceId, runTimeEntity);
+        });
+    }
+
+    @Override
+    public void onSettingInfo(String deviceId, ToothbrushSettingEntity settingEntity) {
+        this.postOnMainThread(() -> {
+            if (callback == null) {
+                return;
+            }
+            callback.onSettingInfo(deviceId, settingEntity);
+        });
+    }
+
+    @Override
+    public void onSettingConfig(String deviceId, ToothbrushSettingConfigEntity configEntity) {
+        this.postOnMainThread(() -> {
+            if (callback == null) {
+                return;
+            }
+            callback.onSettingConfig(deviceId, configEntity);
+        });
+    }
+
     public interface OnReceiverCallback {
+
+        void onConnected(String address);
 
         void onDisconnected(String address);
 
@@ -167,5 +202,11 @@ public class BLEBroadcastReceiver extends BroadcastReceiver implements Transfer.
         void onWrite(String address, byte[] bytes);
 
         void onNoData(String address);
+
+        void onRuntime(String deviceId, RunTimeEntity runTimeEntity);
+
+        void onSettingInfo(String deviceId, ToothbrushSettingEntity settingEntity);
+
+        void onSettingConfig(String deviceId, ToothbrushSettingConfigEntity configEntity);
     }
 }
