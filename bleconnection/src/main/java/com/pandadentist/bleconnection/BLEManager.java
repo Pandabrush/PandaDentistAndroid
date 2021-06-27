@@ -3,6 +3,10 @@ package com.pandadentist.bleconnection;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
+import com.pandadentist.bleconnection.entity.MotorConfigEntity;
+import com.pandadentist.bleconnection.entity.MotorSettingEntity;
+import com.pandadentist.bleconnection.entity.ToothbrushEntity;
+
 import java.util.List;
 
 /**
@@ -28,7 +32,7 @@ public abstract class BLEManager {
         return instance;
     }
 
-    public abstract void create(Context context);
+    public abstract void init(Context context);
 
     public abstract void destroy();
 
@@ -89,6 +93,12 @@ public abstract class BLEManager {
 
     public abstract void syncData(String deviceId);
 
+    public abstract void setConnectListener(OnConnectListener listener);
+
+    public abstract void setToothbrushListener(OnToothbrushDataListener listener);
+
+    public abstract void setMotorListener(OnMotorListener listener);
+
     public interface OnScanListener {
         /**
          * 开始扫描
@@ -113,5 +123,27 @@ public abstract class BLEManager {
          * @param code 错误码
          */
         void onScanError(int code);
+    }
+
+    public interface OnConnectListener {
+        void onConnected(String address);
+
+        void onDisConnected(String address);
+
+        void onConnectError(String address, int errorCode);
+    }
+
+    public interface OnToothbrushDataListener {
+        void onReadStart(String address);
+
+        void onData(String address, ToothbrushEntity entity);
+
+        void onNoData(String address);
+    }
+
+    public interface OnMotorListener {
+        void onMotorConfigInfo(String address, MotorConfigEntity entity);
+
+        void onMotorSettingInfo(String address, MotorSettingEntity entity);
     }
 }

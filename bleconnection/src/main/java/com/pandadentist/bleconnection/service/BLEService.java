@@ -107,7 +107,7 @@ public class BLEService extends Service {
             //TODO
             return false;
         }
-        if (this.scanBluetooth.canScan()) {
+        if (!this.scanBluetooth.canScan()) {
             //TODO
             return false;
         }
@@ -156,6 +156,7 @@ public class BLEService extends Service {
             if (entity.getGatt().connect()) {
                 this.connectedDevices.add(address);
                 entity.setState(CONNECTING);
+
                 return true;
             } else {
                 return false;

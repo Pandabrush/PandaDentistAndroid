@@ -27,15 +27,18 @@ import java.util.List;
  **/
 public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScanListener, ServiceConnection, BLEBroadcastReceiver.OnReceiverCallback {
 
+    private Context bindContext;
     private ScanBluetooth scanBluetooth;
     private OnScanListener scanListener;
-    private Context bindContext;
-//    private List<String> connectDevices = new ArrayList<>();
+    private OnConnectListener connectListener;
+    private OnToothbrushDataListener dataListener;
+    private OnMotorListener motorListener;
+    //    private List<String> connectDevices = new ArrayList<>();
     private BLEService bleService;
     private BLEBroadcastReceiver receiver = new BLEBroadcastReceiver(this);
 
     @Override
-    public void create(Context context) {
+    public void init(Context context) {
         this.bindContext = context;
         Intent intent = new Intent(this.bindContext, BLEService.class);
         context.bindService(intent, this, Context.BIND_AUTO_CREATE);
@@ -54,6 +57,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     public void onServiceConnected(ComponentName name, IBinder binder) {
         Logger.d("onServiceConnected：" + name.getShortClassName());
         this.bleService = ((BLEService.LocalBinder) binder).getService();
+        this.bleService.initialize();
     }
 
     @Override
@@ -64,7 +68,10 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
 
     @Override
     public void onDisconnected(String address) {
-        //TODO 通知到外面
+        if (this.connectListener == null) {
+            return;
+        }
+        this.connectListener.onDisConnected(address);
     }
 
     @Override
@@ -77,17 +84,26 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
 
     @Override
     public void onBleNonSupport(String address) {
-        //TODO 通知到外面
+        if (this.connectListener == null) {
+            return;
+        }
+        this.connectListener.onConnectError(address, Content.CODE_ERROR_BLE_NONSUPPORT);
     }
 
     @Override
     public void onReadStart(String address) {
-        //TODO 通知到外面
+        if (this.dataListener == null) {
+            return;
+        }
+        this.dataListener.onReadStart(address);
     }
 
     @Override
     public void onRead(String address, ToothbrushEntity entity) {
-        //TODO 通知到外面
+        if (this.dataListener == null) {
+            return;
+        }
+        this.dataListener.onData(address, entity);
     }
 
     @Override
@@ -100,7 +116,10 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
 
     @Override
     public void onNoData(String address) {
-        //TODO 通知到外面
+        if (this.dataListener == null) {
+            return;
+        }
+        this.dataListener.onNoData(address);
     }
 
     private boolean invalidService() {
@@ -109,7 +128,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
 
     @Override
     public void destroy() {
-//        this.connectDevices.clear();
+        this.stopScan();
         if (!this.invalidService()) {
             this.bleService.destroy();
             this.bleService.stopSelf();
@@ -123,7 +142,11 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
         } catch (Exception e) {
             Logger.e("unregisterReceiver", e);
         }
+        this.scanListener = null;
         this.bindContext = null;
+        this.setConnectListener(null);
+        this.setToothbrushListener(null);
+        this.setMotorListener(null);
     }
 
     @Override
@@ -175,6 +198,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
         if (this.scanCanCallback()) {
             this.scanListener.onScanEnd();
         }
+        this.scanListener = null;
     }
 
     @Override
@@ -241,6 +265,21 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
             return;
         }
         this.receiver.sync(deviceId);
+    }
+
+    @Override
+    public void setConnectListener(OnConnectListener listener) {
+        this.connectListener = listener;
+    }
+
+    @Override
+    public void setToothbrushListener(OnToothbrushDataListener listener) {
+        this.dataListener = listener;
+    }
+
+    @Override
+    public void setMotorListener(OnMotorListener listener) {
+        this.motorListener = listener;
     }
 
     private void onScanError(int code) {

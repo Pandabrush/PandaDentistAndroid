@@ -10,16 +10,19 @@ package com.pandadentist.bleconnection.entity;
  **/
 @SuppressWarnings("unused")
 public class ToothbrushEntity extends BaseEntity {
+    private String id;
     private String deviceid;
     private String content;
+    private int hardware;
     private int software;
     private int factory;
     private int model;
     private int power;
     private int time;
-    private int hardware;
-    private int dataTyp;
-    private int pageSize;
+
+    public String getId() {
+        return id;
+    }
 
     public String getDeviceid() {
         return deviceid;
@@ -27,6 +30,10 @@ public class ToothbrushEntity extends BaseEntity {
 
     public String getContent() {
         return content;
+    }
+
+    public int getHardware() {
+        return hardware;
     }
 
     public int getSoftware() {
@@ -49,33 +56,25 @@ public class ToothbrushEntity extends BaseEntity {
         return time;
     }
 
-    public int getHardware() {
-        return hardware;
-    }
-
-    public int getDataTyp() {
-        return dataTyp;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
     public static Builder create() {
         return new Builder();
     }
 
     public static class Builder {
+        private String id;
         private String deviceid;
         private String content;
+        private int hardware;
         private int software;
         private int factory;
         private int model;
         private int power;
         private int time;
-        private int hardware;
-        private int dataTyp;
-        private int pageSize;
+
+        public Builder setId(String id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder setDeviceid(String deviceid) {
             this.deviceid = deviceid;
@@ -84,6 +83,11 @@ public class ToothbrushEntity extends BaseEntity {
 
         public Builder setContent(String content) {
             this.content = content;
+            return this;
+        }
+
+        public Builder setHardware(int hardware) {
+            this.hardware = hardware;
             return this;
         }
 
@@ -112,33 +116,17 @@ public class ToothbrushEntity extends BaseEntity {
             return this;
         }
 
-        public Builder setHardware(int hardware) {
-            this.hardware = hardware;
-            return this;
-        }
-
-        public Builder setDataTyp(int dataTyp) {
-            this.dataTyp = dataTyp;
-            return this;
-        }
-
-        public Builder setPageSize(int pageSize) {
-            this.pageSize = pageSize;
-            return this;
-        }
-
         public ToothbrushEntity build() {
             ToothbrushEntity entity = new ToothbrushEntity();
+            entity.id = this.id;
             entity.deviceid = this.deviceid;
             entity.content = this.content;
+            entity.hardware = this.hardware;
             entity.software = this.software;
             entity.factory = this.factory;
             entity.model = this.model;
             entity.power = this.power;
             entity.time = this.time;
-            entity.hardware = this.hardware;
-            entity.dataTyp = this.dataTyp;
-            entity.pageSize = this.pageSize;
             return entity;
         }
     }
