@@ -32,7 +32,7 @@ public abstract class BLEManager {
         return instance;
     }
 
-    public abstract void init(Context context);
+    public abstract void initialize(Context context);
 
     public abstract void destroy();
 

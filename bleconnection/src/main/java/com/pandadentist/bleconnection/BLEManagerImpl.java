@@ -38,7 +38,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     private BLEBroadcastReceiver receiver = new BLEBroadcastReceiver(this);
 
     @Override
-    public void init(Context context) {
+    public void initialize(Context context) {
         this.bindContext = context;
         Intent intent = new Intent(this.bindContext, BLEService.class);
         context.bindService(intent, this, Context.BIND_AUTO_CREATE);
