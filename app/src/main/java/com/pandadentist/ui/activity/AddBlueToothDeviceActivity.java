@@ -139,9 +139,10 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
         findViewById(R.id.btn).setOnClickListener(v -> scanBlueDevice());
 
         this.initView();
-        this.getDeviceList();
+//        this.getDeviceList();
 
         this.bleManager = BLEManager.getInstance();
+        this.bleManager.init(this);
         this.scanBlueDevice();
     }
 
@@ -298,27 +299,7 @@ public class AddBlueToothDeviceActivity extends SwipeRefreshBaseActivity impleme
     }
 
     private void bindDevice(final String mac) {
-        APIService api = new APIFactory().create(APIService.class);
-        Subscription s = api.bindDevice(mac.replaceAll(":", ""), SPUitl.getToken())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(wxEntity -> postDelayedOnUIThread(() -> {
-                    mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(mac);
-                    macAddress = mac;
-                    Bundle b = new Bundle();
-                    b.putString(BluetoothDevice.EXTRA_DEVICE, macAddress);
-
-                    Intent result = new Intent();
-                    result.putExtras(b);
-                    setResult(Activity.RESULT_OK, result);
-                    finish();
-                    // 返回首页更新数据
-                }), throwable -> {
-                    dismiss();
-                    Toasts.showShort("服务器连接失败！请检查手机网络！");
-                    Log.d("throwable", "throwable-->" + throwable.toString());
-                });
-        addSubscription(s);
+        this.bleManager.connect(mac);
     }
 
     private void getDeviceList() {

@@ -84,7 +84,8 @@ public class SplashActivity extends SwipeRefreshBaseActivity {
 //        if (SPUitl.firstLaunch(this)) {
 //        } else
         if (!TextUtils.isEmpty(SPUitl.getToken())) {
-            UrlDetailActivity.start(this);
+//            UrlDetailActivity.start(this);
+            AddBlueToothDeviceActivity.start(this, true);
         } else {
             IntentHelper.gotoLogin(SplashActivity.this);
         }
