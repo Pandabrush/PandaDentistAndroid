@@ -162,6 +162,7 @@ public class BLEManagerImpl extends BLEManager implements ScanBluetooth.OnLeScan
     }
 
     /**
+     * TODO
      * 设置错误警告牙刷返回配置信息，所以该回调的逻辑同时处理错误警告的回调，
      *
      * @param deviceId     牙刷地址
